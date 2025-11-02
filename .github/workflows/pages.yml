@@ -24,10 +24,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: fittrack-ua/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm --prefix fittrack-ua ci
+        run: npm ci
 
       - name: Build Angular app
         run: npm run build -- --base-href "/${{ github.event.repository.name }}/"
@@ -36,7 +36,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: fittrack-ua/dist/pwa
+          path: dist/FinPocket/browser
 
   deploy:
     needs: build
