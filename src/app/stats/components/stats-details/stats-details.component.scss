@@ -14,3 +14,13 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   text-align: left;
 }
+
+.stats-details tfoot th {
+  font-weight: 600;
+}
+
+.stats-details__empty {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: rgba(0, 0, 0, 0.6);
+}

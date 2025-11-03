@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
+import { TransactionsStore } from '../../../finance/services/transactions.store';
 
 interface ChartCard {
   title: string;
@@ -16,24 +17,54 @@ interface ChartCard {
   styleUrls: ['./stats-list.component.scss'],
 })
 export class StatsListComponent {
-  readonly charts: ChartCard[] = [
-    {
-      title: 'Расходы за месяц',
-      value: '164 200 ₽',
-      trend: 'down',
-      description: 'На 4% меньше, чем в феврале',
-    },
-    {
-      title: 'Долговая нагрузка',
-      value: '22%',
-      trend: 'stable',
-      description: 'В пределах рекомендованного коридора',
-    },
-    {
-      title: 'Потребление энергии',
-      value: '215 кВт·ч',
-      trend: 'up',
-      description: 'Рост из-за отопительного сезона',
-    },
-  ];
+  private readonly transactionsStore = inject(TransactionsStore);
+
+  readonly charts = computed<ChartCard[]>(() => {
+    const current = this.transactionsStore.currentMonthTotals();
+    const previous = this.transactionsStore.previousMonthTotals();
+
+    const formatCurrency = (value: number) =>
+      new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        maximumFractionDigits: 0,
+      }).format(Math.round(value));
+
+    const formatNet = (value: number) => {
+      const formatted = formatCurrency(Math.abs(value));
+      return value >= 0 ? formatted : `−${formatted}`;
+    };
+
+    return [
+      {
+        title: 'Расходы за месяц',
+        value: formatCurrency(current.expenses),
+        trend: this.transactionsStore.trend(current.expenses, previous.expenses),
+        description: this.transactionsStore.describeChange(
+          current.expenses,
+          previous.expenses,
+          'расходах',
+          true
+        ),
+      },
+      {
+        title: 'Доходы за месяц',
+        value: formatCurrency(current.income),
+        trend: this.transactionsStore.trend(current.income, previous.income),
+        description: this.transactionsStore.describeChange(current.income, previous.income, 'доходах'),
+      },
+      {
+        title: 'Чистый результат',
+        value: formatNet(current.net),
+        trend: this.transactionsStore.trend(current.net, previous.net),
+        description: this.transactionsStore.describeChange(
+          current.net,
+          previous.net,
+          'чистом результате'
+        ),
+      },
+    ];
+  });
+
+  readonly hasTransactions = computed(() => this.transactionsStore.transactions().length > 0);
 }

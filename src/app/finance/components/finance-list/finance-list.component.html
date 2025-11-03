@@ -14,30 +14,38 @@
   <section class="finance-list__summary" aria-label="Баланс">
     <mat-card>
       <mat-card-title>Баланс</mat-card-title>
-      <p>{{ balance | number:'1.2-2' }} ₽</p>
+      <p>{{ balance() | number:'1.2-2' }} ₽</p>
     </mat-card>
     <mat-card>
       <mat-card-title>Доходы</mat-card-title>
-      <p>{{ income | number:'1.2-2' }} ₽</p>
+      <p>{{ income() | number:'1.2-2' }} ₽</p>
     </mat-card>
     <mat-card>
       <mat-card-title>Расходы</mat-card-title>
-      <p>{{ expenses | number:'1.2-2' }} ₽</p>
+      <p>{{ expenses() | number:'1.2-2' }} ₽</p>
     </mat-card>
   </section>
 
   <mat-card>
     <mat-card-title>Последние операции</mat-card-title>
-    <mat-list>
-      <mat-list-item *ngFor="let transaction of transactions">
+    <mat-list *ngIf="transactions().length; else emptyTransactions">
+      <mat-list-item *ngFor="let transaction of transactions()">
         <div matListItemTitle>{{ transaction.description }}</div>
         <div matListItemLine>
-          {{ transaction.category }} • {{ transaction.account }} • {{ transaction.date | date:'d MMMM' }}
+          {{ transaction.category }} • {{ transaction.account }} •
+          {{ transaction.occurredAt | date:'d MMMM' }}
         </div>
-        <div matListItemMeta [class.finance-list__amount-positive]="transaction.amount > 0">
+        <div
+          matListItemMeta
+          [class.finance-list__amount-positive]="transaction.amount > 0"
+          [class.finance-list__amount-negative]="transaction.amount < 0"
+        >
           {{ transaction.amount | number:'1.2-2' }} {{ transaction.currency }}
         </div>
       </mat-list-item>
     </mat-list>
+    <ng-template #emptyTransactions>
+      <div class="finance-list__empty">Добавьте первую операцию, чтобы увидеть статистику</div>
+    </ng-template>
   </mat-card>
 </section>
