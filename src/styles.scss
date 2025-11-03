@@ -4,6 +4,27 @@
 
 @include finpocket-theme.apply();
 
+// Материальные иконки рендерятся через новую гарнитуру Material Symbols,
+// поэтому переопределяем шрифт и вариации для mat-icon, чтобы символы отображались.
+.mat-icon {
+  font-family: 'Material Symbols Rounded' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
