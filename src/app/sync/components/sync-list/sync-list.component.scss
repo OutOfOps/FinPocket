@@ -1,0 +1,16 @@
+.sync-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sync-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sync-list th,
+.sync-list td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+}

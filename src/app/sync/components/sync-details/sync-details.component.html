@@ -1,0 +1,25 @@
+<section class="sync-details">
+  <header>
+    <h2>Подробности восстановления</h2>
+    <p>Последние операции синхронизации для контроля качества резервирования.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>Последнее восстановление</mat-card-title>
+    <ul>
+      <li><strong>Запрос:</strong> {{ lastRestore.requestedAt | date:'d MMMM yyyy, HH:mm' }}</li>
+      <li><strong>Длительность:</strong> {{ lastRestore.duration }}</li>
+      <li><strong>Статус:</strong> {{ lastRestore.status }}</li>
+    </ul>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>Проверки целостности</mat-card-title>
+    <ul>
+      <li *ngFor="let check of integrityChecks">
+        <span>{{ check.label }}</span>
+        <strong>{{ check.result }}</strong>
+      </li>
+    </ul>
+  </mat-card>
+</section>

@@ -1,0 +1,38 @@
+<section class="meters-edit">
+  <header>
+    <h2>Передача показаний</h2>
+    <p>Передайте актуальные данные по ресурсам в пару кликов.</p>
+  </header>
+
+  <form (ngSubmit)="submit()" #meterForm="ngForm" class="meters-edit__form">
+    <label>
+      Объект
+      <select name="object" [(ngModel)]="form.object">
+        <option *ngFor="let object of objectOptions" [value]="object">{{ object }}</option>
+      </select>
+    </label>
+
+    <fieldset>
+      <legend>Тип ресурса</legend>
+      <mat-button-toggle-group name="type" [value]="form.type" (change)="updateType($event.value)">
+        <mat-button-toggle *ngFor="let option of typeOptions" [value]="option.type">
+          {{ option.label }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </fieldset>
+
+    <label>
+      Значение ({{ form.unit }})
+      <input type="number" name="value" [(ngModel)]="form.value" min="0" required />
+    </label>
+
+    <label>
+      Дата передачи
+      <input type="date" name="submittedAt" [(ngModel)]="form.submittedAt" />
+    </label>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="meterForm.invalid">
+      Отправить показания
+    </button>
+  </form>
+</section>

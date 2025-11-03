@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { SharedListComponent } from './components/shared-list/shared-list.component';
+import { SharedEditComponent } from './components/shared-edit/shared-edit.component';
+import { SharedDetailsComponent } from './components/shared-details/shared-details.component';
 
 const MATERIAL_MODULES = [
   MatToolbarModule,
@@ -21,10 +26,14 @@ const MATERIAL_MODULES = [
   MatDividerModule,
   MatButtonToggleModule,
   MatSlideToggleModule,
+  MatChipsModule,
 ];
 
+const SHARED_COMPONENTS = [SharedListComponent, SharedEditComponent, SharedDetailsComponent];
+
 @NgModule({
-  imports: [CommonModule, RouterModule, ...MATERIAL_MODULES],
-  exports: [CommonModule, RouterModule, ...MATERIAL_MODULES],
+  declarations: [...SHARED_COMPONENTS],
+  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES],
+  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_COMPONENTS],
 })
 export class SharedModule {}

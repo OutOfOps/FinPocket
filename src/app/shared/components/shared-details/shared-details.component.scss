@@ -1,0 +1,10 @@
+.shared-details {
+  display: grid;
+  gap: 1rem;
+}
+
+.shared-details ul {
+  list-style: disc inside;
+  display: grid;
+  gap: 0.5rem;
+}

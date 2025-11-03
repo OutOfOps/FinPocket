@@ -1,0 +1,20 @@
+<section class="debts-list">
+  <header>
+    <h2>Список долгов</h2>
+    <p>Контролируйте обязательства и следите за статусами выплат.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>Текущие долги</mat-card-title>
+    <mat-list>
+      <mat-list-item *ngFor="let debt of debts">
+        <div matListItemTitle>{{ debt.name }}</div>
+        <div matListItemLine>Срок: {{ debt.dueDate | date:'d MMMM yyyy' }}</div>
+        <div matListItemLine>Статус: {{ statusLabel(debt.status) }}</div>
+        <div matListItemMeta [ngClass]="'debts-list__status-' + debt.status">
+          {{ debt.amount | number:'1.0-0' }} {{ debt.currency }}
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </mat-card>
+</section>

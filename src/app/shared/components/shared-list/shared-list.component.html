@@ -1,0 +1,9 @@
+<section class="shared-list">
+  <h2>Общие компоненты</h2>
+  <mat-list>
+    <mat-list-item *ngFor="let utility of utilities">
+      <div matListItemTitle>{{ utility.name }}</div>
+      <div matListItemLine>{{ utility.description }}</div>
+    </mat-list-item>
+  </mat-list>
+</section>

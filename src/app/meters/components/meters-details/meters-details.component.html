@@ -1,0 +1,16 @@
+<section class="meters-details">
+  <header>
+    <h2>Детализация потребления</h2>
+    <p>Сравните периоды и найдите отклонения в потреблении энергии.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>История по периодам</mat-card-title>
+    <ul>
+      <li *ngFor="let entry of history">
+        <span>{{ entry.period }}</span>
+        <strong>{{ entry.consumption }} {{ entry.unit }}</strong>
+      </li>
+    </ul>
+  </mat-card>
+</section>

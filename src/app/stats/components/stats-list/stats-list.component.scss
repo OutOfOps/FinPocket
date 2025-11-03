@@ -1,0 +1,40 @@
+.stats-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.stats-list__grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.stats-list__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.stats-list__trend {
+  margin: 0;
+}
+
+.stats-list__trend--up {
+  color: #1a73e8;
+}
+
+.stats-list__trend--down {
+  color: #008f5a;
+}
+
+.stats-list__trend--stable {
+  color: #666;
+}
+
+.stats-list__placeholder {
+  height: 140px;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  display: grid;
+  place-items: center;
+  color: rgba(0, 0, 0, 0.54);
+}

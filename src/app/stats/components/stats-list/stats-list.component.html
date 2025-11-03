@@ -1,0 +1,15 @@
+<section class="stats-list">
+  <header>
+    <h2>Графики по ключевым направлениям</h2>
+    <p>Следите за динамикой расходов, долговой нагрузки и потребления ресурсов.</p>
+  </header>
+
+  <div class="stats-list__grid">
+    <mat-card *ngFor="let chart of charts" class="stats-list__card">
+      <mat-card-title>{{ chart.title }}</mat-card-title>
+      <div class="stats-list__value">{{ chart.value }}</div>
+      <p class="stats-list__trend" [ngClass]="'stats-list__trend--' + chart.trend">{{ chart.description }}</p>
+      <div class="stats-list__placeholder">Здесь будет визуализация</div>
+    </mat-card>
+  </div>
+</section>

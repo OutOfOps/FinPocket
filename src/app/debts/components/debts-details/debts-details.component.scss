@@ -1,0 +1,23 @@
+.debts-details {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.debts-details ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.debts-details li {
+  display: grid;
+  grid-template-columns: 150px 1fr 120px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.debts-details__credit {
+  color: #008f5a;
+}

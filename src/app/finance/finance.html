@@ -7,58 +7,22 @@
       валюте. Гибкие фильтры и быстрые теги помогают находить нужные операции за секунды.
     </p>
     <div class="feature-shell__actions">
-      <button mat-raised-button color="primary" aria-label="Добавить новую операцию">
+      <a mat-raised-button color="primary" routerLink="create" routerLinkActive="is-active" aria-label="Добавить новую операцию">
         <mat-icon>add</mat-icon>
         Новая операция
-      </button>
-      <button mat-stroked-button color="accent" aria-label="Добавить счёт">
-        <mat-icon>account_balance</mat-icon>
-        Добавить счёт
-      </button>
+      </a>
+      <a mat-stroked-button color="accent" routerLink="list" routerLinkActive="is-active" aria-label="Перейти к списку">
+        <mat-icon>receipt_long</mat-icon>
+        Все операции
+      </a>
     </div>
   </header>
 
-  <div class="feature-shell__grid">
-    <mat-card class="feature-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Сводка по счетам</mat-card-title>
-        <mat-card-subtitle>Текущие балансы и план-факт по бюджетам</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="feature-card__text">
-          Задайте собственные сценарии распределения: зарплаты, накопления, инвестиции. FinPocket покажет структуру расходов и
-          предупредит, если лимиты близки к исчерпанию.
-        </p>
-      </mat-card-content>
-    </mat-card>
+  <nav class="feature-shell__nav" aria-label="Навигация по разделу">
+    <a mat-button routerLink="list" routerLinkActive="feature-shell__nav-link--active">Список</a>
+    <a mat-button routerLink="create" routerLinkActive="feature-shell__nav-link--active">Добавить</a>
+    <a mat-button routerLink="scenario-monthly-budget" routerLinkActive="feature-shell__nav-link--active">Детали бюджета</a>
+  </nav>
 
-    <mat-card class="feature-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Мгновенный импорт</mat-card-title>
-        <mat-card-subtitle>Импорт CSV/Excel выписок, QR из чеков, шаблоны категорий</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="feature-card__text">
-          Импортируйте данные из банковских приложений и маркетплейсов, а FinPocket автоматически сопоставит категории и
-          контрагентов.
-        </p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="feature-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Аналитика по периодам</mat-card-title>
-        <mat-card-subtitle>Неделя, месяц, квартал и кастомные фильтры</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="feature-card__text">
-          Сигналы по выбросам, коэффициенты накоплений и сравнение с предыдущими периодами помогают принимать решения и планировать
-          бюджет.
-        </p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  <router-outlet></router-outlet>
 </section>

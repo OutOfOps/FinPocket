@@ -1,0 +1,15 @@
+.finance-details {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.finance-details__grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.finance-details__positive {
+  color: #008f5a;
+  font-weight: 600;
+}

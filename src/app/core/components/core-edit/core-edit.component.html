@@ -1,0 +1,9 @@
+<section class="core-edit">
+  <h2>Утилиты ядра</h2>
+  <p>Описание ключевых помощников и конфигураций, используемых во всех сервисах.</p>
+
+  <mat-card *ngFor="let util of utilities">
+    <mat-card-title>{{ util.name }}</mat-card-title>
+    <mat-card-content>{{ util.description }}</mat-card-content>
+  </mat-card>
+</section>

@@ -1,0 +1,39 @@
+.sync-edit {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sync-edit__form {
+  display: grid;
+  gap: 1rem;
+  max-width: 520px;
+}
+
+.sync-edit__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sync-edit__form select {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.sync-edit__options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sync-edit__options article {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sync-edit__option--active {
+  border-color: rgba(63, 81, 181, 0.5);
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.1);
+}

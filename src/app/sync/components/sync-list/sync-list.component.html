@@ -1,0 +1,26 @@
+<section class="sync-list">
+  <header>
+    <h2>Резервные копии</h2>
+    <p>Перечень последних сохранений ваших данных в облаке.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>История</mat-card-title>
+    <table>
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Размер</th>
+          <th>Облако</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let backup of backups">
+          <td>{{ backup.createdAt | date:'d MMMM yyyy, HH:mm' }}</td>
+          <td>{{ backup.size }}</td>
+          <td>{{ backup.provider }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card>
+</section>
