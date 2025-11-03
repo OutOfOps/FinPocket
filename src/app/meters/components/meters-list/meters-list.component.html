@@ -1,0 +1,28 @@
+<section class="meters-list">
+  <header>
+    <h2>Учёт показаний</h2>
+    <p>Все объекты и ресурсы в одном интерфейсе для своевременной передачи данных.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>Последние показания</mat-card-title>
+    <table>
+      <thead>
+        <tr>
+          <th>Объект</th>
+          <th>Тип</th>
+          <th>Значение</th>
+          <th>Дата</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reading of readings">
+          <td>{{ reading.object }}</td>
+          <td>{{ typeLabel(reading.type) }}</td>
+          <td>{{ reading.value }} {{ reading.unit }}</td>
+          <td>{{ reading.submittedAt | date:'d MMMM yyyy' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card>
+</section>

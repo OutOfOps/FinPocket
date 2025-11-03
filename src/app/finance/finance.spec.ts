@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { Finance } from './finance';
 import { SharedModule } from '../shared/shared-module';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Finance', () => {
   let component: Finance;
@@ -11,7 +12,7 @@ describe('Finance', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [Finance],
-      imports: [SharedModule, NoopAnimationsModule],
+      imports: [SharedModule, RouterTestingModule, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Finance);

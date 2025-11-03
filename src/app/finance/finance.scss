@@ -2,14 +2,24 @@
   display: block;
 }
 
-.feature-shell__actions button mat-icon {
+.feature-shell__actions a mat-icon {
   margin-right: 0.5rem;
-}
-
-.feature-shell__actions button {
-  gap: 0.5rem;
 }
 
 .feature-shell__actions {
   align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.feature-shell__nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.feature-shell__nav-link--active {
+  background-color: rgba(63, 81, 181, 0.12);
 }

@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { Sync } from './sync';
 import { SharedModule } from '../shared/shared-module';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Sync', () => {
   let component: Sync;
@@ -11,7 +12,7 @@ describe('Sync', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [Sync],
-      imports: [SharedModule, NoopAnimationsModule],
+      imports: [SharedModule, RouterTestingModule, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Sync);

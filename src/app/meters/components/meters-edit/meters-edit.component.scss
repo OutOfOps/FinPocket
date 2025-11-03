@@ -1,0 +1,31 @@
+.meters-edit {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.meters-edit__form {
+  display: grid;
+  gap: 1rem;
+  max-width: 480px;
+}
+
+.meters-edit__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.meters-edit__form select,
+.meters-edit__form input {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.meters-edit__form fieldset {
+  border: none;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}

@@ -1,3 +1,14 @@
 :host {
   display: block;
 }
+
+.feature-shell__nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+
+.feature-shell__nav-link--active {
+  background-color: rgba(63, 81, 181, 0.12);
+}

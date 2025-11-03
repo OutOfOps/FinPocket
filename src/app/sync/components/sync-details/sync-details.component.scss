@@ -1,0 +1,18 @@
+.sync-details {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sync-details ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sync-details li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}

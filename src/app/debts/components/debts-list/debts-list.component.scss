@@ -1,0 +1,18 @@
+.debts-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.debts-list__status-active {
+  color: #1a73e8;
+}
+
+.debts-list__status-paid {
+  color: #008f5a;
+  font-weight: 600;
+}
+
+.debts-list__status-overdue {
+  color: #c62828;
+  font-weight: 600;
+}

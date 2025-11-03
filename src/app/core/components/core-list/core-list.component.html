@@ -1,0 +1,9 @@
+<section class="core-list">
+  <h2>Core сервисы</h2>
+  <mat-list>
+    <mat-list-item *ngFor="let service of services">
+      <div matListItemTitle>{{ service.name }}</div>
+      <div matListItemLine>{{ service.description }}</div>
+    </mat-list-item>
+  </mat-list>
+</section>

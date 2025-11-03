@@ -1,0 +1,43 @@
+<section class="finance-list">
+  <header class="finance-list__header">
+    <h2>Живой список транзакций</h2>
+    <p>Отслеживайте актуальные поступления и траты с быстрой аналитикой по фильтрам.</p>
+  </header>
+
+  <mat-card class="finance-list__filters">
+    <mat-card-title>Фильтры</mat-card-title>
+    <mat-chip-listbox aria-label="Фильтры">
+      <mat-chip-option *ngFor="let filter of filters" selected>{{ filter }}</mat-chip-option>
+    </mat-chip-listbox>
+  </mat-card>
+
+  <section class="finance-list__summary" aria-label="Баланс">
+    <mat-card>
+      <mat-card-title>Баланс</mat-card-title>
+      <p>{{ balance | number:'1.2-2' }} ₽</p>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>Доходы</mat-card-title>
+      <p>{{ income | number:'1.2-2' }} ₽</p>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>Расходы</mat-card-title>
+      <p>{{ expenses | number:'1.2-2' }} ₽</p>
+    </mat-card>
+  </section>
+
+  <mat-card>
+    <mat-card-title>Последние операции</mat-card-title>
+    <mat-list>
+      <mat-list-item *ngFor="let transaction of transactions">
+        <div matListItemTitle>{{ transaction.description }}</div>
+        <div matListItemLine>
+          {{ transaction.category }} • {{ transaction.account }} • {{ transaction.date | date:'d MMMM' }}
+        </div>
+        <div matListItemMeta [class.finance-list__amount-positive]="transaction.amount > 0">
+          {{ transaction.amount | number:'1.2-2' }} {{ transaction.currency }}
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </mat-card>
+</section>

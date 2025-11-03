@@ -1,0 +1,51 @@
+<section class="debts-edit">
+  <header>
+    <h2>Добавление долга</h2>
+    <p>Сформируйте карточку долга, задайте участников и контролируйте выплаты.</p>
+  </header>
+
+  <form (ngSubmit)="submit()" #debtForm="ngForm" class="debts-edit__form">
+    <label>
+      Название
+      <input type="text" name="name" [(ngModel)]="model.name" required />
+    </label>
+
+    <label>
+      Сумма
+      <input type="number" name="amount" [(ngModel)]="model.amount" required min="0" />
+    </label>
+
+    <label>
+      Валюта
+      <select name="currency" [(ngModel)]="model.currency">
+        <option value="₽">₽ Рубль</option>
+        <option value="$">$ Доллар</option>
+        <option value="€">€ Евро</option>
+      </select>
+    </label>
+
+    <label>
+      Срок погашения
+      <input type="date" name="dueDate" [(ngModel)]="model.dueDate" />
+    </label>
+
+    <label>
+      Статус
+      <select name="status" [(ngModel)]="model.status">
+        <option *ngFor="let status of statusOptions; trackBy: trackStatus" [value]="status">
+          {{ statusLabel(status) }}
+        </option>
+      </select>
+    </label>
+
+    <section class="debts-edit__participants">
+      <h3>Участники</h3>
+      <ul>
+        <li *ngFor="let participant of model.participants; index as i">{{ i + 1 }}. {{ participant }}</li>
+      </ul>
+      <button mat-stroked-button type="button" (click)="addParticipant()">Добавить участника</button>
+    </section>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="debtForm.invalid">Сохранить</button>
+  </form>
+</section>

@@ -1,0 +1,17 @@
+<section class="stats-edit">
+  <header>
+    <h2>Настройка аналитики</h2>
+    <p>Выберите, какие графики должны отображаться в дашборде.</p>
+  </header>
+
+  <div class="stats-edit__widgets">
+    <mat-card *ngFor="let widget of widgets">
+      <mat-card-title>{{ widget.title }}</mat-card-title>
+      <mat-slide-toggle [(ngModel)]="widget.enabled" (change)="toggleWidget(widget)">
+        Включен
+      </mat-slide-toggle>
+    </mat-card>
+  </div>
+
+  <button mat-raised-button color="primary" type="button" (click)="save()">Сохранить настройки</button>
+</section>

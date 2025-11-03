@@ -1,0 +1,65 @@
+<section class="finance-edit">
+  <header>
+    <h2>Новая операция</h2>
+    <p>Заполните ключевые поля и сохраните транзакцию в журнал FinPocket.</p>
+  </header>
+
+  <form (ngSubmit)="submit()" class="finance-edit__form" #transactionForm="ngForm">
+    <fieldset>
+      <legend>Тип операции</legend>
+      <mat-button-toggle-group
+        name="type"
+        [value]="formModel.type"
+        (change)="updateType($event.value)"
+        aria-label="Тип операции"
+      >
+        <mat-button-toggle value="income">Доход</mat-button-toggle>
+        <mat-button-toggle value="expense">Расход</mat-button-toggle>
+        <mat-button-toggle value="transfer">Перевод</mat-button-toggle>
+      </mat-button-toggle-group>
+    </fieldset>
+
+    <label>
+      Сумма
+      <input type="number" name="amount" [(ngModel)]="formModel.amount" required />
+    </label>
+
+    <label>
+      Валюта
+      <select name="currency" [(ngModel)]="formModel.currency">
+        <option value="₽">₽ Рубль</option>
+        <option value="$">$ Доллар</option>
+        <option value="€">€ Евро</option>
+      </select>
+    </label>
+
+    <label>
+      Категория
+      <select name="category" [(ngModel)]="formModel.category" required>
+        <option value="" disabled>Выберите категорию</option>
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+    </label>
+
+    <label>
+      Счёт
+      <select name="account" [(ngModel)]="formModel.account">
+        <option *ngFor="let account of accounts" [value]="account">{{ account }}</option>
+      </select>
+    </label>
+
+    <label>
+      Дата
+      <input type="date" name="date" [(ngModel)]="formModel.date" required />
+    </label>
+
+    <label>
+      Комментарий
+      <textarea name="note" rows="4" [(ngModel)]="formModel.note"></textarea>
+    </label>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="transactionForm.invalid">
+      Сохранить операцию
+    </button>
+  </form>
+</section>

@@ -1,0 +1,10 @@
+.stats-edit {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.stats-edit__widgets {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}

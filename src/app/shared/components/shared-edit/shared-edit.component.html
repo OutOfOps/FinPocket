@@ -1,0 +1,9 @@
+<section class="shared-edit">
+  <h2>Инфраструктура SharedModule</h2>
+  <p>Редактируйте состав общих компонентов и пайпов, доступных во всех фичах приложения.</p>
+
+  <mat-card *ngFor="let item of scaffolding">
+    <mat-card-title>{{ item.name }}</mat-card-title>
+    <mat-card-content>{{ item.description }}</mat-card-content>
+  </mat-card>
+</section>

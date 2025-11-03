@@ -1,0 +1,29 @@
+.debts-edit {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.debts-edit__form {
+  display: grid;
+  gap: 1rem;
+  max-width: 520px;
+}
+
+.debts-edit__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.debts-edit__form input,
+.debts-edit__form select {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.debts-edit__participants {
+  display: grid;
+  gap: 0.5rem;
+}

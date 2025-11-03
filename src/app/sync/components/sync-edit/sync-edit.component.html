@@ -1,0 +1,26 @@
+<section class="sync-edit">
+  <header>
+    <h2>Настройки синхронизации</h2>
+    <p>Выберите облако и параметры защиты для резервного копирования.</p>
+  </header>
+
+  <form class="sync-edit__form" (ngSubmit)="save()" #syncForm="ngForm">
+    <label>
+      Облачный провайдер
+      <select name="provider" [(ngModel)]="selectedProvider">
+        <option *ngFor="let provider of providers" [value]="provider.id">{{ provider.title }}</option>
+      </select>
+    </label>
+
+    <section class="sync-edit__options">
+      <article *ngFor="let provider of providers" [class.sync-edit__option--active]="provider.id === selectedProvider">
+        <h3>{{ provider.title }}</h3>
+        <p>{{ provider.description }}</p>
+      </article>
+    </section>
+
+    <mat-slide-toggle [(ngModel)]="encryptionEnabled" name="encryption">Шифровать резервные копии</mat-slide-toggle>
+
+    <button mat-raised-button color="primary" type="submit">Сохранить</button>
+  </form>
+</section>

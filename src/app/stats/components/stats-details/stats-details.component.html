@@ -1,0 +1,28 @@
+<section class="stats-details">
+  <header>
+    <h2>Сводка по неделям</h2>
+    <p>Сравните расходы, долги и потребление ресурсов в рамках одного отчётного периода.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>Объединённые показатели</mat-card-title>
+    <table>
+      <thead>
+        <tr>
+          <th>Период</th>
+          <th>Расходы</th>
+          <th>Долги</th>
+          <th>Потребление</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let point of dataPoints">
+          <td>{{ point.label }}</td>
+          <td>{{ point.expenses | number:'1.0-0' }} ₽</td>
+          <td>{{ point.debts | number:'1.0-0' }} ₽</td>
+          <td>{{ point.consumption }} кВт·ч</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card>
+</section>

@@ -1,0 +1,18 @@
+.meters-details {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.meters-details ul {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.meters-details li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

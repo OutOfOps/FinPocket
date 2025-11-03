@@ -1,0 +1,19 @@
+<section class="debts-details">
+  <header>
+    <h2>Карточка долга</h2>
+    <p>История событий помогает отслеживать статус и движение средств.</p>
+  </header>
+
+  <mat-card>
+    <mat-card-title>Хронология</mat-card-title>
+    <ol>
+      <li *ngFor="let entry of timeline">
+        <span>{{ entry.date | date:'d MMMM yyyy' }}</span>
+        <span>{{ entry.action }}</span>
+        <strong [class.debts-details__credit]="entry.amount >= 0">
+          {{ entry.amount | number:'1.0-0' }} ₽
+        </strong>
+      </li>
+    </ol>
+  </mat-card>
+</section>
