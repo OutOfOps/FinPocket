@@ -5,27 +5,133 @@
 
 .meters-edit__form {
   display: grid;
+  gap: 2rem;
+  max-width: 720px;
+}
+
+.meters-edit__grid {
+  display: grid;
   gap: 1rem;
-  max-width: 480px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .meters-edit__form label {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  font-weight: 500;
 }
 
 .meters-edit__form select,
 .meters-edit__form input {
   padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
   font: inherit;
 }
 
-.meters-edit__form fieldset {
-  border: none;
-  padding: 0;
+.meters-edit__form input:focus,
+.meters-edit__form select:focus {
+  outline: none;
+  border-color: rgba(132, 94, 247, 0.6);
+  box-shadow: 0 0 0 3px rgba(132, 94, 247, 0.2);
+}
+
+.meters-edit__zones {
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.meters-edit__zones-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.meters-edit__zones-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.meters-edit__zone {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 1rem;
+}
+
+.meters-edit__zone-meta {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.meters-edit__zone-meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.meters-edit__zone-meta dt {
+  font-weight: 500;
+}
+
+.meters-edit__zone-meta dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.meters-edit__summary {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(132, 94, 247, 0.08);
+  display: grid;
+  gap: 1rem;
+}
+
+.meters-edit__summary ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.meters-edit__tariffs ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.meters-edit__tariff-date {
+  margin-left: 0.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.meters-edit__empty {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.meters-edit__empty a {
+  color: #b69cff;
+  text-decoration: none;
+}
+
+.meters-edit__empty a:hover {
+  text-decoration: underline;
 }

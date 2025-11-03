@@ -1,18 +1,75 @@
 .meters-details {
   display: grid;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
-.meters-details ul {
-  list-style: none;
+.meters-details__header {
   display: grid;
+  gap: 0.5rem;
+}
+
+.meters-details__header p,
+.meters-details__meta {
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+.meters-details__card {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 1rem;
+}
+
+.meters-details__card h3 {
+  margin: 0;
+}
+
+.meters-details__card ul {
+  list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: 0.75rem;
 }
 
-.meters-details li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.meters-details__card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.meters-details__card th,
+.meters-details__card td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.meters-details__card td div {
+  font-size: 0.9rem;
+}
+
+.meters-details__tariff-date,
+.meters-details__tariff-description {
+  margin-left: 0.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.meters-details__tariff-description {
+  display: inline-block;
+}
+
+.meters-details__empty {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.7);
 }

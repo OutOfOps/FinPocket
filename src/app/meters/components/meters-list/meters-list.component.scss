@@ -18,6 +18,20 @@
 .meters-list__actions {
   text-align: right;
   white-space: nowrap;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.meters-list__resource {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meters-list__resource small {
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.75rem;
 }
 
 .meters-list__empty {

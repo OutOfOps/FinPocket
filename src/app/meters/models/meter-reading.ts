@@ -1,12 +1,16 @@
-export type MeterType = 'water' | 'gas' | 'electricity';
+export type MeterType = 'water' | 'gas' | 'electricity' | 'heat';
+
+export interface MeterReadingValue {
+  zoneId: string;
+  value: number;
+}
 
 export interface MeterReading {
   id: string;
-  object: string;
-  type: MeterType;
-  value: number;
-  unit: string;
+  objectId: string;
+  resourceId: string;
   submittedAt: string;
+  values: MeterReadingValue[];
 }
 
 export interface MeterTypeOption {
