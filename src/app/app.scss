@@ -92,6 +92,7 @@
 .nav-text {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
 }
 
 .nav-text__label {
@@ -102,6 +103,7 @@
 .nav-text__hint {
   font-size: 0.8rem;
   color: var(--finpocket-muted);
+  line-height: 1.35;
 }
 
 .app-meta {
