@@ -23,6 +23,10 @@ const routes: Routes = [
     path: 'sync',
     loadChildren: () => import('./sync/sync-module').then((m) => m.SyncModule),
   },
+  {
+    path: 'settings',
+    loadChildren: () => import('./settings/settings-module').then((m) => m.SettingsModule),
+  },
   { path: '**', redirectTo: 'finance' },
 ];
 

@@ -1,54 +1,32 @@
-@use '@angular/material' as mat;
+@use './finpocket-theme' as finpocket-theme;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600&family=Roboto+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600&display=swap');
 
-@include mat.core();
-
-$finpocket-primary: mat.m2-define-palette(mat.$m2-purple-palette, 500, 300, 700);
-$finpocket-accent: mat.m2-define-palette(mat.$m2-orange-palette, 500, 300, 700);
-$finpocket-warn: mat.m2-define-palette(mat.$m2-red-palette, 500);
-
-$finpocket-theme: mat.m2-define-dark-theme((
-  color: (
-    primary: $finpocket-primary,
-    accent: $finpocket-accent,
-    warn: $finpocket-warn,
-  ),
-));
-
-@include mat.all-component-themes($finpocket-theme);
-
-:root {
-  color-scheme: dark;
-  --finpocket-primary: #9c27b0;
-  --finpocket-accent: #ff9800;
-  --finpocket-surface: #111015;
-  --finpocket-surface-alt: #1b1b22;
-  --finpocket-border: rgba(255, 255, 255, 0.08);
-  --finpocket-text: #f6f2ff;
-  --finpocket-subtle: rgba(246, 242, 255, 0.72);
-  --finpocket-muted: rgba(246, 242, 255, 0.48);
-  --finpocket-gradient: radial-gradient(circle at 20% 20%, rgba(156, 39, 176, 0.25), transparent 55%),
-    radial-gradient(circle at 80% 10%, rgba(255, 152, 0, 0.22), transparent 60%),
-    linear-gradient(160deg, rgba(43, 39, 53, 0.8), rgba(12, 10, 16, 0.92));
-}
+@include finpocket-theme.apply();
 
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-html, body {
+html {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: var(--finpocket-surface);
-  color: var(--finpocket-text);
-  font-family: 'Inter', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  letter-spacing: 0.01em;
 }
 
 body {
-  display: block;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: 'Inter', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.01em;
+  background: var(--finpocket-surface, #121212);
+  color: var(--finpocket-text, #ffffff);
+}
+
+body.finpocket-dark-theme,
+body.finpocket-light-theme {
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 app-root {
@@ -62,8 +40,62 @@ a {
 }
 
 ::selection {
-  background: rgba(156, 39, 176, 0.35);
-  color: var(--finpocket-text);
+  background: var(--finpocket-selection, rgba(156, 39, 176, 0.35));
+  color: var(--finpocket-text, #ffffff);
+}
+
+.finpocket-dark-theme {
+  color-scheme: dark;
+  --finpocket-primary: #9c27b0;
+  --finpocket-accent: #ff9800;
+  --finpocket-surface: #121212;
+  --finpocket-surface-alt: #1b1b22;
+  --finpocket-border: rgba(255, 255, 255, 0.08);
+  --finpocket-text: #f6f2ff;
+  --finpocket-subtle: rgba(246, 242, 255, 0.72);
+  --finpocket-muted: rgba(246, 242, 255, 0.48);
+  --finpocket-gradient: radial-gradient(circle at 20% 20%, rgba(156, 39, 176, 0.25), transparent 55%),
+    radial-gradient(circle at 80% 10%, rgba(255, 152, 0, 0.22), transparent 60%),
+    linear-gradient(160deg, rgba(43, 39, 53, 0.8), rgba(12, 10, 16, 0.92));
+  --finpocket-card-bg: color-mix(in srgb, var(--finpocket-surface-alt) 92%, rgba(156, 39, 176, 0.08));
+  --finpocket-card-shadow: 0 18px 44px rgba(8, 8, 10, 0.55);
+  --finpocket-chip-bg: rgba(255, 152, 0, 0.16);
+  --finpocket-chip-text: #ffcb6b;
+  --finpocket-sidenav-bg: rgba(17, 16, 21, 0.9);
+  --finpocket-toolbar-bg: rgba(17, 16, 21, 0.85);
+  --finpocket-toolbar-border: rgba(255, 255, 255, 0.08);
+  --finpocket-logo-text: #1b0722;
+  --finpocket-nav-hover: color-mix(in srgb, var(--finpocket-primary) 30%, transparent);
+  --finpocket-nav-active: color-mix(in srgb, var(--finpocket-primary) 45%, rgba(0, 0, 0, 0.05));
+  --finpocket-icon-accent: color-mix(in srgb, var(--finpocket-accent) 78%, white 22%);
+  --finpocket-selection: rgba(156, 39, 176, 0.35);
+}
+
+.finpocket-light-theme {
+  color-scheme: light;
+  --finpocket-primary: #9c27b0;
+  --finpocket-accent: #ff9800;
+  --finpocket-surface: #f8f5ff;
+  --finpocket-surface-alt: #ffffff;
+  --finpocket-border: rgba(31, 27, 46, 0.08);
+  --finpocket-text: #1f1b2e;
+  --finpocket-subtle: rgba(31, 27, 46, 0.72);
+  --finpocket-muted: rgba(31, 27, 46, 0.56);
+  --finpocket-gradient: radial-gradient(circle at 15% 15%, rgba(156, 39, 176, 0.12), transparent 55%),
+    radial-gradient(circle at 85% 10%, rgba(255, 152, 0, 0.16), transparent 60%),
+    linear-gradient(160deg, #ffffff, #f1ecff);
+  --finpocket-card-bg: color-mix(in srgb, #ffffff 92%, rgba(156, 39, 176, 0.05));
+  --finpocket-card-shadow: 0 16px 32px rgba(38, 26, 45, 0.1);
+  --finpocket-chip-bg: rgba(255, 152, 0, 0.14);
+  --finpocket-chip-text: #a65d00;
+  --finpocket-sidenav-bg: rgba(255, 255, 255, 0.78);
+  --finpocket-toolbar-bg: rgba(255, 255, 255, 0.82);
+  --finpocket-toolbar-border: rgba(31, 27, 46, 0.08);
+  --finpocket-logo-text: #2c0d36;
+  --finpocket-nav-hover: color-mix(in srgb, var(--finpocket-primary) 14%, rgba(255, 255, 255, 0.6));
+  --finpocket-nav-active: color-mix(in srgb, var(--finpocket-primary) 18%, rgba(255, 255, 255, 0.75));
+  --finpocket-icon-accent: color-mix(in srgb, var(--finpocket-accent) 70%, #5a3300 30%);
+  --finpocket-selection: rgba(156, 39, 176, 0.2);
 }
 
 .feature-shell {
@@ -84,12 +116,12 @@ a {
   font-weight: 600;
   font-size: clamp(2.2rem, 3vw, 2.8rem);
   letter-spacing: -0.02em;
-  color: var(--finpocket-text);
+  color: var(--finpocket-text, #ffffff);
 }
 
 .feature-shell__subtitle {
   max-width: 68ch;
-  color: var(--finpocket-subtle);
+  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
   font-size: 1.05rem;
   line-height: 1.6;
 }
@@ -109,9 +141,9 @@ a {
 .feature-card {
   height: 100%;
   border-radius: 18px;
-  border: 1px solid var(--finpocket-border);
-  background: color-mix(in srgb, var(--finpocket-surface-alt) 92%, rgba(156, 39, 176, 0.08));
-  box-shadow: 0 18px 44px rgba(8, 8, 10, 0.55);
+  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
+  background: var(--finpocket-card-bg, rgba(17, 17, 17, 0.96));
+  box-shadow: var(--finpocket-card-shadow, 0 18px 44px rgba(8, 8, 10, 0.55));
   display: flex;
   flex-direction: column;
 }
@@ -120,7 +152,7 @@ a {
   width: 48px;
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(120deg, var(--finpocket-primary), var(--finpocket-accent));
+  background: linear-gradient(120deg, var(--finpocket-primary, #9c27b0), var(--finpocket-accent, #ff9800));
   margin-bottom: 1rem;
 }
 
@@ -131,7 +163,7 @@ a {
 }
 
 .feature-card__text {
-  color: var(--finpocket-muted);
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
   line-height: 1.5;
 }
 
@@ -140,8 +172,8 @@ a {
   align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background: rgba(255, 152, 0, 0.16);
-  color: #ffcb6b;
+  background: var(--finpocket-chip-bg, rgba(255, 152, 0, 0.16));
+  color: var(--finpocket-chip-text, #ffcb6b);
   font-weight: 500;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
@@ -157,12 +189,13 @@ mat-card-header {
   margin-bottom: 0.75rem;
 }
 
-mat-card-title, mat-card-subtitle {
+mat-card-title,
+mat-card-subtitle {
   color: inherit;
 }
 
 mat-card-subtitle {
-  color: var(--finpocket-muted);
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
 }
 
 @media (max-width: 959px) {

@@ -1,0 +1,102 @@
+<section class="feature-shell settings-shell">
+  <header class="feature-shell__header">
+    <span class="tag-chip">Настройки</span>
+    <h1 class="feature-shell__title">Персонализация FinPocket</h1>
+    <p class="feature-shell__subtitle">
+      Выберите оформление, которое соответствует вашему режиму. Тёмная тема вдохновлена Monobank, а светлая сохраняет фирменные
+      акценты и контраст.
+    </p>
+  </header>
+
+  <div class="feature-shell__grid settings-grid">
+    <mat-card class="feature-card settings-card">
+      <div class="feature-card__accent"></div>
+      <mat-card-header>
+        <mat-card-title class="feature-card__title">Тема интерфейса</mat-card-title>
+        <mat-card-subtitle>Мгновенное переключение и сохранение выбора</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-button-toggle-group
+          class="settings-toggle"
+          name="theme-toggle"
+          [value]="theme()"
+          (valueChange)="setTheme($event)"
+          aria-label="Переключение темы"
+        >
+          <mat-button-toggle value="dark">
+            <mat-icon>nights_stay</mat-icon>
+            Тёмная
+          </mat-button-toggle>
+          <mat-button-toggle value="light">
+            <mat-icon>wb_sunny</mat-icon>
+            Светлая
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <div class="settings-previews" role="list">
+          <button
+            type="button"
+            class="settings-preview settings-preview--dark"
+            [class.active]="theme() === 'dark'"
+            (click)="setTheme('dark')"
+            aria-label="Применить тёмную тему"
+            role="listitem"
+          >
+            <span>Тёмная тема</span>
+          </button>
+          <button
+            type="button"
+            class="settings-preview settings-preview--light"
+            [class.active]="theme() === 'light'"
+            (click)="setTheme('light')"
+            aria-label="Применить светлую тему"
+            role="listitem"
+          >
+            <span>Светлая тема</span>
+          </button>
+        </div>
+
+        <mat-slide-toggle
+          class="settings-slide"
+          [checked]="theme() === 'dark'"
+          (change)="toggleTheme()"
+          aria-label="Переключить тему"
+        >
+          Запоминать ночной режим
+        </mat-slide-toggle>
+
+        <p class="settings-hint">
+          Выбор темы синхронизируется между сессиями и применяется к всплывающим окнам Angular Material.
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="feature-card settings-card">
+      <div class="feature-card__accent"></div>
+      <mat-card-header>
+        <mat-card-title class="feature-card__title">Обновлённые иллюстрации</mat-card-title>
+        <mat-card-subtitle>Превью карточек и значков подстраиваются под тему</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="settings-illustrations">
+          <figure class="settings-illustrations__item settings-illustrations__item--finance">
+            <div class="settings-illustrations__mock"></div>
+            <figcaption>Финансы</figcaption>
+          </figure>
+          <figure class="settings-illustrations__item settings-illustrations__item--sync">
+            <div class="settings-illustrations__mock"></div>
+            <figcaption>Синхронизация</figcaption>
+          </figure>
+          <figure class="settings-illustrations__item settings-illustrations__item--stats">
+            <div class="settings-illustrations__mock"></div>
+            <figcaption>Статистика</figcaption>
+          </figure>
+        </div>
+        <p class="settings-hint">
+          Макеты карточек и иконок используют те же цветовые токены, что и основной интерфейс — контент выглядит цельно как в
+          тёмном, так и в светлом оформлении.
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

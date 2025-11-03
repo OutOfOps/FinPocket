@@ -1,0 +1,153 @@
+.settings-shell {
+  gap: 2rem;
+}
+
+.settings-grid {
+  align-items: stretch;
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-card mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-toggle {
+  display: inline-flex;
+  border-radius: 999px;
+  overflow: hidden;
+  align-self: flex-start;
+}
+
+.settings-toggle .mat-button-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  font-weight: 600;
+}
+
+.settings-toggle .mat-button-toggle-checked {
+  background: color-mix(in srgb, var(--finpocket-primary) 18%, rgba(255, 255, 255, 0.12));
+}
+
+.settings-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.settings-preview {
+  flex: 1 1 160px;
+  border-radius: 18px;
+  border: 1px solid var(--finpocket-border);
+  padding: 1rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  position: relative;
+  overflow: hidden;
+  color: inherit;
+  background-size: cover;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.settings-preview span {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.settings-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.12), transparent 65%);
+  opacity: 0.6;
+  transition: opacity 0.25s ease;
+}
+
+.settings-preview.active {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--finpocket-primary) 45%, transparent);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+}
+
+.settings-preview.active::after {
+  opacity: 0.85;
+}
+
+.settings-preview--dark {
+  background-image: linear-gradient(160deg, #0f0b16, #211527 65%);
+  color: #f8f4ff;
+}
+
+.settings-preview--light {
+  background-image: linear-gradient(160deg, #fbf7ff, #fff4e5 70%);
+  color: #2d1240;
+}
+
+.settings-slide {
+  align-self: flex-start;
+}
+
+.settings-hint {
+  font-size: 0.85rem;
+  color: var(--finpocket-muted);
+  line-height: 1.6;
+}
+
+.settings-illustrations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.settings-illustrations__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  text-align: center;
+  color: var(--finpocket-subtle);
+  font-size: 0.85rem;
+}
+
+.settings-illustrations__mock {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  border: 1px solid var(--finpocket-border);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  background-size: cover;
+  background-position: center;
+}
+
+.settings-illustrations__item--finance .settings-illustrations__mock {
+  background-image: linear-gradient(135deg, color-mix(in srgb, var(--finpocket-primary) 85%, transparent), rgba(255, 255, 255, 0.08));
+}
+
+.settings-illustrations__item--sync .settings-illustrations__mock {
+  background-image: linear-gradient(135deg, rgba(41, 29, 68, 0.82), color-mix(in srgb, var(--finpocket-accent) 70%, transparent));
+}
+
+.settings-illustrations__item--stats .settings-illustrations__mock {
+  background-image: linear-gradient(135deg, rgba(19, 11, 40, 0.8), color-mix(in srgb, var(--finpocket-primary) 60%, rgba(255, 255, 255, 0.2)));
+}
+
+@media (max-width: 599px) {
+  .settings-toggle {
+    width: 100%;
+  }
+
+  .settings-previews {
+    gap: 0.65rem;
+  }
+}

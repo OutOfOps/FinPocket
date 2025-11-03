@@ -8,6 +8,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 const MATERIAL_MODULES = [
   MatToolbarModule,
@@ -17,6 +19,8 @@ const MATERIAL_MODULES = [
   MatListModule,
   MatCardModule,
   MatDividerModule,
+  MatButtonToggleModule,
+  MatSlideToggleModule,
 ];
 
 @NgModule({

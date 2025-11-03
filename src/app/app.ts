@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { ThemeService } from './core/services/theme.service';
 
 type NavigationItem = {
   label: string;
@@ -18,6 +19,9 @@ type NavigationItem = {
 })
 export class App {
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly themeService = inject(ThemeService);
+
+  protected readonly activeTheme = this.themeService.theme;
 
   protected readonly isHandset = toSignal(
     this.breakpointObserver
@@ -58,6 +62,12 @@ export class App {
       route: '/sync',
       icon: 'cloud_sync',
       description: 'Облако, резервные копии и импорт',
+    },
+    {
+      label: 'Настройки',
+      route: '/settings',
+      icon: 'tune',
+      description: 'Темы, персонализация и резервные копии',
     },
   ];
 
