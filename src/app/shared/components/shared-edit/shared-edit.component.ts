@@ -1,7 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-shared-edit',
+  standalone: true,
+  imports: [CommonModule, MatCardModule],
   templateUrl: './shared-edit.component.html',
   styleUrls: ['./shared-edit.component.scss'],
 })

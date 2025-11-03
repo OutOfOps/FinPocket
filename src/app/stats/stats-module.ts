@@ -7,7 +7,13 @@ import { StatsEditComponent } from './components/stats-edit/stats-edit.component
 import { StatsDetailsComponent } from './components/stats-details/stats-details.component';
 
 @NgModule({
-  declarations: [Stats, StatsListComponent, StatsEditComponent, StatsDetailsComponent],
-  imports: [SharedModule, StatsRoutingModule],
+  declarations: [Stats],
+  imports: [
+    SharedModule,
+    StatsRoutingModule,
+    StatsListComponent,
+    StatsEditComponent,
+    StatsDetailsComponent,
+  ],
 })
 export class StatsModule {}

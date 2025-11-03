@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 @Component({
   selector: 'app-meters-details',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './meters-details.component.html',
   styleUrls: ['./meters-details.component.scss'],
 })

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface BackupHistoryEntry {
   id: string;
@@ -9,6 +10,8 @@ interface BackupHistoryEntry {
 
 @Component({
   selector: 'app-sync-list',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './sync-list.component.html',
   styleUrls: ['./sync-list.component.scss'],
 })
