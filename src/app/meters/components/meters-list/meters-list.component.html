@@ -11,20 +11,39 @@
         <thead>
           <tr>
             <th>Объект</th>
-            <th>Тип</th>
-            <th>Значение</th>
+            <th>Ресурс</th>
+            <th>Показания</th>
+            <th>Расход</th>
+            <th>Стоимость</th>
             <th>Дата</th>
             <th class="meters-list__actions">Действия</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let reading of readings; trackBy: trackReading">
-            <td>{{ reading.object }}</td>
-            <td>{{ typeLabel(reading.type) }}</td>
-            <td>{{ reading.value }} {{ reading.unit }}</td>
+            <td>{{ reading.objectName }}</td>
+            <td>
+              <div class="meters-list__resource">
+                <span>{{ reading.resourceName }}</span>
+                <small>{{ reading.typeLabel }}</small>
+              </div>
+            </td>
+            <td>{{ formatValues(reading) }}</td>
+            <td>
+              <ng-container *ngIf="reading.zones.length; else noConsumption">
+                {{ formatConsumption(reading) }}
+              </ng-container>
+            </td>
+            <td>
+              <ng-container *ngIf="reading.cost !== undefined && reading.currency">
+                {{ reading.cost | number: '1.2-2' }} {{ reading.currency }}
+              </ng-container>
+              <ng-container *ngIf="reading.cost === undefined || !reading.currency">—</ng-container>
+            </td>
             <td>{{ reading.submittedAt | date: 'd MMMM yyyy' }}</td>
             <td class="meters-list__actions">
               <a mat-button color="primary" [routerLink]="[reading.id, 'edit']">Редактировать</a>
+              <a mat-button [routerLink]="['../', reading.resourceId]">Детали</a>
             </td>
           </tr>
         </tbody>
@@ -32,6 +51,7 @@
     </ng-container>
   </mat-card>
 
+  <ng-template #noConsumption>—</ng-template>
   <ng-template #emptyState>
     <p class="meters-list__empty">Пока нет ни одного показания. Добавьте первое, чтобы отслеживать изменения.</p>
   </ng-template>

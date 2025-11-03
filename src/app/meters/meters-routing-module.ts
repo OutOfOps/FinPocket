@@ -4,6 +4,7 @@ import { Meters } from './meters';
 import { MetersListComponent } from './components/meters-list/meters-list.component';
 import { MetersEditComponent } from './components/meters-edit/meters-edit.component';
 import { MetersDetailsComponent } from './components/meters-details/meters-details.component';
+import { MetersResourcesComponent } from './components/meters-resources/meters-resources.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,7 @@ const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'list' },
       { path: 'list', component: MetersListComponent },
       { path: 'create', component: MetersEditComponent },
+      { path: 'resources', component: MetersResourcesComponent },
       { path: ':id/edit', component: MetersEditComponent },
       { path: ':id', component: MetersDetailsComponent },
     ],

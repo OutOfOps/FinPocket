@@ -1,16 +1,82 @@
-<section class="meters-details">
-  <header>
-    <h2>Детализация потребления</h2>
-    <p>Сравните периоды и найдите отклонения в потреблении энергии.</p>
+<section class="meters-details" *ngIf="summary as data; else noResource">
+  <header class="meters-details__header">
+    <h2>{{ data.resource.name }}</h2>
+    <p>
+      Объект: {{ data.object.name }} · Тип: {{ data.resource.type | titlecase }} · Учёт: {{ pricingLabel(data.resource.pricingModel) }}
+    </p>
+    <div class="meters-details__meta">
+      <span>Единица: {{ data.resource.unit }}</span>
+      <span>Зоны: {{ zoneSummaryText() }}</span>
+    </div>
   </header>
 
-  <mat-card>
-    <mat-card-title>История по периодам</mat-card-title>
+  <section class="meters-details__card" *ngIf="data.currentTariffs.length">
+    <h3>Актуальные тарифы</h3>
     <ul>
-      <li *ngFor="let entry of history">
-        <span>{{ entry.period }}</span>
-        <strong>{{ entry.consumption }} {{ entry.unit }}</strong>
+      <li *ngFor="let tariff of data.currentTariffs">
+        <strong>{{ data.resource.zones.length > 1 || tariff.zoneId ? zoneName(tariff.zoneId) : 'Общий тариф' }}</strong>
+        — {{ tariff.price | number: '1.2-2' }} {{ tariff.currency }}
+        <span class="meters-details__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
       </li>
     </ul>
-  </mat-card>
+  </section>
+
+  <section class="meters-details__card" *ngIf="readings.length; else noReadings">
+    <h3>Последние показания</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Показания</th>
+          <th>Прошлый учёт</th>
+          <th>Расход</th>
+          <th>Стоимость</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reading of readings; trackBy: trackReading">
+          <td>{{ reading.submittedAt | date: 'd MMMM yyyy' }}</td>
+          <td>
+            <div *ngFor="let item of reading.values">{{ item.label }}: {{ item.value | number: '1.2-2' }} {{ data.resource.unit }}</div>
+          </td>
+          <td>
+            <ng-container *ngIf="reading.previousAt; else noPreviousDate">{{ reading.previousAt | date: 'd MMMM yyyy' }}</ng-container>
+          </td>
+          <td>
+            <div *ngFor="let item of reading.consumption">
+              {{ item.label }}: {{ item.value | number: '1.2-2' }} {{ data.resource.unit }}
+            </div>
+          </td>
+          <td>
+            <ng-container *ngIf="reading.cost !== undefined && reading.currency">
+              {{ reading.cost | number: '1.2-2' }} {{ reading.currency }}
+            </ng-container>
+            <ng-container *ngIf="reading.cost === undefined || !reading.currency">—</ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="meters-details__card" *ngIf="tariffHistory.length">
+    <h3>История тарифов</h3>
+    <ul>
+      <li *ngFor="let tariff of tariffHistory">
+        <strong>{{ zoneName(tariff.zoneId) }}</strong>
+        — {{ tariff.price | number: '1.2-2' }} {{ tariff.currency }}
+        <span class="meters-details__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
+        <span *ngIf="tariff.description" class="meters-details__tariff-description">{{ tariff.description }}</span>
+      </li>
+    </ul>
+  </section>
 </section>
+
+<ng-template #noResource>
+  <p class="meters-details__empty">Выберите ресурс в списке, чтобы увидеть подробную аналитику потребления.</p>
+</ng-template>
+
+<ng-template #noReadings>
+  <p class="meters-details__empty">Для этого ресурса ещё нет показаний.</p>
+</ng-template>
+
+<ng-template #noPreviousDate>—</ng-template>
