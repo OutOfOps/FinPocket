@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface MeterForm {
   object: string;
@@ -10,6 +11,8 @@ interface MeterForm {
 
 @Component({
   selector: 'app-meters-edit',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './meters-edit.component.html',
   styleUrls: ['./meters-edit.component.scss'],
 })

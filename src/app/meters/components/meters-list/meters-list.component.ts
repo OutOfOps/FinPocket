@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface MeterReading {
   id: string;
@@ -11,6 +12,8 @@ interface MeterReading {
 
 @Component({
   selector: 'app-meters-list',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './meters-list.component.html',
   styleUrls: ['./meters-list.component.scss'],
 })

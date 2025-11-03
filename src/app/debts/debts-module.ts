@@ -7,7 +7,13 @@ import { DebtsEditComponent } from './components/debts-edit/debts-edit.component
 import { DebtsDetailsComponent } from './components/debts-details/debts-details.component';
 
 @NgModule({
-  declarations: [Debts, DebtsListComponent, DebtsEditComponent, DebtsDetailsComponent],
-  imports: [SharedModule, DebtsRoutingModule],
+  declarations: [Debts],
+  imports: [
+    SharedModule,
+    DebtsRoutingModule,
+    DebtsListComponent,
+    DebtsEditComponent,
+    DebtsDetailsComponent,
+  ],
 })
 export class DebtsModule {}

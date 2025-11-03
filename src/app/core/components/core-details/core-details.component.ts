@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 @Component({
   selector: 'app-core-details',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './core-details.component.html',
   styleUrls: ['./core-details.component.scss'],
 })

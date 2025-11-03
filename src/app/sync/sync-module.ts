@@ -7,7 +7,13 @@ import { SyncEditComponent } from './components/sync-edit/sync-edit.component';
 import { SyncDetailsComponent } from './components/sync-details/sync-details.component';
 
 @NgModule({
-  declarations: [Sync, SyncListComponent, SyncEditComponent, SyncDetailsComponent],
-  imports: [SharedModule, SyncRoutingModule],
+  declarations: [Sync],
+  imports: [
+    SharedModule,
+    SyncRoutingModule,
+    SyncListComponent,
+    SyncEditComponent,
+    SyncDetailsComponent,
+  ],
 })
 export class SyncModule {}

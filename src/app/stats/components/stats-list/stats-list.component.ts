@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface ChartCard {
   title: string;
@@ -9,6 +10,8 @@ interface ChartCard {
 
 @Component({
   selector: 'app-stats-list',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './stats-list.component.html',
   styleUrls: ['./stats-list.component.scss'],
 })

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface DebtItem {
   id: string;
@@ -11,6 +12,8 @@ interface DebtItem {
 
 @Component({
   selector: 'app-debts-list',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './debts-list.component.html',
   styleUrls: ['./debts-list.component.scss'],
 })

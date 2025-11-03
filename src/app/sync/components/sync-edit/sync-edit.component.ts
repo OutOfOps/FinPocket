@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface SyncProviderOption {
   id: string;
@@ -8,6 +9,8 @@ interface SyncProviderOption {
 
 @Component({
   selector: 'app-sync-edit',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './sync-edit.component.html',
   styleUrls: ['./sync-edit.component.scss'],
 })

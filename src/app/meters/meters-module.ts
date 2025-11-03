@@ -7,7 +7,13 @@ import { MetersEditComponent } from './components/meters-edit/meters-edit.compon
 import { MetersDetailsComponent } from './components/meters-details/meters-details.component';
 
 @NgModule({
-  declarations: [Meters, MetersListComponent, MetersEditComponent, MetersDetailsComponent],
-  imports: [SharedModule, MetersRoutingModule],
+  declarations: [Meters],
+  imports: [
+    SharedModule,
+    MetersRoutingModule,
+    MetersListComponent,
+    MetersEditComponent,
+    MetersDetailsComponent,
+  ],
 })
 export class MetersModule {}

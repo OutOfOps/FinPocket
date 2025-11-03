@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface WidgetConfig {
   id: string;
@@ -8,6 +9,8 @@ interface WidgetConfig {
 
 @Component({
   selector: 'app-stats-edit',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './stats-edit.component.html',
   styleUrls: ['./stats-edit.component.scss'],
 })

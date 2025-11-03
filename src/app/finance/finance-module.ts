@@ -7,7 +7,13 @@ import { FinanceEditComponent } from './components/finance-edit/finance-edit.com
 import { FinanceDetailsComponent } from './components/finance-details/finance-details.component';
 
 @NgModule({
-  declarations: [Finance, FinanceListComponent, FinanceEditComponent, FinanceDetailsComponent],
-  imports: [SharedModule, FinanceRoutingModule],
+  declarations: [Finance],
+  imports: [
+    SharedModule,
+    FinanceRoutingModule,
+    FinanceListComponent,
+    FinanceEditComponent,
+    FinanceDetailsComponent,
+  ],
 })
 export class FinanceModule {}

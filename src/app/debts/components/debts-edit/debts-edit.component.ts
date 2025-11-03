@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface DebtForm {
   name: string;
@@ -11,6 +12,8 @@ interface DebtForm {
 
 @Component({
   selector: 'app-debts-edit',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './debts-edit.component.html',
   styleUrls: ['./debts-edit.component.scss'],
 })
@@ -30,7 +33,7 @@ export class DebtsEditComponent {
     this.model.participants = [...this.model.participants, 'Новый участник'];
   }
 
-  trackStatus(status: DebtForm['status']): string {
+  trackStatus(index: number, status: DebtForm['status']): string {
     return status;
   }
 

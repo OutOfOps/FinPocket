@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface FinanceTransaction {
   id: string;
@@ -13,6 +14,8 @@ interface FinanceTransaction {
 
 @Component({
   selector: 'app-finance-list',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './finance-list.component.html',
   styleUrls: ['./finance-list.component.scss'],
 })

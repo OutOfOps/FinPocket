@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 @Component({
   selector: 'app-sync-details',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './sync-details.component.html',
   styleUrls: ['./sync-details.component.scss'],
 })

@@ -9,8 +9,16 @@ import { CoreEditComponent } from './components/core-edit/core-edit.component';
 import { CoreDetailsComponent } from './components/core-details/core-details.component';
 
 @NgModule({
-  declarations: [CoreListComponent, CoreEditComponent, CoreDetailsComponent],
-  imports: [CommonModule, HttpClientModule, LayoutModule, OverlayModule, SharedModule],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    LayoutModule,
+    OverlayModule,
+    SharedModule,
+    CoreListComponent,
+    CoreEditComponent,
+    CoreDetailsComponent,
+  ],
   exports: [CoreListComponent, CoreEditComponent, CoreDetailsComponent],
 })
 export class CoreModule {

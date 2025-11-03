@@ -32,8 +32,7 @@ const MATERIAL_MODULES = [
 const SHARED_COMPONENTS = [SharedListComponent, SharedEditComponent, SharedDetailsComponent];
 
 @NgModule({
-  declarations: [...SHARED_COMPONENTS],
-  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES],
+  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_COMPONENTS],
   exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_COMPONENTS],
 })
 export class SharedModule {}

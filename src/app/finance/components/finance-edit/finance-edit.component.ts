@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared/shared-module';
 
 interface FinanceFormModel {
   type: 'income' | 'expense' | 'transfer';
@@ -12,6 +13,8 @@ interface FinanceFormModel {
 
 @Component({
   selector: 'app-finance-edit',
+  standalone: true,
+  imports: [SharedModule],
   templateUrl: './finance-edit.component.html',
   styleUrls: ['./finance-edit.component.scss'],
 })
