@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../shared/shared-module';
+import { MeterType, MeterTypeOption } from '../../models/meter-reading';
+import { MetersStoreService } from '../../services/meters-store.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface MeterForm {
+  id?: string;
   object: string;
-  type: 'water' | 'gas' | 'electricity';
+  type: MeterType;
   value: number;
   unit: string;
   submittedAt: string;
@@ -17,21 +22,30 @@ interface MeterForm {
   styleUrls: ['./meters-edit.component.scss'],
 })
 export class MetersEditComponent {
-  readonly form: MeterForm = {
-    object: 'Квартира, ул. Ленина 10',
-    type: 'water',
-    value: 0,
-    unit: 'м³',
-    submittedAt: new Date().toISOString().substring(0, 10),
-  };
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly store = inject(MetersStoreService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  readonly objectOptions = ['Квартира, ул. Ленина 10', 'Дом, СНТ Берёзка'];
+  readonly typeOptions: MeterTypeOption[] = this.store.typeOptions;
+  form: MeterForm = this.createDefaultForm();
+  readonly objectOptions$ = this.store.objectOptions$;
+  isEditMode = false;
 
-  readonly typeOptions: { type: MeterForm['type']; label: string; unit: string }[] = [
-    { type: 'water', label: 'Вода', unit: 'м³' },
-    { type: 'gas', label: 'Газ', unit: 'м³' },
-    { type: 'electricity', label: 'Электричество', unit: 'кВт·ч' },
-  ];
+  constructor() {
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const id = params.get('id');
+        this.isEditMode = !!id;
+
+        if (id) {
+          this.patchFromExisting(id);
+        } else {
+          this.form = this.createDefaultForm();
+        }
+      });
+  }
 
   updateType(type: MeterForm['type']): void {
     const config = this.typeOptions.find((option) => option.type === type);
@@ -44,6 +58,39 @@ export class MetersEditComponent {
   }
 
   submit(): void {
-    console.info('Сохранение показаний', this.form);
+    const saved = this.store.upsertReading(this.form);
+    this.form = { ...saved };
+    this.router.navigate(['../list'], { relativeTo: this.route });
+  }
+
+  trackObject(_: number, option: string): string {
+    return option;
+  }
+
+  private createDefaultForm(): MeterForm {
+    const defaultType = this.typeOptions[0];
+    return {
+      object: this.store.getDefaultObject(),
+      type: defaultType.type,
+      value: 0,
+      unit: defaultType.unit,
+      submittedAt: new Date().toISOString().substring(0, 10),
+    };
+  }
+
+  private patchFromExisting(id: string): void {
+    const reading = this.store.getReadingById(id);
+    if (!reading) {
+      return;
+    }
+
+    this.form = {
+      id: reading.id,
+      object: reading.object,
+      type: reading.type,
+      value: reading.value,
+      unit: reading.unit,
+      submittedAt: reading.submittedAt,
+    };
   }
 }

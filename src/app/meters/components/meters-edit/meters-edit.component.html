@@ -7,9 +7,10 @@
   <form (ngSubmit)="submit()" #meterForm="ngForm" class="meters-edit__form">
     <label>
       Объект
-      <select name="object" [(ngModel)]="form.object">
-        <option *ngFor="let object of objectOptions" [value]="object">{{ object }}</option>
-      </select>
+      <input type="text" name="object" list="meter-objects" [(ngModel)]="form.object" required />
+      <datalist id="meter-objects">
+        <option *ngFor="let object of objectOptions$ | async; trackBy: trackObject" [value]="object"></option>
+      </datalist>
     </label>
 
     <fieldset>
@@ -32,7 +33,7 @@
     </label>
 
     <button mat-raised-button color="primary" type="submit" [disabled]="meterForm.invalid">
-      Отправить показания
+      {{ isEditMode ? 'Обновить показания' : 'Отправить показания' }}
     </button>
   </form>
 </section>
