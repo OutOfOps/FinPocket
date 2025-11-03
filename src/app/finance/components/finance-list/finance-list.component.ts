@@ -1,16 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
-
-interface FinanceTransaction {
-  id: string;
-  description: string;
-  category: string;
-  account: string;
-  amount: number;
-  currency: string;
-  date: string;
-  tags: string[];
-}
+import { FinanceListItem, TransactionsStore } from '../../services/transactions.store';
 
 @Component({
   selector: 'app-finance-list',
@@ -20,59 +10,15 @@ interface FinanceTransaction {
   styleUrls: ['./finance-list.component.scss'],
 })
 export class FinanceListComponent {
+  private readonly transactionsStore = inject(TransactionsStore);
+
   readonly filters = ['Все операции', 'Доходы', 'Расходы', 'По счетам'];
 
-  readonly transactions: FinanceTransaction[] = [
-    {
-      id: 'TRX-2401',
-      description: 'Перевод на накопительный счёт',
-      category: 'Сбережения',
-      account: 'Tinkoff Black',
-      amount: 15000,
-      currency: '₽',
-      date: '2024-03-03',
-      tags: ['накопления', 'автоматизация'],
-    },
-    {
-      id: 'TRX-2402',
-      description: 'Оплата коммунальных услуг',
-      category: 'Дом',
-      account: 'Семейная карта',
-      amount: -6200,
-      currency: '₽',
-      date: '2024-03-04',
-      tags: ['жкх', 'регулярный платеж'],
-    },
-    {
-      id: 'TRX-2403',
-      description: 'Фриланс проект UX-аудита',
-      category: 'Доходы',
-      account: 'USD счёт',
-      amount: 850,
-      currency: '$',
-      date: '2024-03-05',
-      tags: ['работа', 'usd'],
-    },
-  ];
+  readonly transactions = computed<FinanceListItem[]>(() => this.transactionsStore.listItems());
 
-  get balance(): number {
-    return this.transactions.reduce((sum, transaction) => sum + this.normalizeAmount(transaction), 0);
-  }
+  readonly balance = computed(() => this.transactionsStore.balance());
 
-  get expenses(): number {
-    return this.transactions
-      .filter((transaction) => this.normalizeAmount(transaction) < 0)
-      .reduce((sum, transaction) => sum + this.normalizeAmount(transaction), 0);
-  }
+  readonly expenses = computed(() => -this.transactionsStore.totalExpenses());
 
-  get income(): number {
-    return this.transactions
-      .filter((transaction) => this.normalizeAmount(transaction) > 0)
-      .reduce((sum, transaction) => sum + this.normalizeAmount(transaction), 0);
-  }
-
-  private normalizeAmount(transaction: FinanceTransaction): number {
-    const rate = transaction.currency === '$' ? 90 : 1;
-    return transaction.amount * rate;
-  }
+  readonly income = computed(() => this.transactionsStore.totalIncome());
 }

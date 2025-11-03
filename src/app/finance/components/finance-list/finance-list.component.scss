@@ -25,3 +25,14 @@
   color: #008f5a;
   font-weight: 600;
 }
+
+.finance-list__amount-negative {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.finance-list__empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+}

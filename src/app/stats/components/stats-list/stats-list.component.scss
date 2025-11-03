@@ -9,6 +9,11 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.stats-list__card {
+  display: grid;
+  gap: 0.75rem;
+}
+
 .stats-list__value {
   font-size: 1.75rem;
   font-weight: 600;
@@ -31,10 +36,15 @@
 }
 
 .stats-list__placeholder {
-  height: 140px;
   border: 1px dashed rgba(0, 0, 0, 0.2);
   border-radius: 1rem;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.stats-list__placeholder--empty {
+  min-height: 160px;
   display: grid;
   place-items: center;
-  color: rgba(0, 0, 0, 0.54);
+  text-align: center;
+  padding: 1.5rem;
 }

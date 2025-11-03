@@ -4,25 +4,36 @@
     <p>Сравните расходы, долги и потребление ресурсов в рамках одного отчётного периода.</p>
   </header>
 
-  <mat-card>
-    <mat-card-title>Объединённые показатели</mat-card-title>
+  <mat-card *ngIf="hasData(); else noBreakdown">
+    <mat-card-title>Структура расходов за месяц</mat-card-title>
     <table>
       <thead>
         <tr>
-          <th>Период</th>
-          <th>Расходы</th>
-          <th>Долги</th>
-          <th>Потребление</th>
+          <th>Категория</th>
+          <th>Сумма</th>
+          <th>Доля</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let point of dataPoints">
-          <td>{{ point.label }}</td>
-          <td>{{ point.expenses | number:'1.0-0' }} ₽</td>
-          <td>{{ point.debts | number:'1.0-0' }} ₽</td>
-          <td>{{ point.consumption }} кВт·ч</td>
+        <tr *ngFor="let row of rows()">
+          <td>{{ row.category }}</td>
+          <td>{{ row.amount | number:'1.0-0' }} ₽</td>
+          <td>{{ row.share | number:'1.0-1' }}%</td>
         </tr>
       </tbody>
+      <tfoot>
+        <tr>
+          <th>Итого расходов</th>
+          <th colspan="2">{{ totalExpenses() | number:'1.0-0' }} ₽</th>
+        </tr>
+      </tfoot>
     </table>
   </mat-card>
+
+  <ng-template #noBreakdown>
+    <mat-card class="stats-details__empty">
+      <mat-card-title>Данных пока нет</mat-card-title>
+      <p>Добавьте расходы с категорией, чтобы увидеть распределение по направлениям.</p>
+    </mat-card>
+  </ng-template>
 </section>
