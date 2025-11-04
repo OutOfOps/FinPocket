@@ -110,7 +110,7 @@
                 [(ngModel)]="newCurrency.rate"
                 required
                 min="0.0001"
-                step="0.0001"
+                step="0.01"
                 placeholder="1.0000"
               />
             </label>
@@ -177,8 +177,8 @@
                 <strong>{{ currency.name }}</strong>
                 <span class="currency-code">{{ currency.code }}</span>
                 <span class="currency-rate">
-                  1 {{ baseCurrency()?.code ?? currency.code }} =
-                  {{ getRelativeRate(currency) | number: '1.2-4' }} {{ currency.code }}
+                  1 {{ currency.code }} =
+                  {{ getRelativeRate(currency) | number: '1.2-4' }} {{ baseCurrency()?.code ?? currency.code }}
                 </span>
               </div>
                 <div class="currency-list__actions">
