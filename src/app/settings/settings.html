@@ -102,6 +102,18 @@
                 placeholder="UAH"
               />
             </label>
+            <label class="currency-field">
+              <span>Курс к {{ baseCurrency()?.code ?? 'базовой валюте' }}</span>
+              <input
+                type="number"
+                name="currencyRate"
+                [(ngModel)]="newCurrency.rate"
+                required
+                min="0.0001"
+                step="0.0001"
+                placeholder="1.0000"
+              />
+            </label>
           </div>
           <div class="currency-form__actions">
             <button mat-flat-button color="primary" type="submit" [disabled]="!canAddCurrency()">
@@ -139,6 +151,17 @@
                       maxlength="6"
                     />
                   </label>
+                  <label class="currency-field">
+                    <span>Курс к {{ baseCurrency()?.code ?? 'базовой валюте' }}</span>
+                    <input
+                      type="number"
+                      name="editCurrencyRate"
+                      [(ngModel)]="editingCurrency.rate"
+                      required
+                      min="0.0001"
+                      step="0.0001"
+                    />
+                  </label>
                 </div>
                 <div class="currency-edit__actions">
                   <button mat-button type="button" (click)="cancelCurrencyEdit()">Отмена</button>
@@ -150,10 +173,14 @@
             </ng-container>
             <ng-template #currencyView>
               <div class="currency-list__row">
-                <div class="currency-list__details">
-                  <strong>{{ currency.name }}</strong>
-                  <span>{{ currency.code }}</span>
-                </div>
+              <div class="currency-list__details">
+                <strong>{{ currency.name }}</strong>
+                <span class="currency-code">{{ currency.code }}</span>
+                <span class="currency-rate">
+                  1 {{ baseCurrency()?.code ?? currency.code }} =
+                  {{ getRelativeRate(currency) | number: '1.2-4' }} {{ currency.code }}
+                </span>
+              </div>
                 <div class="currency-list__actions">
                   <button
                     mat-stroked-button
@@ -193,7 +220,7 @@
 
         <p class="settings-hint">
           Валюта по умолчанию используется для новых счетов, операций и расчётов. Добавляйте валюты,
-          чтобы вести мультивалютный учёт.
+          чтобы вести мультивалютный учёт, и указывайте курс относительно {{ baseCurrency()?.code ?? 'базовой валюты' }}.
         </p>
       </mat-card-content>
     </mat-card>

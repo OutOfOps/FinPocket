@@ -109,11 +109,16 @@
   letter-spacing: 0.02em;
 }
 
-.currency-list__details span {
+.currency-code {
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+}
+
+.currency-rate {
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--finpocket-muted, rgba(246, 242, 255, 0.48)) 92%, transparent);
 }
 
 .currency-list__actions {
