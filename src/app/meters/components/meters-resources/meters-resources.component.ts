@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
 import { SharedModule } from '../../../shared/shared-module';
@@ -15,6 +15,7 @@ import {
   MetersStoreService,
   UpsertResourcePayload,
 } from '../../services/meters-store.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 interface ResourceFormModel {
   id?: string;
@@ -59,6 +60,7 @@ interface ResourceListView {
 export class MetersResourcesComponent {
   private readonly store = inject(MetersStoreService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly currencyService = inject(CurrencyService);
 
   readonly typeOptions = this.store.typeOptions;
   readonly zoneTemplates = [
@@ -77,6 +79,8 @@ export class MetersResourcesComponent {
   );
 
   readonly objectOptions$ = this.store.objects$;
+
+  readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
   resourceForm: ResourceFormModel = this.createDefaultResourceForm();
   tariffForm: TariffFormModel = this.createDefaultTariffForm();
@@ -202,7 +206,10 @@ export class MetersResourcesComponent {
         this.resourceForm.type === 'service'
           ? Number(this.resourceForm.serviceAmount ?? 0)
           : undefined,
-      fixedCurrency: this.resourceForm.type === 'service' ? 'грн' : undefined,
+      fixedCurrency:
+        this.resourceForm.type === 'service'
+          ? this.currencyService.normalizeCode(this.defaultCurrencyCode())
+          : undefined,
     };
 
     const saved = this.store.upsertResource(payload);
@@ -229,7 +236,7 @@ export class MetersResourcesComponent {
       resourceId: this.tariffForm.resourceId,
       zoneId: this.tariffForm.zoneId,
       price: Number(this.tariffForm.price),
-      currency: this.tariffForm.currency,
+      currency: this.currencyService.normalizeCode(this.tariffForm.currency),
       effectiveFrom: this.tariffForm.effectiveFrom,
       description: this.tariffForm.description?.trim() || undefined,
     };
@@ -373,7 +380,7 @@ export class MetersResourcesComponent {
       resourceId: this.selectedResourceId,
       zoneId: undefined,
       price: 0,
-      currency: '₴',
+      currency: this.defaultCurrencyCode(),
       effectiveFrom: new Date().toISOString().slice(0, 10),
       description: '',
     };
@@ -389,5 +396,9 @@ export class MetersResourcesComponent {
     }
 
     return 'зон';
+  }
+
+  formatCurrency(amount: number, currency?: string, fractionDigits = 2): string {
+    return this.currencyService.format(amount, currency ?? this.defaultCurrencyCode(), fractionDigits);
   }
 }

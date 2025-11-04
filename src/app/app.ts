@@ -41,10 +41,10 @@ export class App {
       description: 'Транзакции, счета и бюджеты',
     },
     {
-      label: 'Долги',
+      label: 'Кредиты/Депозиты',
       route: '/debts',
       icon: 'handshake',
-      description: 'Обязательства и напоминания по займам',
+      description: 'Обязательства, накопления и напоминания по займам',
     },
     {
       label: 'Показания',

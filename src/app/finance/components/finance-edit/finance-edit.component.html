@@ -34,9 +34,9 @@
     <label>
       Валюта
       <select name="currency" [(ngModel)]="formModel.currency">
-        <option value="₴">₴ Гривна</option>
-        <option value="$">$ Доллар</option>
-        <option value="€">€ Евро</option>
+        <option *ngFor="let currency of currencies()" [value]="currency.code">
+          {{ currency.code }} — {{ currency.name }}
+        </option>
       </select>
     </label>
 
@@ -51,9 +51,90 @@
     <label>
       Счёт
       <select name="account" [(ngModel)]="formModel.account">
-        <option *ngFor="let account of accounts" [value]="account">{{ account }}</option>
+        <option *ngFor="let account of accounts(); trackBy: trackAccount" [value]="account.name">
+          {{ account.name }}
+        </option>
       </select>
     </label>
+
+    <button
+      mat-stroked-button
+      type="button"
+      color="primary"
+      class="finance-edit__accounts-toggle"
+      (click)="toggleAccountsEditor()"
+    >
+      <mat-icon>{{ accountsEditorOpen() ? 'expand_less' : 'edit' }}</mat-icon>
+      Управлять счетами
+    </button>
+
+    <section *ngIf="accountsEditorOpen()" class="finance-edit__accounts-editor" aria-label="Управление счетами">
+      <header class="finance-edit__accounts-header">
+        <h3>Счета для операций</h3>
+        <p>Редактируйте список счетов, доступных в формах операций.</p>
+      </header>
+
+      <ul class="finance-edit__accounts-list" role="list">
+        <li *ngFor="let account of accounts(); trackBy: trackAccount" class="finance-edit__accounts-item">
+          <ng-container *ngIf="editingAccountId === account.id; else accountView">
+            <input
+              type="text"
+              [(ngModel)]="editingAccountName"
+              [ngModelOptions]="{ standalone: true }"
+              aria-label="Название счёта"
+            />
+            <div class="finance-edit__accounts-actions">
+              <button mat-stroked-button type="button" (click)="cancelAccountEdit()">Отмена</button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="saveAccountEdit()"
+                [disabled]="!canSaveAccountEdit()"
+              >
+                Сохранить
+              </button>
+            </div>
+          </ng-container>
+          <ng-template #accountView>
+            <span class="finance-edit__account-name">{{ account.name }}</span>
+            <div class="finance-edit__accounts-actions">
+              <button mat-icon-button type="button" aria-label="Редактировать счёт" (click)="startAccountEdit(account)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                aria-label="Удалить счёт"
+                (click)="removeAccount(account)"
+                [disabled]="accounts().length <= 1"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+
+      <div class="finance-edit__accounts-add">
+        <input
+          type="text"
+          placeholder="Новый счёт"
+          [(ngModel)]="newAccountName"
+          [ngModelOptions]="{ standalone: true }"
+          aria-label="Название нового счёта"
+        />
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="addAccount()"
+          [disabled]="!canAddAccount()"
+        >
+          Добавить счёт
+        </button>
+      </div>
+    </section>
 
     <label>
       Дата

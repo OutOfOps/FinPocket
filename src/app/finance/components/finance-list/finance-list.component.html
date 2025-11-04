@@ -14,15 +14,15 @@
   <section class="finance-list__summary" aria-label="Баланс">
     <mat-card>
       <mat-card-title>Баланс</mat-card-title>
-      <p>{{ balance() | number:'1.2-2' }} ₴</p>
+      <p>{{ currencyService.format(balance(), defaultCurrencyCode()) }}</p>
     </mat-card>
     <mat-card>
       <mat-card-title>Доходы</mat-card-title>
-      <p>{{ income() | number:'1.2-2' }} ₴</p>
+      <p>{{ currencyService.format(income(), defaultCurrencyCode()) }}</p>
     </mat-card>
     <mat-card>
       <mat-card-title>Расходы</mat-card-title>
-      <p>{{ expenses() | number:'1.2-2' }} ₴</p>
+      <p>{{ currencyService.format(expenses(), defaultCurrencyCode()) }}</p>
     </mat-card>
   </section>
 
@@ -40,7 +40,10 @@
           [class.finance-list__amount-positive]="transaction.amount > 0"
           [class.finance-list__amount-negative]="transaction.amount < 0"
         >
-          {{ transaction.amount | number:'1.2-2' }} {{ transaction.currency }}
+          {{ currencyService.format(transaction.convertedAmount, defaultCurrencyCode()) }}
+          <span *ngIf="transaction.currency !== defaultCurrencyCode()">
+            ({{ transaction.amount | number:'1.2-2' }} {{ transaction.currency }})
+          </span>
         </div>
       </mat-list-item>
     </mat-list>

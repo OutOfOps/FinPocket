@@ -9,18 +9,18 @@
     <div class="finance-details__grid">
       <div>
         <h3>План</h3>
-        <p>Доходы: {{ scenario.plannedIncome | number:'1.0-0' }} ₴</p>
-        <p>Расходы: {{ scenario.plannedExpenses | number:'1.0-0' }} ₴</p>
+        <p>Доходы: {{ formatCurrency(scenario.plannedIncome) }}</p>
+        <p>Расходы: {{ formatCurrency(scenario.plannedExpenses) }}</p>
       </div>
       <div>
         <h3>Факт</h3>
-        <p>Доходы: {{ scenario.actualIncome | number:'1.0-0' }} ₴</p>
-        <p>Расходы: {{ scenario.actualExpenses | number:'1.0-0' }} ₴</p>
+        <p>Доходы: {{ formatCurrency(scenario.actualIncome) }}</p>
+        <p>Расходы: {{ formatCurrency(scenario.actualExpenses) }}</p>
       </div>
       <div>
         <h3>Отклонение</h3>
         <p [class.finance-details__positive]="balanceDelta >= 0">
-          {{ balanceDelta | number:'1.0-0' }} ₴
+          {{ formatCurrency(balanceDelta) }}
         </p>
       </div>
     </div>

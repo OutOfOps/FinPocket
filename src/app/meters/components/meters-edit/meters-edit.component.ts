@@ -1,10 +1,11 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SharedModule } from '../../../shared/shared-module';
 import { MeterReadingValue } from '../../models/meter-reading';
 import { ResourceEntity, ResourceZone, TariffHistoryEntry } from '../../models/resource';
 import { MetersStoreService } from '../../services/meters-store.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 interface MeterForm {
   id?: string;
@@ -34,6 +35,7 @@ export class MetersEditComponent {
   private readonly router = inject(Router);
   private readonly store = inject(MetersStoreService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly currencyService = inject(CurrencyService);
 
   readonly objectOptions$ = this.store.objects$;
   isEditMode = false;
@@ -47,6 +49,8 @@ export class MetersEditComponent {
   estimatedCost?: number;
   estimatedCurrency?: string;
   previousReadingDate?: string;
+
+  readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
   constructor() {
     this.route.paramMap
@@ -159,6 +163,10 @@ export class MetersEditComponent {
     }
 
     return this.selectedResource.zones.find((zone) => zone.id === zoneId)?.name ?? zoneId;
+  }
+
+  formatCurrency(amount: number, currency?: string, fractionDigits = 2): string {
+    return this.currencyService.format(amount, currency ?? this.defaultCurrencyCode(), fractionDigits);
   }
 
   private updateObjectBinding(name: string): void {

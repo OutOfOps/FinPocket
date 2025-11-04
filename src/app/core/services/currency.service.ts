@@ -1,4 +1,4 @@
-import { Injectable, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 
 export interface Currency {
   id: string;
@@ -33,6 +33,26 @@ export class CurrencyService {
 
   readonly currencies = this.currenciesSignal.asReadonly();
   readonly defaultCurrency = this.defaultCurrencySignal.asReadonly();
+  readonly defaultCurrencyDetails = computed(() => {
+    const currencies = this.currenciesSignal();
+
+    if (!currencies.length) {
+      return null;
+    }
+
+    const currentDefault = this.defaultCurrencySignal();
+    return currencies.find((currency) => currency.id === currentDefault) ?? currencies[0];
+  });
+
+  private readonly currencyMap = computed(() => {
+    const map = new Map<string, Currency>();
+
+    for (const currency of this.currenciesSignal()) {
+      map.set(currency.code, currency);
+    }
+
+    return map;
+  });
 
   constructor() {
     this.ensureDefaultCurrency(this.currenciesSignal());
@@ -121,6 +141,58 @@ export class CurrencyService {
     }
 
     this.defaultCurrencySignal.set(id);
+  }
+
+  normalizeCode(value: string): string {
+    const normalized = value.trim();
+    if (!normalized) {
+      return this.getDefaultCurrencyCode();
+    }
+
+    const uppercase = normalized.toUpperCase();
+
+    switch (uppercase) {
+      case '₴':
+      case 'ГРН':
+      case 'ГРИВНА':
+        return 'UAH';
+      case '$':
+      case 'ДОЛЛАР':
+        return 'USD';
+      case '€':
+      case 'ЄВРО':
+      case 'ЕВРО':
+        return 'EUR';
+      default:
+        return uppercase;
+    }
+  }
+
+  convertToDefault(amount: number, currencyCode: string): number {
+    const currency = this.currencyMap().get(this.normalizeCode(currencyCode));
+    const target = this.defaultCurrencyDetails();
+
+    if (!currency || !target || currency.rateToBase <= 0 || target.rateToBase <= 0) {
+      return amount;
+    }
+
+    return amount * (currency.rateToBase / target.rateToBase);
+  }
+
+  getDefaultCurrencyCode(): string {
+    const target = this.defaultCurrencyDetails();
+    return target?.code ?? 'UAH';
+  }
+
+  format(amount: number, currencyCode?: string, fractionDigits = 2): string {
+    const code = currencyCode ? this.normalizeCode(currencyCode) : this.getDefaultCurrencyCode();
+
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: code,
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    }).format(amount);
   }
 
   private ensureDefaultCurrency(currencies: Currency[]): void {
