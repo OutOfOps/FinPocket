@@ -373,7 +373,7 @@ export class MetersResourcesComponent {
       resourceId: this.selectedResourceId,
       zoneId: undefined,
       price: 0,
-      currency: '₽',
+      currency: '₴',
       effectiveFrom: new Date().toISOString().slice(0, 10),
       description: '',
     };

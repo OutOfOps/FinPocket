@@ -25,7 +25,7 @@ export class FinanceEditComponent {
   readonly formModel: FinanceFormModel = {
     type: 'expense',
     amount: 0,
-    currency: '₽',
+    currency: '₴',
     category: '',
     account: 'Основной счёт',
     date: new Date().toISOString().substring(0, 10),

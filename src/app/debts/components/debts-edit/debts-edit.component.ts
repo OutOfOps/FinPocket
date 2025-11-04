@@ -21,7 +21,7 @@ export class DebtsEditComponent {
   readonly model: DebtForm = {
     name: '',
     amount: 0,
-    currency: '₽',
+    currency: '₴',
     dueDate: new Date().toISOString().substring(0, 10),
     participants: ['Вы'],
     status: 'active',

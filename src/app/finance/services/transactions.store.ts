@@ -25,7 +25,7 @@ interface CategoryTotal {
 }
 
 const CURRENCY_RATES: Record<string, number> = {
-  '₽': 1,
+  '₴': 1,
   '$': 90,
   '€': 98,
 };
