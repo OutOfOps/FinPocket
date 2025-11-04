@@ -6,18 +6,48 @@
 
   <mat-card>
     <mat-card-title>Текущие долги</mat-card-title>
-    <mat-list>
-      <mat-list-item *ngFor="let debt of debts">
-        <div matListItemTitle>{{ debt.name }}</div>
-        <div matListItemLine>Срок: {{ debt.dueDate | date:'d MMMM yyyy' }}</div>
-        <div matListItemLine>Статус: {{ statusLabel(debt.status) }}</div>
-        <div matListItemMeta [ngClass]="'debts-list__status-' + debt.status">
-          {{ formattedAmount(debt) }}
-          <span *ngIf="debt.currency !== defaultCurrencyCode()">
-            ({{ debt.amount | number:'1.0-0' }} {{ debt.currency }})
-          </span>
-        </div>
-      </mat-list-item>
-    </mat-list>
+    <section class="debts-list__summary" aria-label="Сводка">
+      <div>
+        <span>Мы должны</span>
+        <strong>{{ currencyService.format(totals().owed, totals().defaultCurrency, 0) }}</strong>
+      </div>
+      <div>
+        <span>Нам должны</span>
+        <strong>{{ currencyService.format(totals().lent, totals().defaultCurrency, 0) }}</strong>
+      </div>
+      <div>
+        <span>Итог</span>
+        <strong>{{ currencyService.format(totals().net, totals().defaultCurrency, 0) }}</strong>
+      </div>
+    </section>
+
+    <ng-container *ngIf="debts().length; else emptyState">
+      <mat-list>
+        <mat-list-item *ngFor="let debt of debts(); trackBy: trackDebt">
+          <div matListItemTitle>
+            {{ debt.name }}
+            <span class="debts-list__kind">{{ debt.kindLabel }}</span>
+          </div>
+          <div matListItemLine>
+            <span>Статус: {{ debt.statusLabel }}</span>
+            <span *ngIf="debt.dueDate">• Срок: {{ debt.dueDate | date:'d MMMM yyyy' }}</span>
+          </div>
+          <div matListItemLine *ngIf="debt.participants.length">
+            Участники: {{ debt.participants.join(', ') }}
+          </div>
+          <div matListItemLine *ngIf="debt.note">{{ debt.note }}</div>
+          <div matListItemMeta [ngClass]="'debts-list__status-' + debt.status">
+            {{ currencyService.format(debt.convertedAmount, defaultCurrencyCode(), 0) }}
+            <span *ngIf="debt.currency !== defaultCurrencyCode()">
+              ({{ debt.amount | number:'1.2-2' }} {{ debt.currency }})
+            </span>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <p class="debts-list__empty">Добавьте первый кредит или депозит, чтобы начать учёт.</p>
+    </ng-template>
   </mat-card>
 </section>

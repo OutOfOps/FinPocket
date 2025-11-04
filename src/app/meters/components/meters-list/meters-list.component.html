@@ -39,7 +39,7 @@
             </td>
             <td>{{ reading.submittedAt | date: 'd MMMM yyyy' }}</td>
             <td class="meters-list__actions">
-              <a mat-button color="primary" [routerLink]="[reading.id, 'edit']">Редактировать</a>
+              <a mat-button color="primary" [routerLink]="['../', reading.id, 'edit']">Редактировать</a>
               <a mat-button [routerLink]="['../', reading.resourceId]">Детали</a>
             </td>
           </tr>

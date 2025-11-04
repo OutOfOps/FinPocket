@@ -5,6 +5,20 @@
   </header>
 
   <form (ngSubmit)="submit()" #debtForm="ngForm" class="debts-edit__form">
+    <fieldset>
+      <legend>Тип операции</legend>
+      <mat-button-toggle-group
+        name="type"
+        [value]="model.type"
+        (change)="model.type = $event.value"
+        aria-label="Тип операции"
+      >
+        <mat-button-toggle *ngFor="let option of typeOptions" [value]="option.value">
+          {{ option.label }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </fieldset>
+
     <label>
       Название
       <input type="text" name="name" [(ngModel)]="model.name" required />
@@ -41,10 +55,34 @@
     <section class="debts-edit__participants">
       <h3>Участники</h3>
       <ul>
-        <li *ngFor="let participant of model.participants; index as i">{{ i + 1 }}. {{ participant }}</li>
+        <li *ngFor="let participant of model.participants; index as i; trackBy: trackParticipant">
+          <label class="debts-edit__participant-input">
+            <input
+              type="text"
+              [(ngModel)]="model.participants[i]"
+              name="participant-{{ i }}"
+              required
+              aria-label="Участник {{ i + 1 }}"
+            />
+          </label>
+          <button
+            mat-icon-button
+            type="button"
+            aria-label="Удалить участника"
+            (click)="model.participants.splice(i, 1)"
+            [disabled]="model.participants.length <= 1"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </li>
       </ul>
       <button mat-stroked-button type="button" (click)="addParticipant()">Добавить участника</button>
     </section>
+
+    <label>
+      Заметка
+      <textarea name="note" rows="3" [(ngModel)]="model.note"></textarea>
+    </label>
 
     <button mat-raised-button color="primary" type="submit" [disabled]="debtForm.invalid">Сохранить</button>
   </form>
