@@ -1,4 +1,4 @@
-import { MeterType } from './meter-reading';
+import { ResourceType } from './resource-type';
 
 export type ResourcePricingModel = 'per_unit' | 'fixed';
 
@@ -16,11 +16,13 @@ export interface ResourceZone {
 export interface ResourceEntity {
   id: string;
   objectId: string;
-  type: MeterType;
+  type: ResourceType;
   name: string;
   unit: string;
   pricingModel: ResourcePricingModel;
   zones: ResourceZone[];
+  fixedAmount?: number;
+  fixedCurrency?: string;
 }
 
 export interface TariffHistoryEntry {

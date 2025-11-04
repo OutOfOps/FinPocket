@@ -3,6 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ThemeService } from './core/services/theme.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 type NavigationItem = {
   label: string;
@@ -72,4 +73,12 @@ export class App {
   ];
 
   protected readonly hasNavigationOverlay = computed(() => this.isHandset());
+
+  protected async onNavItemSelect(drawer: MatSidenav): Promise<void> {
+    if (!this.isHandset()) {
+      return;
+    }
+
+    await drawer.close();
+  }
 }

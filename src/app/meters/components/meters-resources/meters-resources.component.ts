@@ -2,7 +2,6 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
 import { SharedModule } from '../../../shared/shared-module';
-import { MeterType } from '../../models/meter-reading';
 import {
   MeterObject,
   ResourceEntity,
@@ -10,6 +9,7 @@ import {
   ResourceZone,
   TariffHistoryEntry,
 } from '../../models/resource';
+import { ResourceType } from '../../models/resource-type';
 import {
   AddTariffPayload,
   MetersStoreService,
@@ -19,11 +19,12 @@ import {
 interface ResourceFormModel {
   id?: string;
   objectName: string;
-  type: MeterType;
+  type: ResourceType;
   name: string;
   pricingModel: ResourcePricingModel;
   zoneTemplate: 'single' | 'double' | 'triple';
   unit: string;
+  serviceAmount: number | null;
 }
 
 interface TariffFormModel {
@@ -39,8 +40,13 @@ interface ResourceListView {
   entity: ResourceEntity;
   objectName: string;
   typeLabel: string;
+  typeIcon: string;
+  typeDescription: string;
+  isService: boolean;
   zoneSummary: string;
   pricingLabel: string;
+  fixedAmount?: number;
+  fixedCurrency?: string;
 }
 
 @Component({
@@ -139,6 +145,7 @@ export class MetersResourcesComponent {
       pricingModel: resource.pricingModel,
       zoneTemplate: this.detectTemplate(resource),
       unit: resource.unit,
+      serviceAmount: resource.fixedAmount ?? null,
     };
     this.selectForTariffs(resource);
   }
@@ -147,14 +154,24 @@ export class MetersResourcesComponent {
     this.resourceForm = this.createDefaultResourceForm();
   }
 
-  onTypeChange(type: MeterType): void {
+  onTypeChange(type: ResourceType): void {
     this.resourceForm.type = type;
     const option = this.typeOptions.find((item) => item.type === type);
     if (option) {
       this.resourceForm.unit = option.unit;
     }
 
-    if (type !== 'electricity') {
+    if (type === 'service') {
+      this.resourceForm.pricingModel = 'fixed';
+      this.resourceForm.serviceAmount = this.resourceForm.serviceAmount ?? 0;
+    } else {
+      this.resourceForm.serviceAmount = null;
+      if (this.resourceForm.pricingModel === 'fixed') {
+        this.resourceForm.pricingModel = 'per_unit';
+      }
+    }
+
+    if (type !== 'electricity' || this.resourceForm.pricingModel === 'fixed') {
       this.resourceForm.zoneTemplate = 'single';
     }
   }
@@ -181,6 +198,11 @@ export class MetersResourcesComponent {
       unit: this.resourceForm.unit,
       pricingModel: this.resourceForm.pricingModel,
       zones,
+      fixedAmount:
+        this.resourceForm.type === 'service'
+          ? Number(this.resourceForm.serviceAmount ?? 0)
+          : undefined,
+      fixedCurrency: this.resourceForm.type === 'service' ? 'грн' : undefined,
     };
 
     const saved = this.store.upsertResource(payload);
@@ -225,8 +247,12 @@ export class MetersResourcesComponent {
     this.refreshTariffHistory();
   }
 
-  typeLabel(type: MeterType): string {
+  typeLabel(type: ResourceType): string {
     return this.store.typeLabel(type);
+  }
+
+  typeIcon(type: ResourceType): string {
+    return this.store.typeIcon(type);
   }
 
   zoneName(zoneId?: string): string {
@@ -261,14 +287,31 @@ export class MetersResourcesComponent {
   }
 
   private mapToResourceView(resources: ResourceEntity[], objects: MeterObject[]): ResourceListView[] {
-    return resources.map((resource) => ({
-      entity: resource,
-      objectName: objects.find((object) => object.id === resource.objectId)?.name ?? 'Неизвестный объект',
-      typeLabel: this.store.typeLabel(resource.type),
-      zoneSummary: resource.zones.map((zone) => zone.name).join(', '),
-      pricingLabel:
-        resource.pricingModel === 'fixed' ? 'Фиксировано' : `${resource.zones.length} ${this.pluralizeZones(resource.zones.length)}`,
-    }));
+    return resources.map((resource) => {
+      const objectName = objects.find((object) => object.id === resource.objectId)?.name ?? 'Неизвестный объект';
+      const isService = resource.type === 'service';
+      const zoneSummary = isService
+        ? 'Без счётчика'
+        : resource.zones.map((zone) => zone.name).join(', ') || '—';
+      const pricingLabel = isService
+        ? 'Фиксированная услуга'
+        : resource.pricingModel === 'fixed'
+          ? 'Фиксированная плата'
+          : `${resource.zones.length} ${this.pluralizeZones(resource.zones.length)}`;
+
+      return {
+        entity: resource,
+        objectName,
+        typeLabel: this.store.typeLabel(resource.type),
+        typeIcon: this.store.typeIcon(resource.type),
+        typeDescription: this.store.typeDescription(resource.type),
+        isService,
+        zoneSummary,
+        pricingLabel,
+        fixedAmount: resource.fixedAmount,
+        fixedCurrency: resource.fixedCurrency,
+      } satisfies ResourceListView;
+    });
   }
 
   private detectTemplate(resource: ResourceEntity): ResourceFormModel['zoneTemplate'] {
@@ -321,6 +364,7 @@ export class MetersResourcesComponent {
       pricingModel: 'per_unit',
       zoneTemplate: 'single',
       unit: defaultType.unit,
+      serviceAmount: null,
     };
   }
 

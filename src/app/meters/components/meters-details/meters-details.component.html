@@ -1,14 +1,39 @@
 <section class="meters-details" *ngIf="summary as data; else noResource">
   <header class="meters-details__header">
+    <div class="meters-details__type">
+      <mat-icon>{{ typeIcon(data.resource.type) }}</mat-icon>
+      <span>
+        <strong>{{ typeLabel(data.resource.type) }}</strong>
+        <small>{{ typeDescription(data.resource.type) }}</small>
+      </span>
+    </div>
     <h2>{{ data.resource.name }}</h2>
-    <p>
-      Объект: {{ data.object.name }} · Тип: {{ data.resource.type | titlecase }} · Учёт: {{ pricingLabel(data.resource.pricingModel) }}
-    </p>
+    <p>Объект: {{ data.object.name }} · Учёт: {{ pricingLabel(data.resource) }}</p>
     <div class="meters-details__meta">
-      <span>Единица: {{ data.resource.unit }}</span>
+      <span *ngIf="!isService(data.resource)">Единица: {{ data.resource.unit }}</span>
+      <span *ngIf="isService(data.resource)">
+        Сумма:
+        <ng-container *ngIf="data.resource.fixedAmount !== undefined; else noServiceAmount">
+          {{ data.resource.fixedAmount | number: '1.2-2' }} {{ data.resource.fixedCurrency || 'грн' }}
+        </ng-container>
+        <ng-template #noServiceAmount>—</ng-template>
+      </span>
       <span>Зоны: {{ zoneSummaryText() }}</span>
     </div>
   </header>
+
+  <section class="meters-details__card meters-details__service" *ngIf="isService(data.resource)">
+    <h3>Фиксированная услуга</h3>
+    <p>
+      Ежемесячный платёж:
+      <ng-container *ngIf="data.resource.fixedAmount !== undefined; else noServiceAmountInline">
+        <strong>{{ data.resource.fixedAmount | number: '1.2-2' }} {{ data.resource.fixedCurrency || 'грн' }}</strong>
+      </ng-container>
+    </p>
+    <p class="meters-details__service-note">
+      Показания для услуги не требуются. Обновляйте сумму в разделе управления ресурсами.
+    </p>
+  </section>
 
   <section class="meters-details__card" *ngIf="data.currentTariffs.length">
     <h3>Актуальные тарифы</h3>
@@ -21,7 +46,7 @@
     </ul>
   </section>
 
-  <section class="meters-details__card" *ngIf="readings.length; else noReadings">
+  <section class="meters-details__card" *ngIf="!isService(data.resource) && readings.length; else noReadings">
     <h3>Последние показания</h3>
     <table>
       <thead>
@@ -75,8 +100,13 @@
   <p class="meters-details__empty">Выберите ресурс в списке, чтобы увидеть подробную аналитику потребления.</p>
 </ng-template>
 
+<ng-template #noServiceAmountInline>
+  <span class="meters-details__service-note">—</span>
+</ng-template>
+
 <ng-template #noReadings>
-  <p class="meters-details__empty">Для этого ресурса ещё нет показаний.</p>
+  <p class="meters-details__empty" *ngIf="!isService(summary?.resource)">Для этого ресурса ещё нет показаний.</p>
+  <p class="meters-details__empty" *ngIf="isService(summary?.resource)">Для услуг показания не требуются.</p>
 </ng-template>
 
 <ng-template #noPreviousDate>—</ng-template>

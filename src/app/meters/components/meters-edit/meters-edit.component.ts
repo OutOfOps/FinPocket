@@ -170,7 +170,9 @@ export class MetersEditComponent {
   private createDefaultForm(): MeterForm {
     const defaultObjectId = this.store.getDefaultObjectId();
     const defaultObject = defaultObjectId ? this.store.getObjectById(defaultObjectId) : undefined;
-    const resources = defaultObjectId ? this.store.getResourcesForObject(defaultObjectId) : [];
+    const resources = defaultObjectId
+      ? this.store.getResourcesForObject(defaultObjectId).filter((resource) => resource.type !== 'service')
+      : [];
     const defaultResource = resources[0];
     return {
       objectName: defaultObject?.name ?? '',
@@ -238,7 +240,9 @@ export class MetersEditComponent {
       return;
     }
 
-    this.resources = this.store.getResourcesForObject(this.form.objectId);
+    this.resources = this.store
+      .getResourcesForObject(this.form.objectId)
+      .filter((resource) => resource.type !== 'service');
     if (!this.resources.length) {
       this.selectedResource = undefined;
       this.form.resourceId = undefined;

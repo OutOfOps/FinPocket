@@ -5,22 +5,57 @@
 
 .meters-details__header {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .meters-details__header p,
 .meters-details__meta {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
+.meters-details__type {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.meters-details__type mat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--finpocket-primary) 75%, transparent), color-mix(in srgb, var(--finpocket-accent) 70%, transparent));
+  color: var(--finpocket-text, #f6f2ff);
+}
+
+.meters-details__type span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.meters-details__type strong {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.meters-details__type small {
+  font-size: 0.8rem;
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+}
+
 .meters-details__card {
   padding: 1.5rem;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 90%, transparent 10%);
+  box-shadow: var(--finpocket-card-shadow, 0 12px 30px rgba(0, 0, 0, 0.45));
   display: grid;
   gap: 1rem;
 }
@@ -45,7 +80,7 @@
 .meters-details__card th,
 .meters-details__card td {
   padding: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, var(--finpocket-border, rgba(255, 255, 255, 0.08)) 65%, transparent);
   text-align: left;
   vertical-align: top;
 }
@@ -57,7 +92,7 @@
 .meters-details__tariff-date,
 .meters-details__tariff-description {
   margin-left: 0.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
   font-size: 0.85rem;
 }
 
@@ -69,7 +104,19 @@
   margin: 0;
   padding: 1rem;
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px dashed rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 88%, transparent 12%);
+  border: 1px dashed var(--finpocket-border, rgba(255, 255, 255, 0.14));
+  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
+}
+
+.meters-details__service {
+  background: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 14%, transparent);
+  border-style: dashed;
+}
+
+.meters-details__service-note {
+  margin: 0;
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+  font-size: 0.9rem;
+  line-height: 1.5;
 }

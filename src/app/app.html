@@ -19,7 +19,7 @@
         *ngFor="let item of navItems"
         [routerLink]="item.route"
         routerLinkActive="active"
-        (click)="isHandset() ? drawer.close() : null"
+        (click)="onNavItemSelect(drawer)"
       >
         <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
         <span class="nav-text">
