@@ -18,6 +18,130 @@
   gap: 1.25rem;
 }
 
+.currency-form,
+.currency-edit {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.92)) 90%, transparent 10%);
+  box-shadow: var(--finpocket-card-shadow, 0 12px 28px rgba(0, 0, 0, 0.35));
+}
+
+.currency-edit {
+  margin: -0.25rem;
+}
+
+.currency-form__fields,
+.currency-edit__fields {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.currency-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+}
+
+.currency-field input {
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--finpocket-border, rgba(255, 255, 255, 0.08)) 70%, transparent);
+  background: color-mix(in srgb, var(--finpocket-surface-alt, #1b1b22) 82%, transparent 18%);
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0.04em;
+}
+
+.currency-form__actions,
+.currency-edit__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.currency-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.currency-list__item {
+  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.92)) 88%, transparent 12%);
+  box-shadow: var(--finpocket-card-shadow, 0 10px 26px rgba(0, 0, 0, 0.3));
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.currency-list__item--default {
+  border-color: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 45%, transparent);
+  transform: translateY(-2px);
+}
+
+.currency-list__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.currency-list__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.currency-list__details strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+.currency-list__details span {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+}
+
+.currency-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.currency-default {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 16%, transparent);
+  color: var(--finpocket-primary, #9c27b0);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.currency-default mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 .settings-toggle {
   display: inline-flex;
   border-radius: 999px;
@@ -149,5 +273,10 @@
 
   .settings-previews {
     gap: 0.65rem;
+  }
+
+  .currency-list__row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
