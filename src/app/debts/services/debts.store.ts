@@ -54,17 +54,21 @@ export class DebtsStore {
         );
         const kind = debt.kind ?? 'loan';
 
+        const kindLabel = Object.hasOwn(KIND_LABELS, kind)
+          ? KIND_LABELS[kind]
+          : KIND_LABELS.loan;
+
+        const statusLabel = Object.hasOwn(STATUS_LABELS, debt.status)
+          ? STATUS_LABELS[debt.status]
+          : 'Неизвестно';
+
         return {
           id: debt.id ?? 0,
           name: debt.contact,
           kind,
-          kindLabel: Object.hasOwn(KIND_LABELS, kind)
-            ? KIND_LABELS[kind]
-            : KIND_LABELS.loan,
+          kindLabel,
           status: debt.status,
-          statusLabel: Object.hasOwn(STATUS_LABELS, debt.status)
-            ? STATUS_LABELS[debt.status]
-            : 'Неизвестно',
+          statusLabel,
           amount: debt.amount,
           currency: normalizedCurrency,
           convertedAmount,
