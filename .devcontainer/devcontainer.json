@@ -1,6 +1,6 @@
 {
   "name": "Angular Dev Environment",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
   "workspaceFolder": "/workspaces/FinPocket/projects/pwa",
   "features": {
     "ghcr.io/devcontainers/features/node:1": { "version": "20" },
