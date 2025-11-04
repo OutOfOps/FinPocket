@@ -75,9 +75,11 @@ export class ThemeService {
       overlayClassList?.remove(themeClass);
     });
 
-    const themeClass = this.themeClasses[theme];
-    classList.add(themeClass);
-    overlayClassList?.add(themeClass);
+    if (Object.hasOwn(this.themeClasses, theme)) {
+      const themeClass = this.themeClasses[theme];
+      classList.add(themeClass);
+      overlayClassList?.add(themeClass);
+    }
   }
 
   private persistTheme(theme: FinpocketTheme): void {

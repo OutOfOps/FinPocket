@@ -465,7 +465,7 @@ export class MetersStoreService {
 
     if (payload.id) {
       const index = readings.findIndex((reading) => reading.id === payload.id);
-      if (index !== -1) {
+      if (Number.isInteger(index) && index >= 0 && index < readings.length) {
         const updated: MeterReading = {
           ...readings[index],
           objectId: payload.objectId,
@@ -499,7 +499,7 @@ export class MetersStoreService {
 
     if (payload.id) {
       const index = resources.findIndex((resource) => resource.id === payload.id);
-      if (index !== -1) {
+      if (Number.isInteger(index) && index >= 0 && index < resources.length) {
         const updated: ResourceEntity = {
           ...resources[index],
           objectId: targetObject.id,
@@ -511,7 +511,9 @@ export class MetersStoreService {
           fixedAmount: payload.fixedAmount,
           fixedCurrency: payload.fixedCurrency,
         };
+        if (Number.isInteger(index) && index >= 0 && index < resources.length) {
         resources[index] = updated;
+        }
         this.resourcesSubject.next(resources);
         return updated;
       }

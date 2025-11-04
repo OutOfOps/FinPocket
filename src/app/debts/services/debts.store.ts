@@ -58,9 +58,13 @@ export class DebtsStore {
           id: debt.id ?? 0,
           name: debt.contact,
           kind,
-          kindLabel: KIND_LABELS[kind] ?? KIND_LABELS.loan,
+          kindLabel: Object.hasOwn(KIND_LABELS, kind)
+            ? KIND_LABELS[kind]
+            : KIND_LABELS.loan,
           status: debt.status,
-          statusLabel: STATUS_LABELS[debt.status] ?? 'Неизвестно',
+          statusLabel: Object.hasOwn(STATUS_LABELS, debt.status)
+            ? STATUS_LABELS[debt.status]
+            : 'Неизвестно',
           amount: debt.amount,
           currency: normalizedCurrency,
           convertedAmount,
@@ -122,11 +126,17 @@ export class DebtsStore {
   }
 
   kindLabel(kind: DebtKind): string {
-    return KIND_LABELS[kind];
+    if (Object.hasOwn(KIND_LABELS, kind)) {
+      return KIND_LABELS[kind];
+    }
+    return KIND_LABELS.loan; // fallback для неподдержанного значения
   }
 
   statusLabel(status: DebtStatus): string {
-    return STATUS_LABELS[status];
+    if (Object.hasOwn(STATUS_LABELS, status)) {
+      return STATUS_LABELS[status];
+    }
+    return 'Неизвестно';
   }
 
   private sortByDueDate(left?: string, right?: string): number {

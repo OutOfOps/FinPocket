@@ -30,7 +30,7 @@ interface ZoneViewModel {
   templateUrl: './meters-edit.component.html',
   styleUrls: ['./meters-edit.component.scss'],
 })
-export class MetersEditComponent {
+class MetersEditComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly store = inject(MetersStoreService);
@@ -132,8 +132,10 @@ export class MetersEditComponent {
   }
 
   updateZoneValue(zoneId: string, value: number): void {
-    this.form.values[zoneId] = Number(value);
-    this.recalculateSummary();
+    if (typeof zoneId === 'string' && Object.hasOwn(this.form.values, zoneId)) {
+      this.form.values[zoneId] = Number(value);
+      this.recalculateSummary();
+    }
   }
 
   get zones(): ZoneViewModel[] {
@@ -314,3 +316,5 @@ export class MetersEditComponent {
     this.previousReadingDate = summary.previous?.submittedAt;
   }
 }
+
+export default MetersEditComponent
