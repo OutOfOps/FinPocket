@@ -11,7 +11,7 @@
         <span>{{ entry.date | date:'d MMMM yyyy' }}</span>
         <span>{{ entry.action }}</span>
         <strong [class.debts-details__credit]="entry.amount >= 0">
-          {{ entry.amount | number:'1.0-0' }} ₽
+          {{ entry.amount | number:'1.0-0' }} ₴
         </strong>
       </li>
     </ol>

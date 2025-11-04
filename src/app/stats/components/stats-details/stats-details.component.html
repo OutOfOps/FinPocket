@@ -17,14 +17,14 @@
       <tbody>
         <tr *ngFor="let row of rows()">
           <td>{{ row.category }}</td>
-          <td>{{ row.amount | number:'1.0-0' }} ₽</td>
+          <td>{{ row.amount | number:'1.0-0' }} ₴</td>
           <td>{{ row.share | number:'1.0-1' }}%</td>
         </tr>
       </tbody>
       <tfoot>
         <tr>
           <th>Итого расходов</th>
-          <th colspan="2">{{ totalExpenses() | number:'1.0-0' }} ₽</th>
+          <th colspan="2">{{ totalExpenses() | number:'1.0-0' }} ₴</th>
         </tr>
       </tfoot>
     </table>
