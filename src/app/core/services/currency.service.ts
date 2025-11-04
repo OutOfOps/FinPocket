@@ -4,17 +4,19 @@ export interface Currency {
   id: string;
   name: string;
   code: string;
+  rateToBase: number;
 }
 
 export interface NewCurrency {
   name: string;
   code: string;
+  rateToBase: number;
 }
 
 const DEFAULT_CURRENCIES: Currency[] = [
-  { id: 'currency-uah', name: 'Гривна', code: 'UAH' },
-  { id: 'currency-usd', name: 'Доллар', code: 'USD' },
-  { id: 'currency-eur', name: 'Евро', code: 'EUR' },
+  { id: 'currency-uah', name: 'Гривна', code: 'UAH', rateToBase: 1 },
+  { id: 'currency-usd', name: 'Доллар', code: 'USD', rateToBase: 0.027 },
+  { id: 'currency-eur', name: 'Евро', code: 'EUR', rateToBase: 0.025 },
 ];
 
 const DEFAULT_CURRENCY_ID = 'currency-uah';
@@ -49,8 +51,9 @@ export class CurrencyService {
   addCurrency(currency: NewCurrency): void {
     const name = currency.name.trim();
     const code = currency.code.trim().toUpperCase();
+    const rate = this.normalizeRate(currency.rateToBase);
 
-    if (!name || !code) {
+    if (!name || !code || rate === null) {
       return;
     }
 
@@ -62,6 +65,7 @@ export class CurrencyService {
         id: currencyId,
         name,
         code,
+        rateToBase: rate,
       },
     ]);
   }
@@ -69,6 +73,15 @@ export class CurrencyService {
   updateCurrency(id: string, changes: Partial<NewCurrency>): void {
     const name = changes.name !== undefined ? changes.name.trim() : undefined;
     const code = changes.code !== undefined ? changes.code.trim().toUpperCase() : undefined;
+    let rate: number | undefined;
+
+    if (changes.rateToBase !== undefined) {
+      const normalizedRate = this.normalizeRate(changes.rateToBase);
+      if (normalizedRate === null) {
+        return;
+      }
+      rate = normalizedRate;
+    }
 
     if (name === '' || code === '') {
       return;
@@ -81,6 +94,7 @@ export class CurrencyService {
               ...currency,
               ...(name !== undefined ? { name } : {}),
               ...(code !== undefined ? { code } : {}),
+              ...(rate !== undefined ? { rateToBase: rate } : {}),
             }
           : currency
       )
@@ -179,13 +193,30 @@ export class CurrencyService {
     const maybeCurrency = value as Partial<Currency>;
     const id = typeof maybeCurrency.id === 'string' && maybeCurrency.id.trim() ? maybeCurrency.id.trim() : null;
     const name = typeof maybeCurrency.name === 'string' && maybeCurrency.name.trim() ? maybeCurrency.name.trim() : null;
-    const code = typeof maybeCurrency.code === 'string' && maybeCurrency.code.trim() ? maybeCurrency.code.trim().toUpperCase() : null;
+    const code =
+      typeof maybeCurrency.code === 'string' && maybeCurrency.code.trim()
+        ? maybeCurrency.code.trim().toUpperCase()
+        : null;
+    const rate = this.normalizeRate((maybeCurrency as { rateToBase?: unknown }).rateToBase);
 
-    if (!id || !name || !code) {
+    if (!id || !name || !code || rate === null) {
       return null;
     }
 
-    return { id, name, code };
+    return { id, name, code, rateToBase: rate };
+  }
+
+  private normalizeRate(value: unknown): number | null {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) && value > 0 ? value : null;
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    return null;
   }
 
   private persistCurrencies(currencies: Currency[]): void {
