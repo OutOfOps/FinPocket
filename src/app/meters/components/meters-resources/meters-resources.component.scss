@@ -5,7 +5,7 @@
 
 .meters-resources__header p {
   max-width: 720px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
 }
 
 .meters-resources__layout {
@@ -19,18 +19,71 @@
   border-collapse: collapse;
   border-radius: 1rem;
   overflow: hidden;
+  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 92%, transparent 8%);
+  box-shadow: var(--finpocket-card-shadow, 0 12px 30px rgba(0, 0, 0, 0.45));
 }
 
 .meters-resources__list th,
 .meters-resources__list td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--finpocket-border, rgba(255, 255, 255, 0.08)) 65%, transparent);
   text-align: left;
   font-size: 0.95rem;
 }
 
 .meters-resources__list tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 12%, transparent);
+}
+
+.meters-resources__type {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.meters-resources__type mat-icon {
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--finpocket-primary) 78%, transparent), color-mix(in srgb, var(--finpocket-accent) 72%, transparent));
+  color: var(--finpocket-text, #f6f2ff);
+}
+
+.meters-resources__type span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.meters-resources__type strong {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.meters-resources__type small {
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+  font-size: 0.8rem;
+}
+
+.meters-resources__pricing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.meters-resources__price-value {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.meters-resources__price-hint {
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+  font-size: 0.8rem;
 }
 
 .meters-resources__actions {
@@ -51,8 +104,9 @@
   gap: 1rem;
   padding: 1.5rem;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 88%, transparent 12%);
+  box-shadow: var(--finpocket-card-shadow, 0 12px 30px rgba(0, 0, 0, 0.45));
 }
 
 .meters-resources__form label,
@@ -69,8 +123,8 @@
 .meters-resources__tariff-form select {
   padding: 0.75rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid color-mix(in srgb, var(--finpocket-border, rgba(255, 255, 255, 0.08)) 70%, transparent);
+  background: color-mix(in srgb, var(--finpocket-surface-alt, #1b1b22) 82%, transparent 18%);
   color: inherit;
   font: inherit;
 }
@@ -103,18 +157,18 @@
   gap: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 10%, var(--finpocket-card-bg, rgba(17, 17, 17, 0.96)) 90%);
 }
 
 .meters-resources__tariff-date {
   margin-left: 0.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
   font-size: 0.85rem;
 }
 
 .meters-resources__tariff-description {
   margin-left: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
   font-size: 0.85rem;
 }
 
@@ -122,9 +176,27 @@
   margin: 0;
   padding: 1rem;
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px dashed rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 88%, transparent 12%);
+  border: 1px dashed var(--finpocket-border, rgba(255, 255, 255, 0.14));
+  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
+}
+
+.meters-resources__service-card {
+  border-radius: 1rem;
+  border: 1px dashed var(--finpocket-border, rgba(255, 255, 255, 0.14));
+  background: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 12%, transparent);
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.meters-resources__service-card p {
+  margin: 0;
+}
+
+.meters-resources__service-hint {
+  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
+  font-size: 0.85rem;
 }
 
 @media (max-width: 1024px) {

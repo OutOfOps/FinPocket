@@ -62,10 +62,14 @@
   padding: 0;
 }
 
-.app-sidenav .mat-mdc-list-item {
+.app-sidenav a[mat-list-item] {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
   border-radius: 12px;
-  margin-bottom: 0.25rem;
-  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  margin-bottom: 0.35rem;
+  padding: 0.65rem 0.85rem;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .app-sidenav .mat-mdc-list-item .mat-mdc-list-item-title,
@@ -73,26 +77,32 @@
   color: inherit;
 }
 
-.app-sidenav .mat-mdc-list-item:hover {
+.app-sidenav a[mat-list-item]:hover {
   background: var(--finpocket-nav-hover);
-  transform: translateX(4px);
+  transform: translateX(6px);
 }
 
-.app-sidenav .mat-mdc-list-item.active {
-  background: var(--finpocket-nav-active);
+.app-sidenav a[mat-list-item].active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--finpocket-primary) 80%, transparent),
+    color-mix(in srgb, var(--finpocket-accent) 65%, transparent)
+  );
   color: var(--finpocket-text);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--finpocket-accent) 45%, transparent);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32);
 }
 
 .nav-icon {
-  margin-right: 1rem;
-  color: var(--finpocket-icon-accent);
+  margin-right: 0;
+  color: color-mix(in srgb, var(--finpocket-icon-accent) 85%, white 15%);
+  font-size: 26px;
 }
 
 .nav-text {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  text-align: left;
 }
 
 .nav-text__label {
@@ -104,6 +114,10 @@
   font-size: 0.8rem;
   color: var(--finpocket-muted);
   line-height: 1.35;
+}
+
+.app-sidenav a[mat-list-item].active .nav-icon {
+  color: var(--finpocket-text);
 }
 
 .app-meta {

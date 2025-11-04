@@ -2,9 +2,10 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SharedModule } from '../../../shared/shared-module';
-import { ResourcePricingModel, ResourceSummary, TariffHistoryEntry } from '../../models/resource';
+import { ResourceEntity, ResourceSummary, TariffHistoryEntry } from '../../models/resource';
 import { MetersStoreService } from '../../services/meters-store.service';
 import { MeterReadingValue } from '../../models/meter-reading';
+import { ResourceType } from '../../models/resource-type';
 
 interface ReadingSummary {
   id: string;
@@ -49,14 +50,34 @@ export class MetersDetailsComponent {
     return reading.id;
   }
 
-  pricingLabel(model: ResourcePricingModel): string {
-    switch (model) {
+  pricingLabel(resource: ResourceEntity): string {
+    if (resource.type === 'service') {
+      return 'Фиксированная услуга';
+    }
+
+    switch (resource.pricingModel) {
       case 'fixed':
         return 'Фиксированная плата';
       case 'per_unit':
       default:
         return 'По показаниям счётчика';
     }
+  }
+
+  typeLabel(type: ResourceType): string {
+    return this.store.typeLabel(type);
+  }
+
+  typeIcon(type: ResourceType): string {
+    return this.store.typeIcon(type);
+  }
+
+  typeDescription(type: ResourceType): string {
+    return this.store.typeDescription(type);
+  }
+
+  isService(resource?: ResourceEntity): boolean {
+    return resource?.type === 'service';
   }
 
   zoneName(zoneId?: string): string {
@@ -67,6 +88,9 @@ export class MetersDetailsComponent {
 
     if (!zoneId) {
       if (resource.pricingModel === 'fixed') {
+        if (resource.type === 'service') {
+          return 'Абонентская плата';
+        }
         return 'Абонентская плата';
       }
 
@@ -82,6 +106,10 @@ export class MetersDetailsComponent {
       return '—';
     }
 
+    if (resource.type === 'service') {
+      return 'Без счётчика';
+    }
+
     return resource.zones.map((zone) => zone.name).join(', ');
   }
 
@@ -90,6 +118,12 @@ export class MetersDetailsComponent {
     const resource = this.store.getResourceById(resourceId);
 
     if (!resource) {
+      this.readings = [];
+      this.tariffHistory = [];
+      return;
+    }
+
+    if (resource.type === 'service') {
       this.readings = [];
       this.tariffHistory = [];
       return;

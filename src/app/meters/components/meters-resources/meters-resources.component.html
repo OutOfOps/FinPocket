@@ -26,9 +26,26 @@
             <tr *ngFor="let resource of resources; trackBy: trackResource">
               <td>{{ resource.objectName }}</td>
               <td>{{ resource.entity.name }}</td>
-              <td>{{ resource.typeLabel }}</td>
+              <td class="meters-resources__type">
+                <mat-icon>{{ resource.typeIcon }}</mat-icon>
+                <span>
+                  <strong>{{ resource.typeLabel }}</strong>
+                  <small>{{ resource.typeDescription }}</small>
+                </span>
+              </td>
               <td>{{ resource.zoneSummary }}</td>
-              <td>{{ resource.pricingLabel }}</td>
+              <td class="meters-resources__pricing">
+                <ng-container *ngIf="resource.isService; else meteredPricing">
+                  <div class="meters-resources__price-value">
+                    <ng-container *ngIf="resource.fixedAmount !== undefined; else noAmount">
+                      {{ resource.fixedAmount | number: '1.2-2' }} {{ resource.fixedCurrency || 'грн' }}
+                    </ng-container>
+                    <ng-template #noAmount>—</ng-template>
+                  </div>
+                  <span class="meters-resources__price-hint">{{ resource.pricingLabel }}</span>
+                </ng-container>
+                <ng-template #meteredPricing>{{ resource.pricingLabel }}</ng-template>
+              </td>
               <td class="meters-resources__actions">
                 <button mat-button color="primary" type="button" (click)="editResource(resource.entity, resource.objectName)">
                   Изменить
@@ -80,12 +97,12 @@
           <input type="text" name="resourceName" [(ngModel)]="resourceForm.name" required />
         </label>
 
-        <label>
+        <label *ngIf="resourceForm.type !== 'service'">
           Единица измерения
           <input type="text" name="resourceUnit" [(ngModel)]="resourceForm.unit" required />
         </label>
 
-        <label>
+        <label *ngIf="resourceForm.type !== 'service'">
           Модель расчёта
           <select
             name="resourcePricing"
@@ -94,6 +111,18 @@
           >
             <option *ngFor="let option of pricingModels" [value]="option.value">{{ option.label }}</option>
           </select>
+        </label>
+
+        <label *ngIf="resourceForm.type === 'service'">
+          Сумма, грн
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            name="resourceServiceAmount"
+            [(ngModel)]="resourceForm.serviceAmount"
+            required
+          />
         </label>
 
         <label *ngIf="resourceForm.type === 'electricity' && resourceForm.pricingModel !== 'fixed'">
@@ -112,9 +141,22 @@
       </form>
 
       <section class="meters-resources__tariffs" *ngIf="selectedResource as resource">
-        <h3>Тарифы: {{ resource.name }}</h3>
+        <h3>{{ resource.type === 'service' ? 'Параметры услуги' : 'Тарифы: ' + resource.name }}</h3>
 
-        <form (ngSubmit)="saveTariff()" #tariffFormRef="ngForm" class="meters-resources__tariff-form">
+        <ng-container *ngIf="resource.type === 'service'; else tariffEditor">
+          <div class="meters-resources__service-card">
+            <p>
+              Услуга оплачивается фиксированной суммой. Текущая сумма:
+              <strong>{{ resource.fixedAmount | number: '1.2-2' }} {{ resource.fixedCurrency || 'грн' }}</strong>
+            </p>
+            <p class="meters-resources__service-hint">
+              Измените значение в форме ресурса, чтобы обновить ежемесячный платёж.
+            </p>
+          </div>
+        </ng-container>
+
+        <ng-template #tariffEditor>
+          <form (ngSubmit)="saveTariff()" #tariffFormRef="ngForm" class="meters-resources__tariff-form">
           <div class="meters-resources__tariff-grid">
             <label>
               Зона
@@ -163,6 +205,7 @@
             <button mat-button type="button" color="warn" (click)="removeTariff(tariff)">Удалить</button>
           </li>
         </ul>
+        </ng-template>
       </section>
     </section>
   </div>

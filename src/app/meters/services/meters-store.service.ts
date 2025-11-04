@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { MeterReading, MeterReadingValue } from '../models/meter-reading';
 import {
-  MeterReading,
-  MeterReadingValue,
-  MeterType,
-  MeterTypeOption,
-} from '../models/meter-reading';
-import { MeterObject, ResourceEntity, ResourceSummary, ResourceZone, TariffHistoryEntry } from '../models/resource';
+  MeterObject,
+  ResourceEntity,
+  ResourceSummary,
+  ResourceZone,
+  TariffHistoryEntry,
+} from '../models/resource';
+import { ResourceType, ResourceTypeOption } from '../models/resource-type';
 
 export interface UpsertReadingPayload
   extends Omit<MeterReading, 'id' | 'values' | 'objectId'> {
@@ -28,7 +30,7 @@ export interface MeterReadingListItem {
   objectName: string;
   resourceId: string;
   resourceName: string;
-  type: MeterType;
+  type: ResourceType;
   typeLabel: string;
   submittedAt: string;
   unit: string;
@@ -45,11 +47,42 @@ export interface MeterReadingListItem {
 
 @Injectable({ providedIn: 'root' })
 export class MetersStoreService {
-  private readonly typeOptionsInternal: MeterTypeOption[] = [
-    { type: 'water', label: 'Вода', unit: 'м³' },
-    { type: 'gas', label: 'Газ', unit: 'м³' },
-    { type: 'electricity', label: 'Электричество', unit: 'кВт·ч' },
-    { type: 'heat', label: 'Отопление', unit: 'Гкал' },
+  private readonly typeOptionsInternal: ResourceTypeOption[] = [
+    {
+      type: 'water',
+      label: 'Вода',
+      unit: 'м³',
+      icon: 'water_drop',
+      description: 'Холодная и горячая вода',
+    },
+    {
+      type: 'gas',
+      label: 'Газ',
+      unit: 'м³',
+      icon: 'local_fire_department',
+      description: 'Природный газ и топливо',
+    },
+    {
+      type: 'electricity',
+      label: 'Электричество',
+      unit: 'кВт·ч',
+      icon: 'bolt',
+      description: 'Учёт электроэнергии по зонам',
+    },
+    {
+      type: 'heat',
+      label: 'Отопление',
+      unit: 'Гкал',
+      icon: 'device_thermostat',
+      description: 'Центральное отопление и тепло',
+    },
+    {
+      type: 'service',
+      label: 'Услуга',
+      unit: 'грн',
+      icon: 'miscellaneous_services',
+      description: 'Фиксированные платежи без показаний',
+    },
   ];
 
   private readonly objectsSubject = new BehaviorSubject<MeterObject[]>([
@@ -100,6 +133,28 @@ export class MetersStoreService {
         { id: 'half-peak', name: 'Полупик' },
         { id: 'night', name: 'Ночь' },
       ],
+    },
+    {
+      id: 'RES-005',
+      objectId: 'OBJ-001',
+      type: 'service',
+      name: 'Вывоз мусора',
+      unit: 'грн',
+      pricingModel: 'fixed',
+      zones: [{ id: 'fixed', name: 'Абонентская плата' }],
+      fixedAmount: 160,
+      fixedCurrency: 'грн',
+    },
+    {
+      id: 'RES-006',
+      objectId: 'OBJ-001',
+      type: 'service',
+      name: 'Квартплата',
+      unit: 'грн',
+      pricingModel: 'fixed',
+      zones: [{ id: 'fixed', name: 'Абонентская плата' }],
+      fixedAmount: 2150,
+      fixedCurrency: 'грн',
     },
   ]);
 
@@ -274,8 +329,16 @@ export class MetersStoreService {
     return this.objectsSubject.value[0]?.id;
   }
 
-  typeLabel(type: MeterType): string {
+  typeLabel(type: ResourceType): string {
     return this.typeOptionsInternal.find((option) => option.type === type)?.label ?? type;
+  }
+
+  typeIcon(type: ResourceType): string {
+    return this.typeOptionsInternal.find((option) => option.type === type)?.icon ?? 'category';
+  }
+
+  typeDescription(type: ResourceType): string {
+    return this.typeOptionsInternal.find((option) => option.type === type)?.description ?? '';
   }
 
   getObjectById(id: string): MeterObject | undefined {
@@ -445,6 +508,8 @@ export class MetersStoreService {
           unit: payload.unit,
           pricingModel: payload.pricingModel,
           zones,
+          fixedAmount: payload.fixedAmount,
+          fixedCurrency: payload.fixedCurrency,
         };
         resources[index] = updated;
         this.resourcesSubject.next(resources);
@@ -460,6 +525,8 @@ export class MetersStoreService {
       unit: payload.unit,
       pricingModel: payload.pricingModel,
       zones,
+      fixedAmount: payload.fixedAmount,
+      fixedCurrency: payload.fixedCurrency,
     };
 
     resources.push(created);
@@ -542,6 +609,10 @@ export class MetersStoreService {
       .sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom));
 
     if (resource.pricingModel === 'fixed') {
+      if (resource.fixedAmount !== undefined) {
+        return { cost: resource.fixedAmount, currency: resource.fixedCurrency ?? resource.unit };
+      }
+
       const tariff = relevantTariffs.find((entry) => !entry.zoneId);
       return tariff
         ? { cost: tariff.price, currency: tariff.currency }
