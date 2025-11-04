@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { TransactionsStore } from '../../../finance/services/transactions.store';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 interface ChartCard {
   title: string;
@@ -18,17 +19,15 @@ interface ChartCard {
 })
 export class StatsListComponent {
   private readonly transactionsStore = inject(TransactionsStore);
+  private readonly currencyService = inject(CurrencyService);
+  private readonly defaultCurrencyCode = computed(() => this.transactionsStore.defaultCurrencyCode());
 
   readonly charts = computed<ChartCard[]>(() => {
     const current = this.transactionsStore.currentMonthTotals();
     const previous = this.transactionsStore.previousMonthTotals();
 
     const formatCurrency = (value: number) =>
-      new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        maximumFractionDigits: 0,
-      }).format(Math.round(value));
+      this.currencyService.format(Math.round(value), this.defaultCurrencyCode(), 0);
 
     const formatNet = (value: number) => {
       const formatted = formatCurrency(Math.abs(value));

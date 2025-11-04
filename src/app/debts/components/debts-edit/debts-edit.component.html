@@ -1,7 +1,7 @@
 <section class="debts-edit">
   <header>
-    <h2>Добавление долга</h2>
-    <p>Сформируйте карточку долга, задайте участников и контролируйте выплаты.</p>
+    <h2>Добавление кредита или депозита</h2>
+    <p>Сформируйте карточку обязательства, задайте участников и контролируйте выплаты.</p>
   </header>
 
   <form (ngSubmit)="submit()" #debtForm="ngForm" class="debts-edit__form">
@@ -18,9 +18,9 @@
     <label>
       Валюта
       <select name="currency" [(ngModel)]="model.currency">
-        <option value="₴">₴ Гривна</option>
-        <option value="$">$ Доллар</option>
-        <option value="€">€ Евро</option>
+        <option *ngFor="let currency of currencies()" [value]="currency.code">
+          {{ currency.code }} — {{ currency.name }}
+        </option>
       </select>
     </label>
 

@@ -35,10 +35,7 @@
               </ng-container>
             </td>
             <td>
-              <ng-container *ngIf="reading.cost !== undefined && reading.currency">
-                {{ reading.cost | number: '1.2-2' }} {{ reading.currency }}
-              </ng-container>
-              <ng-container *ngIf="reading.cost === undefined || !reading.currency">—</ng-container>
+              <ng-container *ngIf="formatCost(reading) as cost; else noCost">{{ cost }}</ng-container>
             </td>
             <td>{{ reading.submittedAt | date: 'd MMMM yyyy' }}</td>
             <td class="meters-list__actions">
@@ -52,6 +49,7 @@
   </mat-card>
 
   <ng-template #noConsumption>—</ng-template>
+  <ng-template #noCost>—</ng-template>
   <ng-template #emptyState>
     <p class="meters-list__empty">Пока нет ни одного показания. Добавьте первое, чтобы отслеживать изменения.</p>
   </ng-template>

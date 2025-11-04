@@ -100,7 +100,7 @@
       </ul>
 
       <p *ngIf="estimatedCost !== undefined && estimatedCurrency">
-        Расчётная стоимость: {{ estimatedCost | number: '1.2-2' }} {{ estimatedCurrency }}
+        Расчётная стоимость: {{ formatCurrency(estimatedCost, estimatedCurrency) }}
       </p>
 
       <div class="meters-edit__tariffs" *ngIf="activeTariffs.length">
@@ -108,7 +108,7 @@
         <ul>
           <li *ngFor="let tariff of activeTariffs">
             <strong>{{ zoneName(tariff.zoneId) }}:</strong>
-            {{ tariff.price | number: '1.2-2' }} {{ tariff.currency }}
+            {{ formatCurrency(tariff.price, tariff.currency) }}
             <span class="meters-edit__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
           </li>
         </ul>

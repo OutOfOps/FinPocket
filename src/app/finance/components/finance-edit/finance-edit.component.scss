@@ -35,3 +35,77 @@
 .finance-edit__form textarea {
   resize: vertical;
 }
+
+.finance-edit__accounts-toggle {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.finance-edit__accounts-editor {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.finance-edit__accounts-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.finance-edit__accounts-header p {
+  margin: 0.25rem 0 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.875rem;
+}
+
+.finance-edit__accounts-list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.finance-edit__accounts-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.finance-edit__accounts-item input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.finance-edit__account-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.finance-edit__accounts-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.finance-edit__accounts-add {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.finance-edit__accounts-add input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  font: inherit;
+}

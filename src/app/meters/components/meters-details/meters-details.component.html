@@ -14,7 +14,7 @@
       <span *ngIf="isService(data.resource)">
         Сумма:
         <ng-container *ngIf="data.resource.fixedAmount !== undefined; else noServiceAmount">
-          {{ data.resource.fixedAmount | number: '1.2-2' }} {{ data.resource.fixedCurrency || 'грн' }}
+          {{ formatCurrency(data.resource.fixedAmount, data.resource.fixedCurrency) }}
         </ng-container>
         <ng-template #noServiceAmount>—</ng-template>
       </span>
@@ -27,7 +27,7 @@
     <p>
       Ежемесячный платёж:
       <ng-container *ngIf="data.resource.fixedAmount !== undefined; else noServiceAmountInline">
-        <strong>{{ data.resource.fixedAmount | number: '1.2-2' }} {{ data.resource.fixedCurrency || 'грн' }}</strong>
+        <strong>{{ formatCurrency(data.resource.fixedAmount, data.resource.fixedCurrency) }}</strong>
       </ng-container>
     </p>
     <p class="meters-details__service-note">
@@ -40,7 +40,7 @@
     <ul>
       <li *ngFor="let tariff of data.currentTariffs">
         <strong>{{ data.resource.zones.length > 1 || tariff.zoneId ? zoneName(tariff.zoneId) : 'Общий тариф' }}</strong>
-        — {{ tariff.price | number: '1.2-2' }} {{ tariff.currency }}
+        — {{ formatCurrency(tariff.price, tariff.currency) }}
         <span class="meters-details__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
       </li>
     </ul>
@@ -74,7 +74,7 @@
           </td>
           <td>
             <ng-container *ngIf="reading.cost !== undefined && reading.currency">
-              {{ reading.cost | number: '1.2-2' }} {{ reading.currency }}
+              {{ formatCurrency(reading.cost, reading.currency) }}
             </ng-container>
             <ng-container *ngIf="reading.cost === undefined || !reading.currency">—</ng-container>
           </td>
@@ -88,7 +88,7 @@
     <ul>
       <li *ngFor="let tariff of tariffHistory">
         <strong>{{ zoneName(tariff.zoneId) }}</strong>
-        — {{ tariff.price | number: '1.2-2' }} {{ tariff.currency }}
+        — {{ formatCurrency(tariff.price, tariff.currency) }}
         <span class="meters-details__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
         <span *ngIf="tariff.description" class="meters-details__tariff-description">{{ tariff.description }}</span>
       </li>

@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { TransactionEntity } from '../../core/services/finpocket-db.service';
+import { CurrencyService } from '../../core/services/currency.service';
 
 export interface FinanceListItem {
   id: number;
@@ -11,6 +12,7 @@ export interface FinanceListItem {
   currency: string;
   occurredAt: string;
   type: TransactionEntity['type'];
+  convertedAmount: number;
 }
 
 interface MonthlyTotals {
@@ -24,19 +26,16 @@ interface CategoryTotal {
   amount: number;
 }
 
-const CURRENCY_RATES: Record<string, number> = {
-  '₴': 1,
-  '$': 90,
-  '€': 98,
-};
-
 @Injectable({ providedIn: 'root' })
 export class TransactionsStore {
   private readonly storage = inject(StorageService);
+  private readonly currencyService = inject(CurrencyService);
 
   private readonly transactionsSignal = signal<TransactionEntity[]>([]);
 
   readonly transactions = computed(() => this.transactionsSignal());
+
+  readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
   readonly listItems = computed<FinanceListItem[]>(() =>
     [...this.transactionsSignal()]
@@ -53,22 +52,23 @@ export class TransactionsStore {
         category: transaction.category,
         account: transaction.account,
         amount: this.applySign(transaction),
-        currency: transaction.currency,
+        currency: this.currencyService.normalizeCode(transaction.currency),
         occurredAt: transaction.occurredAt,
         type: transaction.type,
+        convertedAmount: this.toDefaultSigned(transaction),
       }))
   );
 
   readonly totalIncome = computed(() =>
     this.transactionsSignal()
       .filter((transaction) => transaction.type === 'income')
-      .reduce((sum, transaction) => sum + this.toRub(transaction), 0)
+      .reduce((sum, transaction) => sum + this.convertToDefault(transaction), 0)
   );
 
   readonly totalExpenses = computed(() =>
     this.transactionsSignal()
       .filter((transaction) => transaction.type === 'expense')
-      .reduce((sum, transaction) => sum + this.toRub(transaction), 0)
+      .reduce((sum, transaction) => sum + this.convertToDefault(transaction), 0)
   );
 
   readonly balance = computed(() => this.totalIncome() - this.totalExpenses());
@@ -84,7 +84,7 @@ export class TransactionsStore {
 
     for (const transaction of monthTransactions) {
       const current = totals.get(transaction.category) ?? 0;
-      totals.set(transaction.category, current + this.toRub(transaction));
+      totals.set(transaction.category, current + this.convertToDefault(transaction));
     }
 
     return [...totals.entries()]
@@ -152,11 +152,11 @@ export class TransactionsStore {
 
     const income = transactions
       .filter((transaction) => transaction.type === 'income')
-      .reduce((sum, transaction) => sum + this.toRub(transaction), 0);
+      .reduce((sum, transaction) => sum + this.convertToDefault(transaction), 0);
 
     const expenses = transactions
       .filter((transaction) => transaction.type === 'expense')
-      .reduce((sum, transaction) => sum + this.toRub(transaction), 0);
+      .reduce((sum, transaction) => sum + this.convertToDefault(transaction), 0);
 
     return {
       income,
@@ -190,9 +190,24 @@ export class TransactionsStore {
     }
   }
 
-  private toRub(transaction: TransactionEntity): number {
-    const rate = CURRENCY_RATES[transaction.currency] ?? 1;
-    return Math.abs(transaction.amount) * rate;
+  private convertToDefault(transaction: TransactionEntity): number {
+    return this.currencyService.convertToDefault(
+      Math.abs(transaction.amount),
+      this.currencyService.normalizeCode(transaction.currency)
+    );
+  }
+
+  private toDefaultSigned(transaction: TransactionEntity): number {
+    const converted = this.convertToDefault(transaction);
+
+    switch (transaction.type) {
+      case 'expense':
+        return -converted;
+      case 'income':
+        return converted;
+      default:
+        return 0;
+    }
   }
 
   private parseDate(value: string): Date {

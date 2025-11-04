@@ -1,7 +1,7 @@
 <section class="debts-list">
   <header>
-    <h2>Список долгов</h2>
-    <p>Контролируйте обязательства и следите за статусами выплат.</p>
+    <h2>Список кредитов и депозитов</h2>
+    <p>Контролируйте обязательства, накопления и следите за статусами выплат.</p>
   </header>
 
   <mat-card>
@@ -12,7 +12,10 @@
         <div matListItemLine>Срок: {{ debt.dueDate | date:'d MMMM yyyy' }}</div>
         <div matListItemLine>Статус: {{ statusLabel(debt.status) }}</div>
         <div matListItemMeta [ngClass]="'debts-list__status-' + debt.status">
-          {{ debt.amount | number:'1.0-0' }} {{ debt.currency }}
+          {{ formattedAmount(debt) }}
+          <span *ngIf="debt.currency !== defaultCurrencyCode()">
+            ({{ debt.amount | number:'1.0-0' }} {{ debt.currency }})
+          </span>
         </div>
       </mat-list-item>
     </mat-list>
