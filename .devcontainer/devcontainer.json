@@ -1,14 +1,12 @@
 {
   "name": "Angular Dev Environment",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
-  "workspaceFolder": "/workspaces/FinPocket/projects/pwa",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20", 
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
   },
-  "postCreateCommand": "npm install -g @angular/cli && npm install",
-  "updateContentCommand": "npm install",
+  "postCreateCommand": "npm install",
   "forwardPorts": [4200],
   "portsAttributes": {
     "4200": {
@@ -22,14 +20,7 @@
         "angular.ng-template",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint"
-      ],
-      "settings": {
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": true
-        },
-        "eslint.validate": ["typescript", "html"]
-      }
+      ]
     }
   },
   "idleTimeoutMinutes": 15,
