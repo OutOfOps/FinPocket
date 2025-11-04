@@ -25,12 +25,15 @@ export interface AccountEntity {
 export interface DebtEntity {
   id?: number;
   contact: string;
+  kind: 'credit' | 'deposit' | 'loan' | 'lend';
   direction: 'owed' | 'lent';
   amount: number;
   currency: string;
   dueDate?: string;
-  status: 'open' | 'closed' | 'overdue';
+  status: 'active' | 'paid' | 'overdue';
+  participants: string[];
   note?: string;
+  createdAt: string;
 }
 
 export interface MeterReadingEntity {
@@ -93,6 +96,38 @@ export class FinPocketDB extends Dexie {
       backups: '++id, createdAt, checksum',
       syncQueue: '++id, entityType, action, createdAt',
     });
+
+    this.version(2)
+      .stores({
+        debts: '++id, contact, kind, direction, status, dueDate, createdAt',
+      })
+      .upgrade((transaction) =>
+        transaction
+          .table('debts')
+          .toCollection()
+          .modify((debt: any) => {
+            if (!debt.kind) {
+              debt.kind = 'loan';
+            }
+
+            if (!debt.participants) {
+              debt.participants = [];
+            }
+
+            if (!debt.createdAt) {
+              debt.createdAt = new Date().toISOString();
+            }
+
+            switch (debt.status) {
+              case 'open':
+                debt.status = 'active';
+                break;
+              case 'closed':
+                debt.status = 'paid';
+                break;
+            }
+          })
+      );
 
     this.transactions = this.table('transactions');
     this.accounts = this.table('accounts');

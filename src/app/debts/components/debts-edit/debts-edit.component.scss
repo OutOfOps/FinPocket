@@ -27,3 +27,37 @@
   display: grid;
   gap: 0.5rem;
 }
+
+.debts-edit__participants ul {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.debts-edit__participants li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.debts-edit__participant-input {
+  flex: 1;
+}
+
+.debts-edit__participant-input input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.debts-edit textarea {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  font: inherit;
+  resize: vertical;
+}
