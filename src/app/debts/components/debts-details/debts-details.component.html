@@ -1,19 +1,188 @@
-<section class="debts-details">
+<section class="debts-details" *ngIf="debt(); else loading">
   <header>
-    <h2>Карточка долга</h2>
-    <p>История событий помогает отслеживать статус и движение средств.</p>
+    <h2>{{ debt()?.contact }}</h2>
+    <p>{{ debtsStore.kindLabel(debt()!.kind) }} • {{ debtsStore.statusLabel(debt()!.status) }}</p>
   </header>
 
+  <!-- Debt Information Card -->
+  <mat-card *ngIf="!isEditing()">
+    <mat-card-title>
+      Информация о долге
+      <button mat-icon-button (click)="startEdit()" aria-label="Редактировать">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-card-title>
+    <mat-card-content>
+      <dl class="debts-details__info">
+        <div>
+          <dt>Сумма:</dt>
+          <dd>{{ formatAmount(debt()!.amount) }}</dd>
+        </div>
+        <div>
+          <dt>Остаток:</dt>
+          <dd [class.debts-details__credit]="remainingBalance() === 0">
+            {{ formatAmount(remainingBalance()) }}
+          </dd>
+        </div>
+        <div *ngIf="debt()?.dueDate">
+          <dt>Срок погашения:</dt>
+          <dd>{{ debt()!.dueDate | date:'d MMMM yyyy' }}</dd>
+        </div>
+        <div *ngIf="debt()?.participants.length">
+          <dt>Участники:</dt>
+          <dd>{{ debt()!.participants.join(', ') }}</dd>
+        </div>
+        <div *ngIf="debt()?.note">
+          <dt>Заметка:</dt>
+          <dd>{{ debt()!.note }}</dd>
+        </div>
+      </dl>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Edit Form -->
+  <mat-card *ngIf="isEditing()">
+    <mat-card-title>Редактирование</mat-card-title>
+    <mat-card-content>
+      <form class="debts-details__form">
+        <mat-form-field appearance="outline">
+          <mat-label>Контакт</mat-label>
+          <input matInput [(ngModel)]="editForm().contact" name="contact" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Тип</mat-label>
+          <mat-select [(ngModel)]="editForm().kind" name="kind" required>
+            <mat-option *ngFor="let opt of typeOptions" [value]="opt.value">
+              {{ opt.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Сумма</mat-label>
+          <input matInput type="number" [(ngModel)]="editForm().amount" name="amount" required min="0" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Валюта</mat-label>
+          <mat-select [(ngModel)]="editForm().currency" name="currency" required>
+            <mat-option *ngFor="let currency of currencyService.currencies()" [value]="currency.code">
+              {{ currency.code }} - {{ currency.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Срок погашения</mat-label>
+          <input matInput type="date" [(ngModel)]="editForm().dueDate" name="dueDate" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Статус</mat-label>
+          <mat-select [(ngModel)]="editForm().status" name="status" required>
+            <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Заметка</mat-label>
+          <textarea matInput [(ngModel)]="editForm().note" name="note" rows="3"></textarea>
+        </mat-form-field>
+
+        <div class="debts-details__participants">
+          <label>Участники:</label>
+          <div *ngFor="let participant of editForm().participants; let i = index; trackBy: trackParticipant" class="debts-details__participant">
+            <mat-form-field appearance="outline">
+              <input matInput [value]="participant" (input)="updateParticipant(i, $any($event.target).value)" />
+            </mat-form-field>
+            <button mat-icon-button (click)="removeParticipant(i)" type="button" aria-label="Удалить участника">
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          </div>
+          <button mat-button (click)="addParticipant()" type="button">
+            <mat-icon>add</mat-icon>
+            Добавить участника
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="saveEdit()">Сохранить</button>
+      <button mat-button (click)="cancelEdit()">Отмена</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Payment Management -->
+  <mat-card *ngIf="!isEditing()">
+    <mat-card-title>
+      Управление выплатами
+      <button mat-raised-button color="primary" (click)="startAddPayment()" [disabled]="isAddingPayment() || remainingBalance() === 0">
+        <mat-icon>add</mat-icon>
+        Добавить выплату
+      </button>
+    </mat-card-title>
+
+    <mat-card-content *ngIf="isAddingPayment()">
+      <form class="debts-details__payment-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Тип операции</mat-label>
+          <mat-select [(ngModel)]="paymentForm().type" name="paymentType" required>
+            <mat-option value="payment">Погашение (я оплатил / мне выплатили)</mat-option>
+            <mat-option value="charge">Начисление (увеличение долга)</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Сумма</mat-label>
+          <input matInput type="number" [(ngModel)]="paymentForm().amount" name="paymentAmount" required min="0" [max]="remainingBalance()" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Заметка</mat-label>
+          <textarea matInput [(ngModel)]="paymentForm().note" name="paymentNote" rows="2"></textarea>
+        </mat-form-field>
+
+        <div class="debts-details__payment-actions">
+          <button mat-raised-button color="primary" (click)="savePayment()">Добавить</button>
+          <button mat-button (click)="cancelAddPayment()">Отмена</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Timeline -->
   <mat-card>
     <mat-card-title>Хронология</mat-card-title>
-    <ol>
-      <li *ngFor="let entry of timeline">
-        <span>{{ entry.date | date:'d MMMM yyyy' }}</span>
-        <span>{{ entry.action }}</span>
-        <strong [class.debts-details__credit]="entry.amount >= 0">
-          {{ formatAmount(entry.amount) }}
-        </strong>
-      </li>
-    </ol>
+    <mat-card-content>
+      <ng-container *ngIf="timeline().length; else noTimeline">
+        <ol class="debts-details__timeline">
+          <li *ngFor="let entry of timeline(); trackBy: trackTimeline">
+            <span class="debts-details__timeline-date">{{ entry.date | date:'d MMM yyyy, HH:mm' }}</span>
+            <div class="debts-details__timeline-content">
+              <span class="debts-details__timeline-action">{{ entry.action }}</span>
+              <span *ngIf="entry.note" class="debts-details__timeline-note">{{ entry.note }}</span>
+            </div>
+            <strong 
+              class="debts-details__timeline-amount"
+              [class.debts-details__credit]="entry.amount > 0"
+              [class.debts-details__debit]="entry.amount < 0">
+              {{ formatAmount(Math.abs(entry.amount)) }}
+            </strong>
+          </li>
+        </ol>
+      </ng-container>
+      <ng-template #noTimeline>
+        <p class="debts-details__empty">Нет событий в истории.</p>
+      </ng-template>
+    </mat-card-content>
   </mat-card>
 </section>
+
+<ng-template #loading>
+  <div class="debts-details__loading">
+    <p>Загрузка...</p>
+  </div>
+</ng-template>

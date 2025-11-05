@@ -3,7 +3,92 @@
   gap: 1.5rem;
 }
 
-.debts-details ol {
+.debts-details header {
+  margin-bottom: 1rem;
+}
+
+.debts-details header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+}
+
+.debts-details header p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+mat-card-title {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem !important;
+}
+
+.debts-details__info {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.debts-details__info > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+}
+
+.debts-details__info dt {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.debts-details__info dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.debts-details__form {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.debts-details__form mat-form-field {
+  width: 100%;
+}
+
+.debts-details__participants {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.debts-details__participants label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.debts-details__participant {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.debts-details__participant mat-form-field {
+  flex: 1;
+}
+
+.debts-details__payment-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.debts-details__payment-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.debts-details__timeline {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -11,13 +96,59 @@
   gap: 1rem;
 }
 
-.debts-details li {
+.debts-details__timeline li {
   display: grid;
-  grid-template-columns: 150px 1fr 120px;
+  grid-template-columns: 150px 1fr 150px;
   gap: 1rem;
-  align-items: center;
+  align-items: start;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.debts-details__timeline-date {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.debts-details__timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.debts-details__timeline-action {
+  font-weight: 500;
+}
+
+.debts-details__timeline-note {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}
+
+.debts-details__timeline-amount {
+  text-align: right;
+  font-size: 1.125rem;
 }
 
 .debts-details__credit {
   color: #008f5a;
+}
+
+.debts-details__debit {
+  color: #d32f2f;
+}
+
+.debts-details__empty {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.debts-details__loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
 }

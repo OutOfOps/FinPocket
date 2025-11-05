@@ -23,7 +23,7 @@
 
     <ng-container *ngIf="debts().length; else emptyState">
       <mat-list>
-        <mat-list-item *ngFor="let debt of debts(); trackBy: trackDebt">
+        <mat-list-item *ngFor="let debt of debts(); trackBy: trackDebt" [routerLink]="['/debts', debt.id]" class="debts-list__item">
           <div matListItemTitle>
             {{ debt.name }}
             <span class="debts-list__kind">{{ debt.kindLabel }}</span>

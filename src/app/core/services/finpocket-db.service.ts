@@ -36,6 +36,15 @@ export interface DebtEntity {
   createdAt: string;
 }
 
+export interface DebtTransactionEntity {
+  id?: number;
+  debtId: number;
+  type: 'payment' | 'charge' | 'note';
+  amount: number;
+  note?: string;
+  createdAt: string;
+}
+
 export interface MeterReadingEntity {
   id?: number;
   meterType: 'water' | 'gas' | 'electricity' | 'heat';
@@ -78,6 +87,7 @@ export class FinPocketDB extends Dexie {
   transactions!: Table<TransactionEntity, number>;
   accounts!: Table<AccountEntity, number>;
   debts!: Table<DebtEntity, number>;
+  debtTransactions!: Table<DebtTransactionEntity, number>;
   meters!: Table<MeterReadingEntity, number>;
   categories!: Table<CategoryEntity, number>;
   backups!: Table<BackupEntity, number>;
@@ -91,6 +101,7 @@ export class FinPocketDB extends Dexie {
         '++id, occurredAt, type, account, category, currency',
       accounts: '++id, name, type, currency, archived',
       debts: '++id, contact, direction, status, dueDate',
+      debtTransactions: '++id, debtId, createdAt',
       meters: '++id, meterType, place, recordedAt',
       categories: '++id, name, type, archived',
       backups: '++id, createdAt, checksum',
@@ -132,6 +143,7 @@ export class FinPocketDB extends Dexie {
     this.transactions = this.table('transactions');
     this.accounts = this.table('accounts');
     this.debts = this.table('debts');
+    this.debtTransactions = this.table('debtTransactions');
     this.meters = this.table('meters');
     this.categories = this.table('categories');
     this.backups = this.table('backups');

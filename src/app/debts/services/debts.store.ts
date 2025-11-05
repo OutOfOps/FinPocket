@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { CurrencyService } from '../../core/services/currency.service';
-import { DebtEntity } from '../../core/services/finpocket-db.service';
+import { DebtEntity, DebtTransactionEntity } from '../../core/services/finpocket-db.service';
 
 export type DebtKind = 'credit' | 'deposit' | 'loan' | 'lend';
 export type DebtStatus = 'active' | 'paid' | 'overdue';
@@ -127,6 +127,31 @@ export class DebtsStore {
 
   getDebt(id: number): DebtEntity | undefined {
     return this.debtsSignal().find((debt) => debt.id === id);
+  }
+
+  async getDebtTransactions(debtId: number): Promise<DebtTransactionEntity[]> {
+    return this.storage.getDebtTransactions(debtId);
+  }
+
+  async addDebtTransaction(
+    debtId: number,
+    transaction: Omit<DebtTransactionEntity, 'id' | 'debtId'>
+  ): Promise<void> {
+    await this.storage.addDebtTransaction({
+      ...transaction,
+      debtId,
+    });
+  }
+
+  async updateDebtTransaction(
+    id: number,
+    changes: Partial<DebtTransactionEntity>
+  ): Promise<void> {
+    await this.storage.updateDebtTransaction(id, changes);
+  }
+
+  async removeDebtTransaction(id: number): Promise<void> {
+    await this.storage.deleteDebtTransaction(id);
   }
 
   kindLabel(kind: DebtKind): string {
