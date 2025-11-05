@@ -140,7 +140,7 @@ export class FinanceEditComponent {
       category: this.formModel.category,
       account: this.formModel.account,
       occurredAt: new Date(this.formModel.date).toISOString(),
-      note: this.formModel.note?.trim() || undefined,
+      note: this.formModel.note.trim() || undefined,
     } as const;
 
     await this.transactionsStore.addTransaction(transaction);

@@ -116,7 +116,7 @@ export class FinPocketDB extends Dexie {
         transaction
           .table('debts')
           .toCollection()
-          .modify((debt: any) => {
+          .modify((debt: unknown) => {
             if (!debt.kind) {
               debt.kind = 'loan';
             }
