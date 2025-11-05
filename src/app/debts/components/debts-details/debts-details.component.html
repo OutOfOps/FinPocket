@@ -169,7 +169,7 @@
               class="debts-details__timeline-amount"
               [class.debts-details__credit]="entry.amount > 0"
               [class.debts-details__debit]="entry.amount < 0">
-              {{ formatAmount(Math.abs(entry.amount)) }}
+              {{ formatAmount(absValue(entry.amount)) }}
             </strong>
           </li>
         </ol>

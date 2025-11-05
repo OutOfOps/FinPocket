@@ -22,11 +22,12 @@ interface TimelineEntry {
 })
 export class DebtsDetailsComponent {
   private readonly currencyService = inject(CurrencyService);
-  private readonly debtsStore = inject(DebtsStore);
+  readonly debtsStore = inject(DebtsStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
+  readonly currencyService = inject(CurrencyService);
   
   readonly debtId = signal<number | undefined>(undefined);
   readonly debt = signal<DebtEntity | undefined>(undefined);
@@ -304,5 +305,9 @@ export class DebtsDetailsComponent {
 
   trackTimeline(_: number, entry: TimelineEntry): string {
     return entry.date + entry.action;
+  }
+
+  absValue(value: number): number {
+    return Math.abs(value);
   }
 }
