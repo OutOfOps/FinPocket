@@ -37,7 +37,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "styles/sidebar-fix.css"
             ]
           },
           "configurations": {
@@ -99,7 +100,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "styles/sidebar-fix.css"
             ]
           }
         }

@@ -1,0 +1,56 @@
+/* Fix submenu overflow for sidebar: allow overflow, set z-index and limit max width */
+/* 1) Разрешаем выпадашкам выходить за границы сайдбара */
+.sidebar {
+  position: relative; /* если уже есть — оставить */
+  overflow: visible;  /* важно: позволяет подменю выходить за рамки */
+  z-index: 0;
+}
+
+/* 2) Базовые стили подменю */
+.menu-item { position: relative; }
+.menu-item .submenu {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  min-width: 220px;
+  box-sizing: border-box;
+  background: linear-gradient(90deg,#7b2b60,#c17a5f);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  z-index: 50; /* должно быть выше фоновых слоёв */
+  overflow: auto;
+  max-height: 80vh;
+}
+
+/* 3) Защита от выхода за правую границу: подменю не станет шире доступного места */
+:root {
+  --sidebar-width: 240px; /* замените на реальную ширину сайдбара при фиксированной ширине */
+}
+.menu-item .submenu {
+  /* Ограничиваем ширину так, чтобы подменю не вылезало за 100vw */
+  max-width: calc(100vw - var(--sidebar-width) - 20px);
+}
+
+/* 4) Альтернатива — если хотите всегда открывать влево для крайних пунктов,
+   добавьте класс .submenu-left к li, который будет выводить меню влево */
+.menu-item.submenu-left > .submenu {
+  left: auto;
+  right: 100%;
+  transform: translateY(-50%);
+}
+
+/* 5) Мобильный fallback: на маленьких экранах делаем подменю статичным */
+@media (max-width: 600px) {
+  .menu-item .submenu {
+    position: static;
+    transform: none;
+    left: auto;
+    right: auto;
+    max-width: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }
+}
