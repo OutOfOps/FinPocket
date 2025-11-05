@@ -4,13 +4,15 @@ import { Stats } from './stats';
 import { StatsListComponent } from './components/stats-list/stats-list.component';
 import { StatsEditComponent } from './components/stats-edit/stats-edit.component';
 import { StatsDetailsComponent } from './components/stats-details/stats-details.component';
+import { StatsDashboard } from './components/stats-dashboard/stats-dashboard';
 
 const routes: Routes = [
   {
     path: '',
     component: Stats,
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'list' },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      { path: 'dashboard', component: StatsDashboard },
       { path: 'list', component: StatsListComponent },
       { path: 'create', component: StatsEditComponent },
       { path: 'weekly', component: StatsDetailsComponent },

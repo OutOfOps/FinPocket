@@ -1,0 +1,104 @@
+.stats-dashboard {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .dashboard-header {
+    margin-bottom: 32px;
+
+    h1 {
+      margin: 0 0 24px 0;
+      font-size: 32px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    .filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      mat-form-field {
+        min-width: 200px;
+      }
+    }
+  }
+
+  .charts-container {
+    .chart-card {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+
+      h2 {
+        margin: 0 0 24px 0;
+        font-size: 24px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      ngx-charts-pie-chart,
+      ngx-charts-line-chart,
+      ngx-charts-bar-vertical,
+      ngx-charts-area-chart {
+        height: 400px;
+      }
+
+      .no-data {
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        p {
+          color: rgba(0, 0, 0, 0.54);
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-dashboard {
+    padding: 16px;
+
+    .dashboard-header {
+      h1 {
+        font-size: 24px;
+      }
+
+      .filters {
+        flex-direction: column;
+        gap: 8px;
+
+        mat-form-field {
+          width: 100%;
+        }
+      }
+    }
+
+    .charts-container {
+      .chart-card {
+        padding: 16px;
+
+        h2 {
+          font-size: 20px;
+        }
+
+        ngx-charts-pie-chart,
+        ngx-charts-line-chart,
+        ngx-charts-bar-vertical,
+        ngx-charts-area-chart {
+          height: 300px;
+        }
+
+        .no-data {
+          height: 300px;
+        }
+      }
+    }
+  }
+}
