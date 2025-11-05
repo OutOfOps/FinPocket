@@ -28,7 +28,7 @@
           <dt>Срок погашения:</dt>
           <dd>{{ debt()!.dueDate | date:'d MMMM yyyy' }}</dd>
         </div>
-        <div *ngIf="debt()?.participants.length">
+        <div *ngIf="debt()?.participants?.length">
           <dt>Участники:</dt>
           <dd>{{ debt()!.participants.join(', ') }}</dd>
         </div>

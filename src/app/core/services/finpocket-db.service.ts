@@ -117,24 +117,25 @@ export class FinPocketDB extends Dexie {
           .table('debts')
           .toCollection()
           .modify((debt: unknown) => {
-            if (!debt.kind) {
-              debt.kind = 'loan';
+            const debtRecord = debt as any;
+            if (!debtRecord.kind) {
+              debtRecord.kind = 'loan';
             }
 
-            if (!debt.participants) {
-              debt.participants = [];
+            if (!debtRecord.participants) {
+              debtRecord.participants = [];
             }
 
-            if (!debt.createdAt) {
-              debt.createdAt = new Date().toISOString();
+            if (!debtRecord.createdAt) {
+              debtRecord.createdAt = new Date().toISOString();
             }
 
-            switch (debt.status) {
+            switch (debtRecord.status) {
               case 'open':
-                debt.status = 'active';
+                debtRecord.status = 'active';
                 break;
               case 'closed':
-                debt.status = 'paid';
+                debtRecord.status = 'paid';
                 break;
             }
           })
