@@ -122,7 +122,7 @@ export class DebtsDetailsComponent {
       }
     });
 
-    return Math.max(0, balance);
+    return balance;
   });
 
   constructor() {

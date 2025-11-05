@@ -96,7 +96,7 @@
           <label>Участники:</label>
           <div *ngFor="let participant of editForm().participants; let i = index; trackBy: trackParticipant" class="debts-details__participant">
             <mat-form-field appearance="outline">
-              <input matInput [value]="participant" (input)="updateParticipant(i, $any($event.target).value)" />
+              <input matInput [value]="participant" (input)="updateParticipant(i, ($event.target as HTMLInputElement).value)" />
             </mat-form-field>
             <button mat-icon-button (click)="removeParticipant(i)" type="button" aria-label="Удалить участника">
               <mat-icon>remove_circle</mat-icon>
@@ -137,7 +137,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Сумма</mat-label>
-          <input matInput type="number" [(ngModel)]="paymentForm().amount" name="paymentAmount" required min="0" [max]="remainingBalance()" />
+          <input matInput type="number" [(ngModel)]="paymentForm().amount" name="paymentAmount" required min="0" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
