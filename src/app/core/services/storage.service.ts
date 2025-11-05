@@ -4,6 +4,7 @@ import {
   BackupEntity,
   CategoryEntity,
   DebtEntity,
+  DebtTransactionEntity,
   FinPocketDB,
   MeterReadingEntity,
   TransactionEntity,
@@ -77,6 +78,29 @@ export class StorageService {
 
   deleteDebt(id: number): Promise<void> {
     return this.db.debts.delete(id);
+  }
+
+  // Debt Transactions
+  getDebtTransactions(debtId: number): Promise<DebtTransactionEntity[]> {
+    return this.db.debtTransactions
+      .where('debtId')
+      .equals(debtId)
+      .sortBy('createdAt');
+  }
+
+  addDebtTransaction(transaction: DebtTransactionEntity): Promise<number> {
+    return this.db.debtTransactions.add(transaction);
+  }
+
+  updateDebtTransaction(
+    id: number,
+    changes: Partial<DebtTransactionEntity>
+  ): Promise<number> {
+    return this.db.debtTransactions.update(id, changes);
+  }
+
+  deleteDebtTransaction(id: number): Promise<void> {
+    return this.db.debtTransactions.delete(id);
   }
 
   // Meters
