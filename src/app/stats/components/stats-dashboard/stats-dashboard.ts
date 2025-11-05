@@ -5,6 +5,8 @@ import { MetersStoreService } from '../../../meters/services/meters-store.servic
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TransactionEntity } from '../../../core/services/finpocket-db.service';
 import { LegendPosition } from '@swimlane/ngx-charts';
+import { MeterReading } from '../../../meters/models/meter-reading';
+import { ResourceType } from '../../../meters/models/resource-type';
 
 type DataType = 'expenses' | 'balance' | 'debts' | 'meters';
 type PeriodType = 'week' | 'month' | 'quarter' | 'year';
@@ -137,77 +139,30 @@ export class StatsDashboard {
   readonly metersConsumptionData = computed<SeriesData[]>(() => {
     const period = this.selectedPeriod();
     const monthsCount = this.getMonthsCount(period);
+    
+    // Collect all readings from all available objects
+    const allReadings = this.getAllMeterReadings();
+
     const waterSeries: ChartData[] = [];
     const gasSeries: ChartData[] = [];
     const electricitySeries: ChartData[] = [];
-
-    // Get all readings by iterating through known resource types
-    const allReadings: any[] = [];
-    
-    // Use a workaround to get all resources by checking known objects
-    const objectId = this.metersStore.getDefaultObjectId();
-    if (objectId) {
-      const resources = this.metersStore.getResourcesForObject(objectId);
-      for (const resource of resources) {
-        const resourceReadings = this.metersStore.getReadingsForResource(resource.id);
-        allReadings.push(...resourceReadings);
-      }
-    }
-    
-    // Also check for second object if it exists
-    const secondObjectId = 'OBJ-002'; // From the service mock data
-    const secondResources = this.metersStore.getResourcesForObject(secondObjectId);
-    for (const resource of secondResources) {
-      const resourceReadings = this.metersStore.getReadingsForResource(resource.id);
-      allReadings.push(...resourceReadings);
-    }
 
     for (let i = monthsCount - 1; i >= 0; i--) {
       const monthName = this.getMonthName(i);
       const monthReadings = this.getReadingsForMonth(allReadings, i);
 
-      const waterConsumption = monthReadings
-        .filter((r) => {
-          const resource = this.metersStore.getResourceById(r.resourceId);
-          return resource?.type === 'water';
-        })
-        .reduce((sum, r) => {
-          const resource = this.metersStore.getResourceById(r.resourceId);
-          if (!resource) return sum;
-          const previous = this.metersStore.getPreviousReading(r.resourceId, r.id);
-          const consumption = this.metersStore.calculateConsumption(r, previous);
-          return sum + Array.from(consumption.values()).reduce((a, b) => a + b, 0);
-        }, 0);
-
-      const gasConsumption = monthReadings
-        .filter((r) => {
-          const resource = this.metersStore.getResourceById(r.resourceId);
-          return resource?.type === 'gas';
-        })
-        .reduce((sum, r) => {
-          const resource = this.metersStore.getResourceById(r.resourceId);
-          if (!resource) return sum;
-          const previous = this.metersStore.getPreviousReading(r.resourceId, r.id);
-          const consumption = this.metersStore.calculateConsumption(r, previous);
-          return sum + Array.from(consumption.values()).reduce((a, b) => a + b, 0);
-        }, 0);
-
-      const electricityConsumption = monthReadings
-        .filter((r) => {
-          const resource = this.metersStore.getResourceById(r.resourceId);
-          return resource?.type === 'electricity';
-        })
-        .reduce((sum, r) => {
-          const resource = this.metersStore.getResourceById(r.resourceId);
-          if (!resource) return sum;
-          const previous = this.metersStore.getPreviousReading(r.resourceId, r.id);
-          const consumption = this.metersStore.calculateConsumption(r, previous);
-          return sum + Array.from(consumption.values()).reduce((a, b) => a + b, 0);
-        }, 0);
-
-      waterSeries.push({ name: monthName, value: Math.round(waterConsumption * 10) / 10 });
-      gasSeries.push({ name: monthName, value: Math.round(gasConsumption * 10) / 10 });
-      electricitySeries.push({ name: monthName, value: Math.round(electricityConsumption * 10) / 10 });
+      waterSeries.push({ 
+        name: monthName, 
+        value: this.calculateResourceConsumption(monthReadings, 'water') 
+      });
+      gasSeries.push({ 
+        name: monthName, 
+        value: this.calculateResourceConsumption(monthReadings, 'gas') 
+      });
+      electricitySeries.push({ 
+        name: monthName, 
+        value: this.calculateResourceConsumption(monthReadings, 'electricity') 
+      });
     }
 
     return [
@@ -222,6 +177,49 @@ export class StatsDashboard {
       seriesItem.series.some((item) => item.value > 0)
     );
   });
+
+  private getAllMeterReadings(): MeterReading[] {
+    const allReadings: MeterReading[] = [];
+    
+    // Get all available objects from the meters store by using the observable
+    // We'll iterate through all known resources to collect their readings
+    const knownResourceIds = new Set<string>();
+    
+    // Try to get resources from the default object if available
+    const defaultObjectId = this.metersStore.getDefaultObjectId();
+    if (defaultObjectId) {
+      const resources = this.metersStore.getResourcesForObject(defaultObjectId);
+      resources.forEach(resource => knownResourceIds.add(resource.id));
+    }
+    
+    // Collect readings for all known resource IDs
+    knownResourceIds.forEach(resourceId => {
+      const readings = this.metersStore.getReadingsForResource(resourceId);
+      allReadings.push(...readings);
+    });
+    
+    return allReadings;
+  }
+
+  private calculateResourceConsumption(
+    readings: MeterReading[], 
+    resourceType: ResourceType
+  ): number {
+    const consumption = readings
+      .filter((r) => {
+        const resource = this.metersStore.getResourceById(r.resourceId);
+        return resource?.type === resourceType;
+      })
+      .reduce((sum, r) => {
+        const resource = this.metersStore.getResourceById(r.resourceId);
+        if (!resource) return sum;
+        const previous = this.metersStore.getPreviousReading(r.resourceId, r.id);
+        const consumption = this.metersStore.calculateConsumption(r, previous);
+        return sum + Array.from(consumption.values()).reduce((a, b) => a + b, 0);
+      }, 0);
+    
+    return Math.round(consumption * 10) / 10;
+  }
 
   private getTransactionsForPeriod(period: PeriodType): TransactionEntity[] {
     const now = new Date();
@@ -244,7 +242,7 @@ export class StatsDashboard {
     });
   }
 
-  private getReadingsForMonth(readings: any[], offset: number): any[] {
+  private getReadingsForMonth(readings: MeterReading[], offset: number): MeterReading[] {
     const now = new Date();
     const targetMonth = new Date(now.getFullYear(), now.getMonth() - offset, 1);
     const start = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
