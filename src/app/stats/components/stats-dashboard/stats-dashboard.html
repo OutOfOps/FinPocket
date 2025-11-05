@@ -1,0 +1,132 @@
+<div class="stats-dashboard">
+  <div class="dashboard-header">
+    <h1>Панель аналитики</h1>
+    
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Тип данных</mat-label>
+        <mat-select [value]="selectedDataType()" (selectionChange)="onDataTypeChange($event.value)">
+          @for (type of dataTypes; track type.value) {
+            <mat-option [value]="type.value">{{ type.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Период</mat-label>
+        <mat-select [value]="selectedPeriod()" (selectionChange)="onPeriodChange($event.value)">
+          @for (period of periods; track period.value) {
+            <mat-option [value]="period.value">{{ period.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="charts-container">
+    @if (selectedDataType() === 'expenses') {
+      <div class="chart-card">
+        <h2>Расходы по категориям</h2>
+        @if (expensesByCategoryData().length > 0) {
+          <ngx-charts-pie-chart
+            [results]="expensesByCategoryData()"
+            [legend]="true"
+            [legendPosition]="legendPosition"
+            [labels]="true"
+            [doughnut]="false"
+            [scheme]="'cool'"
+            [gradient]="true"
+            [animations]="true"
+          >
+          </ngx-charts-pie-chart>
+        } @else {
+          <div class="no-data">
+            <p>Нет данных о расходах за выбранный период</p>
+          </div>
+        }
+      </div>
+    }
+
+    @if (selectedDataType() === 'balance') {
+      <div class="chart-card">
+        <h2>Баланс по месяцам</h2>
+        @if (balanceByMonthData().length > 0 && balanceByMonthData()[0].series.length > 0) {
+          <ngx-charts-line-chart
+            [results]="balanceByMonthData()"
+            [legend]="true"
+            [legendPosition]="legendPosition"
+            [xAxis]="true"
+            [yAxis]="true"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxisLabel]="'Месяц'"
+            [yAxisLabel]="'Баланс'"
+            [scheme]="'cool'"
+            [gradient]="false"
+            [animations]="true"
+            [timeline]="false"
+          >
+          </ngx-charts-line-chart>
+        } @else {
+          <div class="no-data">
+            <p>Нет данных о балансе за выбранный период</p>
+          </div>
+        }
+      </div>
+    }
+
+    @if (selectedDataType() === 'debts') {
+      <div class="chart-card">
+        <h2>Долги</h2>
+        @if (debtsData().length > 0) {
+          <ngx-charts-bar-vertical
+            [results]="debtsData()"
+            [legend]="false"
+            [xAxis]="true"
+            [yAxis]="true"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxisLabel]="'Категория'"
+            [yAxisLabel]="'Сумма'"
+            [scheme]="'cool'"
+            [gradient]="true"
+            [animations]="true"
+          >
+          </ngx-charts-bar-vertical>
+        } @else {
+          <div class="no-data">
+            <p>Нет активных долгов</p>
+          </div>
+        }
+      </div>
+    }
+
+    @if (selectedDataType() === 'meters') {
+      <div class="chart-card">
+        <h2>Потребление ресурсов</h2>
+        @if (hasMetersData()) {
+          <ngx-charts-area-chart
+            [results]="metersConsumptionData()"
+            [legend]="true"
+            [legendPosition]="legendPosition"
+            [xAxis]="true"
+            [yAxis]="true"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxisLabel]="'Месяц'"
+            [yAxisLabel]="'Потребление'"
+            [scheme]="'cool'"
+            [gradient]="true"
+            [animations]="true"
+            [timeline]="false"
+          >
+          </ngx-charts-area-chart>
+        } @else {
+          <div class="no-data">
+            <p>Нет данных о потреблении ресурсов за выбранный период</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
