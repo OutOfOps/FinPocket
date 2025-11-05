@@ -21,13 +21,12 @@ interface TimelineEntry {
   styleUrls: ['./debts-details.component.scss'],
 })
 export class DebtsDetailsComponent {
-  private readonly currencyService = inject(CurrencyService);
+  readonly currencyService = inject(CurrencyService);
   readonly debtsStore = inject(DebtsStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
-  readonly currencyService = inject(CurrencyService);
   
   readonly debtId = signal<number | undefined>(undefined);
   readonly debt = signal<DebtEntity | undefined>(undefined);
