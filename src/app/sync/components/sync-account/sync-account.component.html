@@ -1,94 +1,137 @@
 <section class="sync-account" aria-label="Список облачных провайдеров">
-  <mat-card
-    class="sync-account__card"
-    *ngFor="let provider of providers; trackBy: trackByProvider"
-    [attr.aria-labelledby]="'provider-' + provider.id + '-title'"
-  >
-    <mat-card-header>
-      <div class="sync-account__status">
-        <span class="sync-account__status-dot" [ngClass]="statusClass(provider.status)" aria-hidden="true"></span>
-        <span class="sync-account__status-label">{{ statusLabel(provider.status) }}</span>
-        <span class="sync-account__status-sync" *ngIf="provider.lastSync">
-          Последняя синхронизация: {{ provider.lastSync | date: 'medium' }}
-        </span>
-      </div>
-      <mat-card-title id="provider-{{ provider.id }}-title">{{ provider.title }}</mat-card-title>
-      <mat-card-subtitle>{{ provider.description }}</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <div class="sync-account__controls">
-        <button
-          mat-stroked-button
-          color="primary"
-          (click)="connect(provider)"
-          *ngIf="!provider.connected"
-        >
-          Войти
-        </button>
-        <button
-          mat-stroked-button
-          color="warn"
-          (click)="disconnect(provider)"
-          *ngIf="provider.connected"
-        >
-          Выйти
-        </button>
-        <button
-          mat-stroked-button
-          (click)="triggerUpload(provider)"
-          [disabled]="!provider.connected"
-        >
-          Выгрузить
-        </button>
-        <button
-          mat-stroked-button
-          (click)="triggerDownload(provider)"
-          [disabled]="!provider.connected || !provider.backups.length"
-        >
-          Загрузить последний
-        </button>
-      </div>
-
-      <section class="sync-account__backups" *ngIf="provider.backups.length">
-        <header class="sync-account__section-header">
-          <h3>Бэкапы</h3>
-        </header>
-        <mat-divider></mat-divider>
-        <mat-list>
-          <mat-list-item *ngFor="let backup of provider.backups; trackBy: trackByBackup">
-            <div class="sync-account__backup">
-              <div class="sync-account__backup-info">
-                <span class="sync-account__backup-name">{{ backup.name }}</span>
-                <span class="sync-account__backup-meta">
-                  {{ backup.modified | date: 'medium' }} · {{ backup.size }}
-                </span>
-              </div>
-              <div class="sync-account__backup-actions">
-                <button mat-button (click)="downloadBackup(provider, backup)" [disabled]="!provider.connected">
-                  Загрузить
-                </button>
-                <button mat-button (click)="uploadBackup(provider, backup)" [disabled]="!provider.connected">
-                  Выгрузить
-                </button>
-                <button mat-button color="warn" (click)="deleteBackup(provider, backup)" [disabled]="!provider.connected">
-                  Удалить
-                </button>
-              </div>
-            </div>
-          </mat-list-item>
-        </mat-list>
-      </section>
-
-      <section class="sync-account__errors" *ngIf="provider.recentErrors.length">
-        <header class="sync-account__section-header">
-          <h3>Последние ошибки</h3>
-        </header>
-        <mat-divider></mat-divider>
-        <ul>
-          <li *ngFor="let error of provider.recentErrors">{{ error }}</li>
-        </ul>
-      </section>
-    </mat-card-content>
-  </mat-card>
+  <ng-container *ngIf="isLoading(); else loaded">
+    <mat-card class="sync-account__card">
+      <p class="sync-account__state">Загружаем сведения о подключённых сервисах…</p>
+    </mat-card>
+  </ng-container>
 </section>
+
+<ng-template #loaded>
+  <section class="sync-account" aria-label="Список облачных провайдеров">
+    <ng-container *ngIf="!loadError(); else errorTpl">
+      <ng-container *ngIf="providers().length; else empty">
+        <mat-card
+          class="sync-account__card"
+          *ngFor="let provider of providers(); trackBy: trackByProvider"
+          [attr.aria-labelledby]="'provider-' + provider.id + '-title'"
+        >
+          <mat-card-header>
+            <div class="sync-account__status">
+              <span
+                class="sync-account__status-dot"
+                [ngClass]="statusClass(provider.status)"
+                aria-hidden="true"
+              ></span>
+              <span class="sync-account__status-label">{{ statusLabel(provider.status) }}</span>
+              <span class="sync-account__status-sync" *ngIf="provider.lastSync">
+                Последняя синхронизация: {{ provider.lastSync | date: 'medium' }}
+              </span>
+            </div>
+            <mat-card-title id="provider-{{ provider.id }}-title">{{ provider.title }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ provider.description }}
+              <ng-container *ngIf="provider.user">
+                · {{ provider.user?.email || provider.user?.name }}
+              </ng-container>
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="sync-account__controls">
+              <button
+                mat-stroked-button
+                color="primary"
+                (click)="connect(provider)"
+                *ngIf="!provider.connected"
+              >
+                Войти
+              </button>
+              <button
+                mat-stroked-button
+                color="warn"
+                (click)="disconnect(provider)"
+                *ngIf="provider.connected"
+              >
+                Выйти
+              </button>
+              <button
+                mat-stroked-button
+                (click)="triggerUpload(provider)"
+                [disabled]="!provider.connected"
+              >
+                Выгрузить данные
+              </button>
+              <button
+                mat-stroked-button
+                (click)="triggerDownload(provider)"
+                [disabled]="!provider.connected || !provider.backups.length"
+              >
+                Загрузить последний
+              </button>
+            </div>
+
+            <section class="sync-account__backups" *ngIf="provider.backups.length">
+              <header class="sync-account__section-header">
+                <h3>Резервные копии</h3>
+              </header>
+              <mat-divider></mat-divider>
+              <mat-list>
+                <mat-list-item *ngFor="let backup of provider.backups; trackBy: trackByBackup">
+                  <div class="sync-account__backup">
+                    <div class="sync-account__backup-info">
+                      <span class="sync-account__backup-name">{{ backup.name }}</span>
+                      <span class="sync-account__backup-meta">
+                        {{ backup.modified | date: 'medium' }} · {{ backup.sizeLabel }}
+                      </span>
+                    </div>
+                    <div class="sync-account__backup-actions">
+                      <button
+                        mat-button
+                        (click)="restoreBackup(provider, backup)"
+                        [disabled]="!provider.connected"
+                      >
+                        Восстановить
+                      </button>
+                      <button
+                        mat-button
+                        color="warn"
+                        (click)="deleteBackup(provider, backup)"
+                        [disabled]="!provider.connected"
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+            </section>
+
+            <section class="sync-account__errors" *ngIf="provider.recentErrors.length">
+              <header class="sync-account__section-header">
+                <h3>Последние события</h3>
+              </header>
+              <mat-divider></mat-divider>
+              <ul>
+                <li *ngFor="let error of provider.recentErrors">{{ error }}</li>
+              </ul>
+            </section>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+    </ng-container>
+  </section>
+</ng-template>
+
+<ng-template #empty>
+  <mat-card class="sync-account__card">
+    <p class="sync-account__state">
+      Провайдеры синхронизации ещё не настроены. Укажите параметры подключения в разделе «Настройка».
+    </p>
+  </mat-card>
+</ng-template>
+
+<ng-template #errorTpl>
+  <mat-card class="sync-account__card">
+    <p class="sync-account__state sync-account__state--error">{{ loadError() }}</p>
+  </mat-card>
+</ng-template>

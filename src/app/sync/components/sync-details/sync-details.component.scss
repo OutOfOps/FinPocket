@@ -16,3 +16,16 @@
   justify-content: space-between;
   gap: 1rem;
 }
+
+.sync-details__checksum {
+  word-break: break-all;
+}
+
+.sync-details__state {
+  margin: 1rem 0 0;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.sync-details__state--error {
+  color: #c62828;
+}

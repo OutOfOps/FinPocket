@@ -9,17 +9,8 @@
   max-width: 520px;
 }
 
-.sync-edit__form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sync-edit__form select {
-  padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.5rem;
-  font: inherit;
+.sync-edit__form mat-form-field {
+  width: 100%;
 }
 
 .sync-edit__options {
@@ -36,4 +27,10 @@
 .sync-edit__option--active {
   border-color: rgba(63, 81, 181, 0.5);
   box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.1);
+}
+
+.sync-edit__note {
+  margin: -0.5rem 0 0;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.54);
 }

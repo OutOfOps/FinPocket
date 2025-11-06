@@ -117,3 +117,17 @@
   font-size: 1rem;
   font-weight: 600;
 }
+
+.sync-account__state {
+  margin: 1rem 0 0;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.sync-account__state--error {
+  color: #c62828;
+}
+
+.sync-account__snackbar-error {
+  color: #fff !important;
+  background: #c62828 !important;
+}
