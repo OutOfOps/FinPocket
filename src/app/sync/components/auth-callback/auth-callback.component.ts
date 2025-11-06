@@ -6,6 +6,7 @@ import {
   TOKEN_ENTRY_ID,
   TOKEN_URL,
   buildAuthContextKey,
+  resolveGDriveRedirectUri,
 } from '../../gdrive.provider';
 
 type AuthStatus = 'pending' | 'success' | 'error';
@@ -121,7 +122,7 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
     params.set('grant_type', 'authorization_code');
     params.set('code', code);
     params.set('code_verifier', context.verifier);
-    params.set('redirect_uri', context.redirectUri ?? `${window.location.origin}/#/auth/callback/gdrive`);
+    params.set('redirect_uri', context.redirectUri ?? resolveGDriveRedirectUri());
 
     const response = await fetch(TOKEN_URL, {
       method: 'POST',

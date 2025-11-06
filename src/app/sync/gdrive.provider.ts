@@ -55,6 +55,19 @@ export const TOKEN_ENTRY_ID = 'tokens';
 const DEFAULT_FOLDER_NAME = 'FinPocket';
 const DEFAULT_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
+export function resolveGDriveRedirectUri(): string {
+  if (typeof window === 'undefined') {
+    throw new Error('redirect_uri недоступен вне браузера');
+  }
+
+  const baseHref =
+    typeof document !== 'undefined' && document.baseURI
+      ? document.baseURI
+      : `${window.location.origin}/`;
+
+  return new URL('auth/callback/gdrive', baseHref).toString();
+}
+
 export class GDriveProvider implements CloudProvider {
   readonly id = 'gdrive' as const;
   readonly label = 'Google Drive';
@@ -424,11 +437,7 @@ export class GDriveProvider implements CloudProvider {
   }
 
   private buildRedirectUri(): string {
-    if (typeof window === 'undefined') {
-      throw new Error('redirect_uri недоступен вне браузера');
-    }
-
-    return `${window.location.origin}/#/auth/callback/gdrive`;
+    return resolveGDriveRedirectUri();
   }
 
   private waitForAuthCompletion(popup: Window, expectedState: string): Promise<void> {
