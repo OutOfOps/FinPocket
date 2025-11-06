@@ -12,6 +12,7 @@ describe('PwaUpdateService', () => {
       isEnabled: true,
       versionUpdates: of()
     });
+    swUpdateSpy.checkForUpdate.and.returnValue(Promise.resolve(false));
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,11 +29,16 @@ describe('PwaUpdateService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('should check for updates immediately when enabled', () => {
+    expect(swUpdateMock.checkForUpdate).toHaveBeenCalled();
+  });
+
   it('should check for updates when checkForUpdate is called', async () => {
+    swUpdateMock.checkForUpdate.calls.reset();
     swUpdateMock.checkForUpdate.and.returnValue(Promise.resolve(true));
     const result = await service.checkForUpdate();
     expect(result).toBe(true);
-    expect(swUpdateMock.checkForUpdate).toHaveBeenCalled();
+    expect(swUpdateMock.checkForUpdate).toHaveBeenCalledTimes(1);
   });
 
   it('should activate update when activateUpdate is called', async () => {
