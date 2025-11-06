@@ -228,6 +228,49 @@
     <mat-card class="feature-card settings-card">
       <div class="feature-card__accent"></div>
       <mat-card-header>
+        <mat-card-title class="feature-card__title">Экспорт и импорт данных</mat-card-title>
+        <mat-card-subtitle>Переносите прогресс между устройствами</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="settings-hint">
+          Экспортируйте все операции, настройки и справочники в JSON-файл, чтобы продолжить работу на другом устройстве.
+          Импорт перезапишет текущие данные.
+        </p>
+        <label class="data-transfer">
+          <span>JSON-дамп данных</span>
+          <textarea
+            class="data-transfer__input"
+            [(ngModel)]="dataTransferContent"
+            rows="8"
+            placeholder="Нажмите «Экспорт», чтобы сгенерировать JSON, или вставьте данные для импорта"
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+          ></textarea>
+        </label>
+        <div class="data-transfer__actions">
+          <button mat-stroked-button type="button" (click)="exportData()" [disabled]="isExportingData">
+            <mat-icon aria-hidden="true">file_download</mat-icon>
+            Экспорт
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="importData()"
+            [disabled]="isImportingData || !dataTransferContent.trim()"
+          >
+            <mat-icon aria-hidden="true">file_upload</mat-icon>
+            Импорт
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="feature-card settings-card">
+      <div class="feature-card__accent"></div>
+      <mat-card-header>
         <mat-card-title class="feature-card__title">Очистка данных</mat-card-title>
         <mat-card-subtitle>Удалите все данные и начните с чистого листа</mat-card-subtitle>
       </mat-card-header>

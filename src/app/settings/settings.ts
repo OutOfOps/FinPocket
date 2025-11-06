@@ -5,6 +5,7 @@ import { Currency, CurrencyService } from '../core/services/currency.service';
 import { FinpocketTheme, ThemeService } from '../core/services/theme.service';
 import { DataResetService } from '../core/services/data-reset.service';
 import { ResetDataDialogComponent } from './components/reset-data-dialog/reset-data-dialog.component';
+import { DataTransferService } from './services/data-transfer.service';
 
 @Component({
   selector: 'app-settings',
@@ -18,6 +19,7 @@ export class Settings {
   private readonly dataResetService = inject(DataResetService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dataTransferService = inject(DataTransferService);
 
   protected readonly theme = this.themeService.theme;
   protected readonly currencies = this.currencyService.currencies;
@@ -47,6 +49,9 @@ export class Settings {
   };
 
   protected isResetting = false;
+  protected dataTransferContent = '';
+  protected isExportingData = false;
+  protected isImportingData = false;
 
   protected setTheme(theme: FinpocketTheme | string): void {
     if (theme === 'dark' || theme === 'light') {
@@ -216,6 +221,60 @@ export class Settings {
       });
     } finally {
       this.isResetting = false;
+    }
+  }
+
+  protected async exportData(): Promise<void> {
+    if (this.isExportingData) {
+      return;
+    }
+
+    this.isExportingData = true;
+
+    try {
+      const json = await this.dataTransferService.exportAsJson();
+      this.dataTransferContent = json;
+      this.snackBar.open('Данные экспортированы. Скопируйте JSON и сохраните его в файле.', 'Закрыть', {
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error('Failed to export data', error);
+      this.snackBar.open('Не удалось экспортировать данные. Попробуйте снова.', 'Закрыть', {
+        duration: 5000,
+      });
+    } finally {
+      this.isExportingData = false;
+    }
+  }
+
+  protected async importData(): Promise<void> {
+    if (this.isImportingData) {
+      return;
+    }
+
+    this.isImportingData = true;
+
+    try {
+      await this.dataTransferService.importFromJson(this.dataTransferContent);
+      this.snackBar.open(
+        'Данные импортированы. Перезапустите приложение или обновите страницу для применения.',
+        'Закрыть',
+        {
+          duration: 6000,
+        }
+      );
+    } catch (error) {
+      console.error('Failed to import data', error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Не удалось импортировать данные. Проверьте JSON и повторите попытку.';
+
+      this.snackBar.open(message, 'Закрыть', {
+        duration: 6000,
+      });
+    } finally {
+      this.isImportingData = false;
     }
   }
 }

@@ -13,6 +13,11 @@ export interface NewCurrency {
   rateToBase: number;
 }
 
+export interface CurrencySnapshot {
+  currencies: Currency[];
+  defaultCurrencyId: string;
+}
+
 const DEFAULT_CURRENCIES: Currency[] = [
   { id: 'currency-uah', name: 'Гривна', code: 'UAH', rateToBase: 1 },
   { id: 'currency-usd', name: 'Доллар', code: 'USD', rateToBase: 0.027 },
@@ -198,6 +203,33 @@ export class CurrencyService {
       minimumFractionDigits: fractionDigits,
       maximumFractionDigits: fractionDigits,
     }).format(amount);
+  }
+
+  getSnapshot(): CurrencySnapshot {
+    return {
+      currencies: this.currenciesSignal().map((currency) => ({ ...currency })),
+      defaultCurrencyId: this.defaultCurrencySignal(),
+    };
+  }
+
+  restoreSnapshot(snapshot: CurrencySnapshot): void {
+    const sanitized = Array.isArray(snapshot.currencies)
+      ? snapshot.currencies
+          .map((item) => this.sanitizeCurrency(item))
+          .filter((currency): currency is Currency => currency !== null)
+      : [];
+
+    const finalCurrencies = sanitized.length ? sanitized : [...DEFAULT_CURRENCIES];
+    this.currenciesSignal.set(finalCurrencies);
+
+    const desiredDefault =
+      typeof snapshot.defaultCurrencyId === 'string' ? snapshot.defaultCurrencyId : '';
+
+    const resolvedDefault = finalCurrencies.some((currency) => currency.id === desiredDefault)
+      ? desiredDefault
+      : this.resolveFallbackDefault(finalCurrencies);
+
+    this.defaultCurrencySignal.set(resolvedDefault);
   }
 
   private ensureDefaultCurrency(currencies: Currency[]): void {
