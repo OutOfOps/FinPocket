@@ -80,6 +80,17 @@ export interface SyncQueueEntity {
   payload: unknown;
   createdAt: string;
   syncedAt?: string;
+  retryCount?: number;
+  nextRetryAt?: string;
+}
+
+export interface EncryptionKeyEntity {
+  id?: number;
+  keyName: string;
+  encryptedKey: string; // encrypted with master passphrase
+  salt: string;
+  iv: string;
+  createdAt: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -92,6 +103,7 @@ export class FinPocketDB extends Dexie {
   categories!: Table<CategoryEntity, number>;
   backups!: Table<BackupEntity, number>;
   syncQueue!: Table<SyncQueueEntity, number>;
+  encryptionKeys!: Table<EncryptionKeyEntity, number>;
 
   constructor() {
     super('FinPocketDB');
@@ -141,6 +153,10 @@ export class FinPocketDB extends Dexie {
           })
       );
 
+    this.version(3).stores({
+      encryptionKeys: '++id, keyName, createdAt',
+    });
+
     this.transactions = this.table('transactions');
     this.accounts = this.table('accounts');
     this.debts = this.table('debts');
@@ -149,5 +165,6 @@ export class FinPocketDB extends Dexie {
     this.categories = this.table('categories');
     this.backups = this.table('backups');
     this.syncQueue = this.table('syncQueue');
+    this.encryptionKeys = this.table('encryptionKeys');
   }
 }
