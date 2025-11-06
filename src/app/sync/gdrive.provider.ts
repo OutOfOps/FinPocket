@@ -108,15 +108,16 @@ export class GDriveProvider implements CloudProvider {
       throw new Error('OAuth login is only available in browser environments');
     }
 
+    const clientId = this.requireClientId();
     const verifier = await generateCodeVerifier();
     const challenge = await generateCodeChallenge(verifier);
     const state = this.generateState();
-    const redirectUri = this.buildRedirectUri();
+    const redirectUri = this.validateRedirectUri(this.buildRedirectUri());
 
-    this.storeAuthContext(state, { verifier, redirectUri });
+    this.storeAuthContext(state, { verifier, redirectUri, clientId });
 
     const authUrl = new URL(AUTH_URL);
-    authUrl.searchParams.set('client_id', this.options.clientId);
+    authUrl.searchParams.set('client_id', clientId);
     authUrl.searchParams.set('redirect_uri', redirectUri);
     authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('scope', DEFAULT_SCOPE);
@@ -342,7 +343,7 @@ export class GDriveProvider implements CloudProvider {
 
   private async refreshAccessToken(refreshToken: string): Promise<GoogleTokenResponse | null> {
     const params = new URLSearchParams();
-    params.set('client_id', this.options.clientId);
+    params.set('client_id', this.requireClientId());
     params.set('grant_type', 'refresh_token');
     params.set('refresh_token', refreshToken);
 
@@ -440,6 +441,51 @@ export class GDriveProvider implements CloudProvider {
     return resolveGDriveRedirectUri();
   }
 
+  private requireClientId(): string {
+    const clientId = this.options.clientId?.trim();
+    if (!clientId) {
+      throw new Error(
+        'Client ID Google Drive не настроен. Укажите значение из Google Cloud Console в настройках синхронизации.'
+      );
+    }
+
+    const pattern = /^[a-z0-9-]+\.apps\.googleusercontent\.com$/i;
+    if (!pattern.test(clientId)) {
+      throw new Error(
+        'Client ID Google Drive имеет неверный формат. Используйте идентификатор вида 12345-abc.apps.googleusercontent.com.'
+      );
+    }
+
+    return clientId;
+  }
+
+  private validateRedirectUri(redirectUri: string): string {
+    let parsed: URL;
+
+    try {
+      parsed = new URL(redirectUri);
+    } catch {
+      throw new Error(
+        'Некорректный redirect_uri для авторизации Google Drive. Проверьте настройки приложения и скопируйте адрес перенаправления заново.'
+      );
+    }
+
+    if (parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+
+    if (parsed.protocol === 'http:') {
+      const allowedHosts = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+      if (allowedHosts.has(parsed.hostname)) {
+        return parsed.toString();
+      }
+    }
+
+    throw new Error(
+      'Адрес перенаправления Google Drive должен использовать HTTPS. Для локальной разработки допустим только http://localhost.'
+    );
+  }
+
   private waitForAuthCompletion(popup: Window, expectedState: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const messageHandler = (event: MessageEvent): void => {
@@ -494,7 +540,7 @@ export class GDriveProvider implements CloudProvider {
 
   private storeAuthContext(
     state: string,
-    context: { verifier: string; redirectUri: string }
+    context: { verifier: string; redirectUri: string; clientId: string }
   ): void {
     if (typeof window === 'undefined') {
       return;
@@ -504,7 +550,7 @@ export class GDriveProvider implements CloudProvider {
       const payload = {
         verifier: context.verifier,
         redirectUri: context.redirectUri,
-        clientId: this.options.clientId,
+        clientId: context.clientId,
         createdAt: Date.now(),
       } satisfies Record<string, unknown>;
       window.localStorage.setItem(this.buildAuthContextKey(state), JSON.stringify(payload));
