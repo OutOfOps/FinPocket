@@ -442,7 +442,7 @@ export class GDriveProvider implements CloudProvider {
   }
 
   private requireClientId(): string {
-    const clientId = this.options.clientId?.trim();
+    const clientId = this.normalizeClientId(this.options.clientId);
     if (!clientId) {
       throw new Error(
         'Client ID Google Drive не настроен. Укажите значение из Google Cloud Console в настройках синхронизации.'
@@ -456,7 +456,20 @@ export class GDriveProvider implements CloudProvider {
       );
     }
 
+    this.options.clientId = clientId;
+
     return clientId;
+  }
+
+  private normalizeClientId(clientId: string | undefined): string {
+    if (!clientId) {
+      return '';
+    }
+
+    return clientId
+      .trim()
+      .replace(/^['"]+|['"]+$/g, '')
+      .replace(/\s+/g, '');
   }
 
   private validateRedirectUri(redirectUri: string): string {
