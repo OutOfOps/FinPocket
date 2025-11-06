@@ -39,7 +39,7 @@ export class TransactionsStore {
 
   readonly listItems = computed<FinanceListItem[]>(() =>
     [...this.transactionsSignal()]
-      .sort((a, b) => this.parseDate(b.occurredAt).getTime() - this.parseDate(a.occurredAt).getTime())
+      .sort((a, b) => this.compareByOccurredAt(a.occurredAt, b.occurredAt))
       .map((transaction) => ({
         id: transaction.id ?? 0,
         description:
@@ -173,6 +173,10 @@ export class TransactionsStore {
 
     return this.transactionsSignal().filter((transaction) => {
       const occurredAt = this.parseDate(transaction.occurredAt);
+      if (!occurredAt) {
+        return false;
+      }
+
       return occurredAt >= start && occurredAt <= end;
     });
   }
@@ -210,7 +214,31 @@ export class TransactionsStore {
     }
   }
 
-  private parseDate(value: string): Date {
-    return value ? new Date(value) : new Date();
+  private compareByOccurredAt(left: string, right: string): number {
+    const leftDate = this.parseDate(left);
+    const rightDate = this.parseDate(right);
+
+    if (leftDate && rightDate) {
+      return rightDate.getTime() - leftDate.getTime();
+    }
+
+    if (leftDate && !rightDate) {
+      return -1;
+    }
+
+    if (!leftDate && rightDate) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  private parseDate(value: string): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 }

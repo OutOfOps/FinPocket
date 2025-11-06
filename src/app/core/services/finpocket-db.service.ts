@@ -117,7 +117,7 @@ export class FinPocketDB extends Dexie {
       meters: '++id, meterType, place, recordedAt',
       categories: '++id, name, type, archived',
       backups: '++id, createdAt, checksum',
-      syncQueue: '++id, entityType, action, createdAt',
+      syncQueue: '++id, entityType, action, createdAt, syncedAt, nextRetryAt',
     });
 
     this.version(2)
@@ -155,6 +155,10 @@ export class FinPocketDB extends Dexie {
 
     this.version(3).stores({
       encryptionKeys: '++id, keyName, createdAt',
+    });
+
+    this.version(4).stores({
+      syncQueue: '++id, entityType, action, createdAt, syncedAt, nextRetryAt',
     });
 
     this.transactions = this.table('transactions');

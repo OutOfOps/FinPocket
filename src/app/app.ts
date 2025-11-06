@@ -7,6 +7,7 @@ import { ThemeService } from './core/services/theme.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { PwaUpdateService } from './core/services/pwa-update.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { APP_VERSION } from './core/tokens/app-version.token';
 
 type NavigationItem = {
   label: string;
@@ -38,7 +39,7 @@ export class App implements OnInit {
   );
 
   protected readonly title = 'FinPocket';
-  protected readonly appVersion = 'v0.1.38';
+  protected readonly appVersion = inject(APP_VERSION);
   protected readonly appStatus = 'Offline-first PWA';
 
   protected readonly navItems: NavigationItem[] = [

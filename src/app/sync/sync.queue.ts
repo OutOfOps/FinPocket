@@ -33,6 +33,7 @@ export class SyncQueue {
       action: operation.action,
       payload: operation.payload,
       createdAt: new Date().toISOString(),
+      retryCount: 0,
     };
 
     return await this.db.syncQueue.add(entity);
@@ -54,6 +55,14 @@ export class SyncQueue {
       const pending = await this.db.syncQueue
         .where('syncedAt')
         .equals(undefined as any)
+        .filter((entity) => {
+          if (!entity.nextRetryAt) {
+            return true;
+          }
+
+          const nextRetryAt = new Date(entity.nextRetryAt);
+          return !Number.isNaN(nextRetryAt.getTime()) && nextRetryAt.getTime() <= Date.now();
+        })
         .toArray();
 
       for (const entity of pending) {
@@ -65,6 +74,8 @@ export class SyncQueue {
           payload: entity.payload,
           createdAt: entity.createdAt,
           syncedAt: entity.syncedAt,
+          retryCount: entity.retryCount,
+          nextRetryAt: entity.nextRetryAt,
         };
 
         try {
@@ -74,6 +85,8 @@ export class SyncQueue {
           if (operation.id) {
             await this.db.syncQueue.update(operation.id, {
               syncedAt: new Date().toISOString(),
+              retryCount: 0,
+              nextRetryAt: undefined,
             });
           }
         } catch (error: any) {
@@ -106,10 +119,9 @@ export class SyncQueue {
 
           if (operation.id) {
             await this.db.syncQueue.update(operation.id, {
-              ...entity,
               retryCount,
               nextRetryAt: new Date(Date.now() + backoffMs).toISOString(),
-            } as any);
+            });
           }
         }
       }
@@ -142,6 +154,8 @@ export class SyncQueue {
       payload: entity.payload,
       createdAt: entity.createdAt,
       syncedAt: entity.syncedAt,
+      retryCount: entity.retryCount,
+      nextRetryAt: entity.nextRetryAt,
     }));
   }
 }

@@ -13,15 +13,13 @@ export class PwaUpdateService {
 
   constructor() {
     if (this.swUpdate.isEnabled) {
+      this.triggerUpdateCheck();
+
       // Check for updates periodically
       interval(this.checkIntervalMs)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
-          this.swUpdate.checkForUpdate().then(() => {
-            console.log('Checked for updates');
-          }).catch(err => {
-            console.error('Error checking for updates:', err);
-          });
+          this.triggerUpdateCheck();
         });
 
       // Listen for available updates
@@ -60,5 +58,16 @@ export class PwaUpdateService {
       return false;
     }
     return await this.swUpdate.activateUpdate();
+  }
+
+  private triggerUpdateCheck(): void {
+    void this.swUpdate
+      .checkForUpdate()
+      .then(() => {
+        console.log('Checked for updates');
+      })
+      .catch((err) => {
+        console.error('Error checking for updates:', err);
+      });
   }
 }
