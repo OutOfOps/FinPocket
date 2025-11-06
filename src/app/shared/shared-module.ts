@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
 import { SharedListComponent } from './components/shared-list/shared-list.component';
 import { SharedEditComponent } from './components/shared-edit/shared-edit.component';
 import { SharedDetailsComponent } from './components/shared-details/shared-details.component';
@@ -35,6 +36,7 @@ const MATERIAL_MODULES = [
   MatInputModule,
   MatSelectModule,
   MatSnackBarModule,
+  MatDialogModule,
 ];
 
 const SHARED_COMPONENTS = [SharedListComponent, SharedEditComponent, SharedDetailsComponent];

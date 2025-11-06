@@ -146,4 +146,8 @@ export class OperationAccountsService {
       return null;
     }
   }
+
+  resetToDefaults(): void {
+    this.accountsSignal.set([...DEFAULT_ACCOUNTS]);
+  }
 }
