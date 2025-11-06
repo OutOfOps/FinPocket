@@ -4,12 +4,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
+import { AuthCallbackComponent } from './sync/components/auth-callback/auth-callback.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { CoreModule } from './core/core-module';
 import { SharedModule } from './shared/shared-module';
 
 @NgModule({
-  declarations: [App],
+  declarations: [App, AuthCallbackComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

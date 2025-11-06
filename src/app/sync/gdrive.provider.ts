@@ -2,7 +2,7 @@ import Dexie, { Table } from 'dexie';
 import { AuthState, CloudProvider } from './cloud-provider';
 import { generateCodeChallenge, generateCodeVerifier } from './pkce';
 
-interface GDriveTokenRecord {
+export interface GDriveTokenRecord {
   id: string;
   accessToken: string;
   refreshToken?: string;
@@ -37,7 +37,7 @@ export interface GDriveProviderOptions {
   clientId: string;
 }
 
-class GDriveAuthDB extends Dexie {
+export class GDriveAuthDB extends Dexie {
   declare tokens: Table<GDriveTokenRecord, string>;
 
   constructor() {
@@ -47,11 +47,11 @@ class GDriveAuthDB extends Dexie {
 }
 
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DRIVE_FILES_URL = 'https://www.googleapis.com/drive/v3/files';
 const DRIVE_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
 const DRIVE_ABOUT_URL = 'https://www.googleapis.com/drive/v3/about?fields=user';
-const TOKEN_ENTRY_ID = 'tokens';
+export const TOKEN_ENTRY_ID = 'tokens';
 const DEFAULT_FOLDER_NAME = 'FinPocket';
 const DEFAULT_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
@@ -60,6 +60,7 @@ export class GDriveProvider implements CloudProvider {
   readonly label = 'Google Drive';
 
   private readonly db = new GDriveAuthDB();
+  private quotaToastVisible = false;
   private cachedRecord: GDriveTokenRecord | null = null;
 
   constructor(private readonly options: GDriveProviderOptions) {}
@@ -99,6 +100,8 @@ export class GDriveProvider implements CloudProvider {
     const state = this.generateState();
     const redirectUri = this.buildRedirectUri();
 
+    this.storeAuthContext(state, { verifier, redirectUri });
+
     const authUrl = new URL(AUTH_URL);
     authUrl.searchParams.set('client_id', this.options.clientId);
     authUrl.searchParams.set('redirect_uri', redirectUri);
@@ -120,29 +123,33 @@ export class GDriveProvider implements CloudProvider {
       throw new Error('Не удалось открыть окно авторизации Google');
     }
 
-    const code = await this.waitForAuthorizationCode(popup, state);
+    try {
+      await this.waitForAuthCompletion(popup, state);
+    } finally {
+      this.clearAuthContext(state);
+    }
 
-    const tokenResponse = await this.exchangeCodeForTokens(code, verifier, redirectUri);
-    const user = await this.fetchUserProfile(tokenResponse.access_token);
+    const { record } = await this.getAccessToken();
+    let finalRecord = record;
 
-    const record: GDriveTokenRecord = {
-      id: TOKEN_ENTRY_ID,
-      accessToken: tokenResponse.access_token,
-      refreshToken: tokenResponse.refresh_token,
-      expiresAt: this.computeExpiry(tokenResponse.expires_in),
-      scope: tokenResponse.scope,
-      tokenType: tokenResponse.token_type,
-      user,
-    };
-
-    await this.saveTokenRecord(record);
+    if (!record.user) {
+      try {
+        const user = await this.fetchUserProfile(record.accessToken);
+        if (user) {
+          finalRecord = { ...record, user };
+          await this.saveTokenRecord(finalRecord);
+        }
+      } catch (error) {
+        console.warn('[GDrive] Failed to fetch user profile after login', error);
+      }
+    }
 
     return {
       provider: 'gdrive',
-      user,
-      accessToken: record.accessToken,
-      refreshToken: record.refreshToken,
-      expiresAt: record.expiresAt,
+      user: finalRecord.user,
+      accessToken: finalRecord.accessToken,
+      refreshToken: finalRecord.refreshToken,
+      expiresAt: finalRecord.expiresAt,
     };
   }
 
@@ -279,83 +286,54 @@ export class GDriveProvider implements CloudProvider {
   }
 
   private async getAccessToken(): Promise<{ token: string; record: GDriveTokenRecord }> {
+    const record = await this.ensureToken();
+    return { token: record.accessToken, record };
+  }
+
+  async ensureToken(): Promise<GDriveTokenRecord> {
     const record = await this.getTokenRecord();
     if (!record || !record.accessToken) {
       throw new Error('Google Drive не авторизован');
     }
 
-    if (record.expiresAt && record.expiresAt - 60000 <= Date.now()) {
-      if (!record.refreshToken) {
-        throw new Error('Срок действия токена Google Drive истёк, требуется повторный вход');
-      }
-
-      const refreshed = await this.refreshAccessToken(record.refreshToken);
-      const updated: GDriveTokenRecord = {
-        ...record,
-        accessToken: refreshed.access_token,
-        expiresAt: this.computeExpiry(refreshed.expires_in),
-        scope: refreshed.scope ?? record.scope,
-        tokenType: refreshed.token_type ?? record.tokenType,
-      };
-
-      if (refreshed.refresh_token) {
-        updated.refreshToken = refreshed.refresh_token;
-      }
-
-      await this.saveTokenRecord(updated);
-      return { token: updated.accessToken, record: updated };
+    if (!record.expiresAt || Date.now() <= record.expiresAt - 60000) {
+      return record;
     }
 
-    return { token: record.accessToken, record };
+    if (!record.refreshToken) {
+      await this.logout();
+      throw new Error('Срок действия токена Google Drive истёк, требуется повторный вход');
+    }
+
+    const refreshed = await this.refreshAccessToken(record.refreshToken);
+    if (!refreshed || !refreshed.access_token) {
+      await this.logout();
+      throw new Error('Не удалось обновить токен Google Drive, требуется повторная авторизация');
+    }
+
+    const updated: GDriveTokenRecord = {
+      ...record,
+      accessToken: refreshed.access_token,
+      expiresAt: this.computeExpiry(refreshed.expires_in),
+      scope: refreshed.scope ?? record.scope,
+      tokenType: refreshed.token_type ?? record.tokenType,
+    };
+
+    if (refreshed.refresh_token) {
+      updated.refreshToken = refreshed.refresh_token;
+    }
+
+    await this.saveTokenRecord(updated);
+    return updated;
   }
 
-  private async refreshAccessToken(refreshToken: string): Promise<GoogleTokenResponse> {
+  private async refreshAccessToken(refreshToken: string): Promise<GoogleTokenResponse | null> {
     const params = new URLSearchParams();
     params.set('client_id', this.options.clientId);
     params.set('grant_type', 'refresh_token');
     params.set('refresh_token', refreshToken);
 
-    const response = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params.toString(),
-    });
-
-    if (!response.ok) {
-      await this.logout();
-      throw new Error('Не удалось обновить токен Google Drive');
-    }
-
-    return response.json();
-  }
-
-  private async exchangeCodeForTokens(
-    code: string,
-    verifier: string,
-    redirectUri: string
-  ): Promise<GoogleTokenResponse> {
-    const params = new URLSearchParams();
-    params.set('client_id', this.options.clientId);
-    params.set('grant_type', 'authorization_code');
-    params.set('code', code);
-    params.set('code_verifier', verifier);
-    params.set('redirect_uri', redirectUri);
-
-    const response = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params.toString(),
-    });
-
-    if (!response.ok) {
-      throw new Error('Не удалось обменять код авторизации Google Drive на токен');
-    }
-
-    return response.json();
+    return this.requestToken(params);
   }
 
   private async fetchUserProfile(accessToken: string): Promise<GDriveTokenRecord['user']> {
@@ -436,7 +414,7 @@ export class GDriveProvider implements CloudProvider {
       return undefined;
     }
 
-    return Date.now() + Math.max(expiresIn - 60, 0) * 1000;
+    return Date.now() + expiresIn * 1000;
   }
 
   private generateState(): string {
@@ -453,15 +431,20 @@ export class GDriveProvider implements CloudProvider {
     return `${window.location.origin}/#/auth/callback/gdrive`;
   }
 
-  private waitForAuthorizationCode(popup: Window, expectedState: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+  private waitForAuthCompletion(popup: Window, expectedState: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       const messageHandler = (event: MessageEvent): void => {
         if (event.origin !== window.location.origin) {
           return;
         }
 
         const data = event.data as
-          | { provider: string; state?: string; code?: string; error?: string }
+          | {
+              provider: string;
+              state?: string;
+              status?: 'success' | 'error';
+              error?: string;
+            }
           | undefined;
 
         if (!data || data.provider !== 'gdrive') {
@@ -474,19 +457,13 @@ export class GDriveProvider implements CloudProvider {
           return;
         }
 
-        if (data.error) {
-          reject(new Error(data.error));
+        if (data.status !== 'success') {
+          reject(new Error(data.error ?? 'Авторизация Google Drive не удалась'));
           cleanup();
           return;
         }
 
-        if (!data.code) {
-          reject(new Error('Ответ авторизации Google не содержит кода'));
-          cleanup();
-          return;
-        }
-
-        resolve(data.code);
+        resolve();
         cleanup();
       };
 
@@ -505,4 +482,147 @@ export class GDriveProvider implements CloudProvider {
       window.addEventListener('message', messageHandler);
     });
   }
+
+  private storeAuthContext(
+    state: string,
+    context: { verifier: string; redirectUri: string }
+  ): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const payload = {
+        verifier: context.verifier,
+        redirectUri: context.redirectUri,
+        clientId: this.options.clientId,
+        createdAt: Date.now(),
+      } satisfies Record<string, unknown>;
+      window.localStorage.setItem(this.buildAuthContextKey(state), JSON.stringify(payload));
+    } catch (error) {
+      console.warn('[GDrive] Failed to persist auth context', error);
+    }
+  }
+
+  private clearAuthContext(state: string): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      window.localStorage.removeItem(this.buildAuthContextKey(state));
+    } catch (error) {
+      console.warn('[GDrive] Failed to clear auth context', error);
+    }
+  }
+
+  private buildAuthContextKey(state: string): string {
+    return buildAuthContextKey(state);
+  }
+
+  private async requestToken(params: URLSearchParams): Promise<GoogleTokenResponse | null> {
+    const maxAttempts = 3;
+    let attempt = 0;
+    let delay = 1000;
+
+    while (attempt < maxAttempts) {
+      attempt += 1;
+
+      try {
+        const response = await fetch(TOKEN_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: params.toString(),
+        });
+
+        if (response.ok) {
+          return response.json();
+        }
+
+        if (response.status === 403) {
+          this.showQuotaExceededToast();
+          return null;
+        }
+
+        if (response.status === 429 || (response.status >= 500 && response.status < 600)) {
+          if (attempt < maxAttempts) {
+            await this.delay(delay);
+            delay *= 2;
+            continue;
+          }
+        }
+
+        const errorText = await response.text().catch(() => '');
+        throw new Error(
+          `Google Drive token request failed with status ${response.status}. ${errorText}`
+        );
+      } catch (error) {
+        if (attempt >= maxAttempts) {
+          throw error;
+        }
+
+        await this.delay(delay);
+        delay *= 2;
+      }
+    }
+
+    return null;
+  }
+
+  private async delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private showQuotaExceededToast(): void {
+    if (typeof document === 'undefined') {
+      console.warn(
+        '[GDrive] Received quota exceeded response but cannot show toast outside browser context'
+      );
+      return;
+    }
+
+    if (this.quotaToastVisible) {
+      return;
+    }
+
+    this.quotaToastVisible = true;
+
+    const toast = document.createElement('div');
+    toast.textContent =
+      'Google Drive временно исчерпал квоту. Повторите попытку через несколько минут.';
+    toast.style.position = 'fixed';
+    toast.style.left = '50%';
+    toast.style.bottom = '24px';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.background = 'rgba(50, 50, 50, 0.95)';
+    toast.style.color = '#fff';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+    toast.style.zIndex = '10000';
+    toast.style.fontSize = '14px';
+    toast.style.fontFamily = 'Roboto, Arial, sans-serif';
+    toast.style.maxWidth = '320px';
+    toast.style.textAlign = 'center';
+    toast.style.transition = 'opacity 300ms ease';
+    toast.style.opacity = '1';
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        toast.remove();
+        this.quotaToastVisible = false;
+      }, 300);
+    }, 5000);
+  }
+}
+
+export const AUTH_CONTEXT_PREFIX = 'gdrive:oauth:';
+
+export function buildAuthContextKey(state: string): string {
+  return `${AUTH_CONTEXT_PREFIX}${state}`;
 }
