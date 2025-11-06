@@ -2,7 +2,7 @@
   <mat-card
     class="sync-account__card"
     *ngFor="let provider of providers; trackBy: trackByProvider"
-    aria-labelledby="provider-{{ provider.id }}-title"
+    [attr.aria-labelledby]="'provider-' + provider.id + '-title'"
   >
     <mat-card-header>
       <div class="sync-account__status">
