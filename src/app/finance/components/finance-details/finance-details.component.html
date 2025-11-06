@@ -14,13 +14,13 @@
       </div>
       <div>
         <h3>Факт</h3>
-        <p>Доходы: {{ formatCurrency(scenario.actualIncome) }}</p>
-        <p>Расходы: {{ formatCurrency(scenario.actualExpenses) }}</p>
+        <p>Доходы: {{ formatCurrency(actualIncome()) }}</p>
+        <p>Расходы: {{ formatCurrency(actualExpenses()) }}</p>
       </div>
       <div>
         <h3>Отклонение</h3>
-        <p [class.finance-details__positive]="balanceDelta >= 0">
-          {{ formatCurrency(balanceDelta) }}
+        <p [class.finance-details__positive]="balanceDelta() >= 0">
+          {{ formatCurrency(balanceDelta()) }}
         </p>
       </div>
     </div>

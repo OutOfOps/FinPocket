@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { TransactionsStore } from '../../services/transactions.store';
 
 @Component({
   selector: 'app-finance-details',
@@ -11,24 +12,30 @@ import { CurrencyService } from '../../../core/services/currency.service';
 })
 export class FinanceDetailsComponent {
   private readonly currencyService = inject(CurrencyService);
+  private readonly transactionsStore = inject(TransactionsStore);
 
   readonly scenario = {
     id: 'scenario-monthly-budget',
     title: 'Март 2024',
     plannedIncome: 215000,
     plannedExpenses: 172500,
-    actualIncome: 205400,
-    actualExpenses: 164200,
     comment: 'Основные перерасходы пришлись на транспорт и сервисы подписок.',
   };
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
+  readonly actualIncome = computed(() => this.transactionsStore.currentMonthTotals().income);
+  readonly actualExpenses = computed(() => this.transactionsStore.currentMonthTotals().expenses);
+
+  private readonly plannedNet = computed(
+    () => this.scenario.plannedIncome - this.scenario.plannedExpenses
+  );
+
+  private readonly actualNet = computed(() => this.actualIncome() - this.actualExpenses());
+
   formatCurrency(amount: number, fractionDigits = 0): string {
     return this.currencyService.format(amount, this.defaultCurrencyCode(), fractionDigits);
   }
 
-  get balanceDelta(): number {
-    return (this.scenario.actualIncome - this.scenario.actualExpenses) - (this.scenario.plannedIncome - this.scenario.plannedExpenses);
-  }
+  readonly balanceDelta = computed(() => this.actualNet() - this.plannedNet());
 }
