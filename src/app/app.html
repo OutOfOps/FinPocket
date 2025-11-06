@@ -21,11 +21,9 @@
         routerLinkActive="active"
         (click)="onNavItemSelect(drawer)"
       >
-        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-        <span class="nav-text">
-          <span class="nav-text__label" matListItemTitle>{{ item.label }}</span>
-          <span class="nav-text__hint" matListItemLine>{{ item.description }}</span>
-        </span>
+        <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span matListItemTitle class="nav-text__label">{{ item.label }}</span>
+        <span matListItemLine class="nav-text__hint">{{ item.description }}</span>
       </a>
     </mat-nav-list>
 
