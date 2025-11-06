@@ -112,6 +112,8 @@ export class FinanceEditComponent {
       const names = this.accountNames();
       if (names.length) {
         this.formModel.account = names[0];
+      } else {
+        this.formModel.account = '';
       }
     }
   }

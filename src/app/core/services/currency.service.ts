@@ -18,14 +18,6 @@ export interface CurrencySnapshot {
   defaultCurrencyId: string;
 }
 
-const DEFAULT_CURRENCIES: Currency[] = [
-  { id: 'currency-uah', name: 'Гривна', code: 'UAH', rateToBase: 1 },
-  { id: 'currency-usd', name: 'Доллар', code: 'USD', rateToBase: 0.027 },
-  { id: 'currency-eur', name: 'Евро', code: 'EUR', rateToBase: 0.025 },
-];
-
-const DEFAULT_CURRENCY_ID = 'currency-uah';
-
 @Injectable({ providedIn: 'root' })
 export class CurrencyService {
   private readonly storageKey = 'finpocket-currencies';
@@ -190,8 +182,8 @@ export class CurrencyService {
   }
 
   resetToDefaults(): void {
-    this.currenciesSignal.set([...DEFAULT_CURRENCIES]);
-    this.defaultCurrencySignal.set(DEFAULT_CURRENCY_ID);
+    this.currenciesSignal.set([]);
+    this.defaultCurrencySignal.set('');
   }
 
   format(amount: number, currencyCode?: string, fractionDigits = 2): string {
@@ -219,7 +211,7 @@ export class CurrencyService {
           .filter((currency): currency is Currency => currency !== null)
       : [];
 
-    const finalCurrencies = sanitized.length ? sanitized : [...DEFAULT_CURRENCIES];
+    const finalCurrencies = sanitized;
     this.currenciesSignal.set(finalCurrencies);
 
     const desiredDefault =
@@ -250,28 +242,28 @@ export class CurrencyService {
     const win = this.safeWindow();
 
     if (!win) {
-      return [...DEFAULT_CURRENCIES];
+      return [];
     }
 
     try {
       const stored = win.localStorage.getItem(this.storageKey);
       if (!stored) {
-        return [...DEFAULT_CURRENCIES];
+        return [];
       }
 
       const parsed: unknown = JSON.parse(stored);
 
       if (!Array.isArray(parsed)) {
-        return [...DEFAULT_CURRENCIES];
+        return [];
       }
 
       const sanitized: Currency[] = parsed
         .map((item) => this.sanitizeCurrency(item))
         .filter((currency): currency is Currency => currency !== null);
 
-      return sanitized.length ? sanitized : [...DEFAULT_CURRENCIES];
+      return sanitized;
     } catch {
-      return [...DEFAULT_CURRENCIES];
+      return [];
     }
   }
 
@@ -362,12 +354,7 @@ export class CurrencyService {
   }
 
   private resolveFallbackDefault(currencies: Currency[]): string {
-    if (currencies.length) {
-      const preferred = currencies.find((currency) => currency.id === DEFAULT_CURRENCY_ID);
-      return preferred?.id ?? currencies[0].id;
-    }
-
-    return DEFAULT_CURRENCY_ID;
+    return currencies.length ? currencies[0].id : '';
   }
 
   private generateId(code: string): string {
