@@ -3,6 +3,7 @@ import { FinPocketDB } from './finpocket-db.service';
 import { CurrencyService } from './currency.service';
 import { ThemeService } from './theme.service';
 import { OperationAccountsService } from '../../finance/services/operation-accounts.service';
+import { MetersStoreService } from '../../meters/services/meters-store.service';
 import { SyncQueue } from '../../sync/sync.queue';
 
 @Injectable({ providedIn: 'root' })
@@ -11,6 +12,7 @@ export class DataResetService {
   private readonly currencyService = inject(CurrencyService);
   private readonly themeService = inject(ThemeService);
   private readonly operationAccountsService = inject(OperationAccountsService);
+  private readonly metersStore = inject(MetersStoreService);
   private readonly syncQueue = inject(SyncQueue);
 
   async resetAllData(): Promise<void> {
@@ -29,6 +31,7 @@ export class DataResetService {
 
     this.currencyService.resetToDefaults();
     this.operationAccountsService.resetToDefaults();
+    this.metersStore.reset();
     this.themeService.resetToDefault();
   }
 }

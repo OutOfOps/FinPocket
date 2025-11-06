@@ -9,12 +9,6 @@ export interface OperationAccountsSnapshot {
   accounts: OperationAccount[];
 }
 
-const DEFAULT_ACCOUNTS: OperationAccount[] = [
-  { id: 'account-main', name: 'Основной счёт' },
-  { id: 'account-cash', name: 'Наличные' },
-  { id: 'account-credit', name: 'Кредитная карта' },
-];
-
 @Injectable({ providedIn: 'root' })
 export class OperationAccountsService {
   private readonly storageKey = 'finpocket-operation-accounts';
@@ -66,13 +60,7 @@ export class OperationAccountsService {
   }
 
   removeAccount(id: string): void {
-    const accounts = this.accountsSignal();
-
-    if (accounts.length <= 1) {
-      return;
-    }
-
-    this.accountsSignal.set(accounts.filter((account) => account.id !== id));
+    this.accountsSignal.set(this.accountsSignal().filter((account) => account.id !== id));
   }
 
   getSnapshot(): OperationAccountsSnapshot {
@@ -88,37 +76,36 @@ export class OperationAccountsService {
           .filter((account): account is OperationAccount => account !== null)
       : [];
 
-    const finalAccounts = sanitized.length ? sanitized : [...DEFAULT_ACCOUNTS];
-    this.accountsSignal.set(finalAccounts);
+    this.accountsSignal.set(sanitized);
   }
 
   private loadAccounts(): OperationAccount[] {
     const win = this.safeWindow();
 
     if (!win) {
-      return [...DEFAULT_ACCOUNTS];
+      return [];
     }
 
     try {
       const stored = win.localStorage.getItem(this.storageKey);
 
       if (!stored) {
-        return [...DEFAULT_ACCOUNTS];
+        return [];
       }
 
       const parsed: unknown = JSON.parse(stored);
 
       if (!Array.isArray(parsed)) {
-        return [...DEFAULT_ACCOUNTS];
+        return [];
       }
 
       const sanitized = parsed
         .map((value) => this.sanitizeAccount(value))
         .filter((account): account is OperationAccount => account !== null);
 
-      return sanitized.length ? sanitized : [...DEFAULT_ACCOUNTS];
+      return sanitized;
     } catch {
-      return [...DEFAULT_ACCOUNTS];
+      return [];
     }
   }
 
@@ -169,6 +156,6 @@ export class OperationAccountsService {
   }
 
   resetToDefaults(): void {
-    this.accountsSignal.set([...DEFAULT_ACCOUNTS]);
+    this.accountsSignal.set([]);
   }
 }

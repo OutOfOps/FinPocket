@@ -85,192 +85,13 @@ export class MetersStoreService {
     },
   ];
 
-  private readonly objectsSubject = new BehaviorSubject<MeterObject[]>([
-    { id: 'OBJ-001', name: 'Квартира, ул. Ленина 10' },
-    { id: 'OBJ-002', name: 'Дом, СНТ Берёзка' },
-  ]);
+  private readonly objectsSubject = new BehaviorSubject<MeterObject[]>([]);
 
-  private readonly resourcesSubject = new BehaviorSubject<ResourceEntity[]>([
-    {
-      id: 'RES-001',
-      objectId: 'OBJ-001',
-      type: 'water',
-      name: 'Вода (ХВС)',
-      unit: 'м³',
-      pricingModel: 'per_unit',
-      zones: [{ id: 'total', name: 'Общий счётчик' }],
-    },
-    {
-      id: 'RES-002',
-      objectId: 'OBJ-001',
-      type: 'gas',
-      name: 'Газ',
-      unit: 'м³',
-      pricingModel: 'per_unit',
-      zones: [{ id: 'total', name: 'Общий счётчик' }],
-    },
-    {
-      id: 'RES-003',
-      objectId: 'OBJ-001',
-      type: 'electricity',
-      name: 'Электроэнергия (день/ночь)',
-      unit: 'кВт·ч',
-      pricingModel: 'per_unit',
-      zones: [
-        { id: 'day', name: 'День' },
-        { id: 'night', name: 'Ночь' },
-      ],
-    },
-    {
-      id: 'RES-004',
-      objectId: 'OBJ-002',
-      type: 'electricity',
-      name: 'Электроэнергия (три зоны)',
-      unit: 'кВт·ч',
-      pricingModel: 'per_unit',
-      zones: [
-        { id: 'peak', name: 'Пик' },
-        { id: 'half-peak', name: 'Полупик' },
-        { id: 'night', name: 'Ночь' },
-      ],
-    },
-    {
-      id: 'RES-005',
-      objectId: 'OBJ-001',
-      type: 'service',
-      name: 'Вывоз мусора',
-      unit: 'UAH',
-      pricingModel: 'fixed',
-      zones: [{ id: 'fixed', name: 'Абонентская плата' }],
-      fixedAmount: 160,
-      fixedCurrency: 'UAH',
-    },
-    {
-      id: 'RES-006',
-      objectId: 'OBJ-001',
-      type: 'service',
-      name: 'Квартплата',
-      unit: 'UAH',
-      pricingModel: 'fixed',
-      zones: [{ id: 'fixed', name: 'Абонентская плата' }],
-      fixedAmount: 2150,
-      fixedCurrency: 'UAH',
-    },
-  ]);
+  private readonly resourcesSubject = new BehaviorSubject<ResourceEntity[]>([]);
 
-  private readonly tariffsSubject = new BehaviorSubject<TariffHistoryEntry[]>([
-    {
-      id: 'TRF-001',
-      resourceId: 'RES-001',
-      price: 42.5,
-      currency: 'UAH',
-      effectiveFrom: '2024-01-01',
-    },
-    {
-      id: 'TRF-002',
-      resourceId: 'RES-002',
-      price: 6.8,
-      currency: 'UAH',
-      effectiveFrom: '2024-02-01',
-    },
-    {
-      id: 'TRF-003',
-      resourceId: 'RES-003',
-      zoneId: 'day',
-      price: 5.15,
-      currency: 'UAH',
-      effectiveFrom: '2024-03-01',
-      description: 'Дневной тариф',
-    },
-    {
-      id: 'TRF-004',
-      resourceId: 'RES-003',
-      zoneId: 'night',
-      price: 2.75,
-      currency: 'UAH',
-      effectiveFrom: '2024-03-01',
-      description: 'Ночной тариф',
-    },
-    {
-      id: 'TRF-005',
-      resourceId: 'RES-004',
-      zoneId: 'peak',
-      price: 6.1,
-      currency: 'UAH',
-      effectiveFrom: '2024-01-01',
-    },
-    {
-      id: 'TRF-006',
-      resourceId: 'RES-004',
-      zoneId: 'half-peak',
-      price: 4.7,
-      currency: 'UAH',
-      effectiveFrom: '2024-01-01',
-    },
-    {
-      id: 'TRF-007',
-      resourceId: 'RES-004',
-      zoneId: 'night',
-      price: 2.2,
-      currency: 'UAH',
-      effectiveFrom: '2024-01-01',
-    },
-  ]);
+  private readonly tariffsSubject = new BehaviorSubject<TariffHistoryEntry[]>([]);
 
-  private readonly readingsSubject = new BehaviorSubject<MeterReading[]>([
-    {
-      id: 'MTR-001',
-      objectId: 'OBJ-001',
-      resourceId: 'RES-001',
-      submittedAt: '2024-02-01',
-      values: [{ zoneId: 'total', value: 108.3 }],
-    },
-    {
-      id: 'MTR-002',
-      objectId: 'OBJ-001',
-      resourceId: 'RES-001',
-      submittedAt: '2024-03-01',
-      values: [{ zoneId: 'total', value: 112.5 }],
-    },
-    {
-      id: 'MTR-003',
-      objectId: 'OBJ-001',
-      resourceId: 'RES-002',
-      submittedAt: '2024-03-01',
-      values: [{ zoneId: 'total', value: 342 }],
-    },
-    {
-      id: 'MTR-004',
-      objectId: 'OBJ-001',
-      resourceId: 'RES-003',
-      submittedAt: '2024-02-01',
-      values: [
-        { zoneId: 'day', value: 1450 },
-        { zoneId: 'night', value: 620 },
-      ],
-    },
-    {
-      id: 'MTR-005',
-      objectId: 'OBJ-001',
-      resourceId: 'RES-003',
-      submittedAt: '2024-03-01',
-      values: [
-        { zoneId: 'day', value: 1520 },
-        { zoneId: 'night', value: 655 },
-      ],
-    },
-    {
-      id: 'MTR-006',
-      objectId: 'OBJ-002',
-      resourceId: 'RES-004',
-      submittedAt: '2024-03-05',
-      values: [
-        { zoneId: 'peak', value: 920 },
-        { zoneId: 'half-peak', value: 510 },
-        { zoneId: 'night', value: 310 },
-      ],
-    },
-  ]);
+  private readonly readingsSubject = new BehaviorSubject<MeterReading[]>([]);
 
   readonly objects$ = this.objectsSubject.asObservable();
   readonly resources$ = this.resourcesSubject.asObservable();
@@ -327,6 +148,13 @@ export class MetersStoreService {
 
   getDefaultObjectId(): string | undefined {
     return this.objectsSubject.value[0]?.id;
+  }
+
+  reset(): void {
+    this.objectsSubject.next([]);
+    this.resourcesSubject.next([]);
+    this.tariffsSubject.next([]);
+    this.readingsSubject.next([]);
   }
 
   typeLabel(type: ResourceType): string {
