@@ -5,6 +5,7 @@ import { Sync } from './sync';
 import { SyncListComponent } from './components/sync-list/sync-list.component';
 import { SyncEditComponent } from './components/sync-edit/sync-edit.component';
 import { SyncDetailsComponent } from './components/sync-details/sync-details.component';
+import { SyncAccountComponent } from './components/sync-account/sync-account.component';
 
 @NgModule({
   declarations: [Sync],
@@ -14,6 +15,7 @@ import { SyncDetailsComponent } from './components/sync-details/sync-details.com
     SyncListComponent,
     SyncEditComponent,
     SyncDetailsComponent,
+    SyncAccountComponent,
   ],
 })
 export class SyncModule {}

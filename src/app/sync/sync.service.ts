@@ -35,6 +35,7 @@ export interface EncryptedBackup {
 
 const BACKUP_KEY_NAME = 'backup-encryption-key';
 const PBKDF2_ITERATIONS = 100000;
+const PASSPHRASE_PBKDF2_ITERATIONS = 250000;
 
 @Injectable({ providedIn: 'root' })
 export class SyncService {
@@ -249,6 +250,73 @@ export class SyncService {
       true,
       ['encrypt', 'decrypt']
     );
+  }
+
+  /**
+   * Derives an AES-GCM key from a textual passphrase using PBKDF2 with 250k iterations.
+   */
+  async deriveKeyFromPassphrase(pass: string, salt: Uint8Array): Promise<CryptoKey> {
+    const encoder = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(pass),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+
+    return crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt as BufferSource,
+        iterations: PASSPHRASE_PBKDF2_ITERATIONS,
+        hash: 'SHA-256',
+      },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  /**
+   * Encrypts arbitrary JSON serializable object into a Blob payload.
+   */
+  async encryptJson(obj: any, key: CryptoKey): Promise<Blob> {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoder = new TextEncoder();
+    const plaintext = encoder.encode(JSON.stringify(obj));
+
+    const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+
+    const payload = {
+      ver: 1,
+      iv: this.arrayBufferToBase64(iv),
+      data: this.arrayBufferToBase64(encrypted),
+    };
+
+    return new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  }
+
+  /**
+   * Decrypts a Blob produced by {@link encryptJson} back to its original object.
+   */
+  async decryptJson(blob: Blob, key: CryptoKey): Promise<any> {
+    const text = await blob.text();
+    const payload = JSON.parse(text) as { ver: number; iv: string; data: string };
+
+    if (payload?.ver !== 1 || !payload.iv || !payload.data) {
+      throw new Error('Неподдерживаемый формат резервной копии');
+    }
+
+    const iv = new Uint8Array(this.base64ToArrayBuffer(payload.iv));
+    const ciphertext = this.base64ToArrayBuffer(payload.data);
+
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+    const decoder = new TextDecoder();
+    const decoded = decoder.decode(decrypted);
+
+    return JSON.parse(decoded);
   }
 
   /**

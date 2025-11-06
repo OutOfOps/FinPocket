@@ -1,0 +1,119 @@
+.sync-account {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sync-account__card {
+  display: block;
+}
+
+.sync-account__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.sync-account__status-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.26);
+  display: inline-block;
+}
+
+.sync-account__status-dot--connected {
+  background-color: #2e7d32;
+}
+
+.sync-account__status-dot--syncing {
+  background: repeating-linear-gradient(
+    45deg,
+    #1976d2,
+    #1976d2 4px,
+    #64b5f6 4px,
+    #64b5f6 8px
+  );
+}
+
+.sync-account__status-dot--error {
+  background-color: #c62828;
+}
+
+.sync-account__status-dot--offline {
+  background-color: rgba(0, 0, 0, 0.26);
+}
+
+.sync-account__status-label {
+  font-weight: 600;
+}
+
+.sync-account__status-sync {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.sync-account__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sync-account__backups mat-list-item {
+  height: auto !important;
+  padding: 0.5rem 0;
+}
+
+.sync-account__backup {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sync-account__backup-info {
+  min-width: 12rem;
+}
+
+.sync-account__backup-name {
+  display: block;
+  font-weight: 600;
+}
+
+.sync-account__backup-meta {
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.sync-account__backup-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sync-account__errors {
+  margin-top: 1.5rem;
+}
+
+.sync-account__errors ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: #c62828;
+}
+
+.sync-account__section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sync-account__section-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
