@@ -26,5 +26,19 @@
         ]
       }
     }
+  ],
+  "navigationUrls": [
+    "/**/finance",
+    "/**/finance/**",
+    "/**/debts",
+    "/**/debts/**",
+    "/**/meters",
+    "/**/meters/**",
+    "/**/stats",
+    "/**/stats/**",
+    "/**/sync",
+    "/**/sync/**",
+    "/**/settings",
+    "/**/settings/**"
   ]
 }
