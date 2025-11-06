@@ -9,12 +9,15 @@
 }
 
 .app-sidenav {
-  width: min(280px, 80vw);
+  /* Считаем ширину с учётом отступов экрана у iPhone (notch/rounded corners) */
+  --sidenav-width: min(280px, calc(80vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  width: var(--sidenav-width);
   background: var(--finpocket-sidenav-bg);
   backdrop-filter: blur(24px);
   color: var(--finpocket-text);
   border-right: 1px solid var(--finpocket-border);
-  padding: 1.5rem 1.25rem 2rem;
+  /* Добавляем внутренние отступы с учётом safe-area, чтобы контент не "впирался" в выемку */
+  padding: 1.5rem calc(1.25rem + env(safe-area-inset-right, 0px)) calc(2rem + env(safe-area-inset-bottom, 0px)) calc(1.25rem + env(safe-area-inset-left, 0px));
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -210,8 +213,8 @@ mat-sidenav-content {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 10;
     pointer-events: none;
-    /* Prevent overflow beyond viewport right edge */
-    max-width: calc(100vw - 280px - 2rem);
+    /* Используем переменную ширины сайдбара и safe-area insets для расчёта */
+    max-width: calc(100vw - var(--sidenav-width) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem);
     overflow: hidden;
     text-overflow: ellipsis;
   }
