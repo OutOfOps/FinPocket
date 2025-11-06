@@ -1,5 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ThemeService } from './core/services/theme.service';
@@ -25,6 +26,7 @@ export class App implements OnInit {
   private readonly themeService = inject(ThemeService);
   private readonly pwaUpdateService = inject(PwaUpdateService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly activeTheme = this.themeService.theme;
 
@@ -82,25 +84,38 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to version updates
-    this.pwaUpdateService.versionUpdates.subscribe((event) => {
-      if (event.type === 'VERSION_READY') {
-        const snackBarRef = this.snackBar.open(
-          'Доступна новая версия приложения!',
-          'Обновить',
-          {
-            duration: 0, // Don't auto-dismiss
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-          }
-        );
+    this.pwaUpdateService.versionUpdates
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event.type === 'VERSION_READY') {
+          const snackBarRef = this.snackBar.open(
+            'Доступна новая версия приложения!',
+            'Обновить',
+            {
+              duration: 0, // Don't auto-dismiss
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom',
+            }
+          );
 
-        snackBarRef.onAction().subscribe(() => {
-          this.pwaUpdateService.activateUpdate().then(() => {
-            window.location.reload();
-          });
-        });
-      }
-    });
+          snackBarRef.onAction()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.pwaUpdateService.activateUpdate()
+                .then(() => {
+                  window.location.reload();
+                })
+                .catch((err) => {
+                  console.error('Failed to activate update:', err);
+                  this.snackBar.open(
+                    'Не удалось обновить приложение. Попробуйте позже.',
+                    'OK',
+                    { duration: 5000 }
+                  );
+                });
+            });
+        }
+      });
   }
 
   protected async onNavItemSelect(drawer: MatSidenav): Promise<void> {

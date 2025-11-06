@@ -9,7 +9,7 @@ import { interval } from 'rxjs';
 export class PwaUpdateService {
   private readonly swUpdate = inject(SwUpdate);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly checkIntervalMs = 60000; // Check every minute
+  private readonly checkIntervalMs = 300000; // Check every 5 minutes
 
   constructor() {
     if (this.swUpdate.isEnabled) {
