@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthCallbackComponent } from './sync/components/auth-callback/auth-callback.component';
 
 const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'finance' },
@@ -26,6 +27,10 @@ const routes: Routes = [
   {
     path: 'settings',
     loadChildren: () => import('./settings/settings-module').then((m) => m.SettingsModule),
+  },
+  {
+    path: 'auth/callback/gdrive',
+    component: AuthCallbackComponent,
   },
   { path: '**', redirectTo: 'finance' },
 ];

@@ -1,0 +1,11 @@
+<section class="auth-callback">
+  <div class="auth-callback__container" [class.auth-callback__container--success]="status === 'success'"
+    [class.auth-callback__container--error]="status === 'error'">
+    <h1 class="auth-callback__title">Авторизация Google Drive</h1>
+    <p class="auth-callback__message">{{ message }}</p>
+
+    <button *ngIf="status !== 'pending'" class="auth-callback__close" type="button" (click)="closeWindow()">
+      Закрыть окно
+    </button>
+  </div>
+</section>
