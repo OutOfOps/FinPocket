@@ -184,6 +184,11 @@ export class CurrencyService {
     return target?.code ?? 'UAH';
   }
 
+  resetToDefaults(): void {
+    this.currenciesSignal.set([...DEFAULT_CURRENCIES]);
+    this.defaultCurrencySignal.set(DEFAULT_CURRENCY_ID);
+  }
+
   format(amount: number, currencyCode?: string, fractionDigits = 2): string {
     const code = currencyCode ? this.normalizeCode(currencyCode) : this.getDefaultCurrencyCode();
 

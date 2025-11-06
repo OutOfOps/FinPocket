@@ -13,6 +13,7 @@ export class ThemeService {
   };
 
   private readonly themeSignal = signal<FinpocketTheme>(this.resolveInitialTheme());
+  private skipPersistence = false;
 
   readonly theme = this.themeSignal.asReadonly();
 
@@ -25,6 +26,10 @@ export class ThemeService {
     effect(() => {
       const current = this.themeSignal();
       this.applyThemeClass(current);
+      if (this.skipPersistence) {
+        this.skipPersistence = false;
+        return;
+      }
       this.persistTheme(current);
     });
   }
@@ -39,6 +44,22 @@ export class ThemeService {
 
   toggleTheme(): void {
     this.themeSignal.update((current) => (current === 'dark' ? 'light' : 'dark'));
+  }
+
+  resetToDefault(): void {
+    this.skipPersistence = true;
+    this.themeSignal.set('dark');
+    const win = this.safeWindow();
+
+    if (!win) {
+      return;
+    }
+
+    try {
+      win.localStorage.removeItem(this.storageKey);
+    } catch {
+      // Ignore storage errors during reset.
+    }
   }
 
   private resolveInitialTheme(): FinpocketTheme {

@@ -1,6 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Currency, CurrencyService } from '../core/services/currency.service';
 import { FinpocketTheme, ThemeService } from '../core/services/theme.service';
+import { DataResetService } from '../core/services/data-reset.service';
+import { ResetDataDialogComponent } from './components/reset-data-dialog/reset-data-dialog.component';
 
 @Component({
   selector: 'app-settings',
@@ -11,6 +15,9 @@ import { FinpocketTheme, ThemeService } from '../core/services/theme.service';
 export class Settings {
   private readonly themeService = inject(ThemeService);
   private readonly currencyService = inject(CurrencyService);
+  private readonly dataResetService = inject(DataResetService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   protected readonly theme = this.themeService.theme;
   protected readonly currencies = this.currencyService.currencies;
@@ -38,6 +45,8 @@ export class Settings {
     code: '',
     rate: 1,
   };
+
+  protected isResetting = false;
 
   protected setTheme(theme: FinpocketTheme | string): void {
     if (theme === 'dark' || theme === 'light') {
@@ -119,6 +128,23 @@ export class Settings {
     return currency.id;
   }
 
+  protected openResetDataDialog(): void {
+    if (this.isResetting) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ResetDataDialogComponent, {
+      width: '420px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.resetApplicationData();
+      }
+    });
+  }
+
   protected canAddCurrency(): boolean {
     const name = this.newCurrency.name.trim();
     const code = this.newCurrency.code.trim();
@@ -163,5 +189,33 @@ export class Settings {
 
   private isValidRate(rate: number): boolean {
     return Number.isFinite(rate) && rate > 0;
+  }
+
+  private async resetApplicationData(): Promise<void> {
+    if (this.isResetting) {
+      return;
+    }
+
+    this.isResetting = true;
+
+    try {
+      await this.dataResetService.resetAllData();
+      this.cancelCurrencyEdit();
+      this.newCurrency = {
+        name: '',
+        code: '',
+        rate: 1,
+      };
+      this.snackBar.open('Данные очищены. Можно начинать сначала.', 'Закрыть', {
+        duration: 4000,
+      });
+    } catch (error) {
+      console.error('Failed to reset application data', error);
+      this.snackBar.open('Не удалось очистить данные. Повторите попытку позже.', 'Закрыть', {
+        duration: 5000,
+      });
+    } finally {
+      this.isResetting = false;
+    }
   }
 }

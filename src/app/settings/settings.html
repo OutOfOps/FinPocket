@@ -228,29 +228,26 @@
     <mat-card class="feature-card settings-card">
       <div class="feature-card__accent"></div>
       <mat-card-header>
-        <mat-card-title class="feature-card__title">Обновлённые иллюстрации</mat-card-title>
-        <mat-card-subtitle>Превью карточек и значков подстраиваются под тему</mat-card-subtitle>
+        <mat-card-title class="feature-card__title">Очистка данных</mat-card-title>
+        <mat-card-subtitle>Удалите все данные и начните с чистого листа</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="settings-illustrations">
-          <figure class="settings-illustrations__item settings-illustrations__item--finance">
-            <div class="settings-illustrations__mock"></div>
-            <figcaption>Финансы</figcaption>
-          </figure>
-          <figure class="settings-illustrations__item settings-illustrations__item--sync">
-            <div class="settings-illustrations__mock"></div>
-            <figcaption>Синхронизация</figcaption>
-          </figure>
-          <figure class="settings-illustrations__item settings-illustrations__item--stats">
-            <div class="settings-illustrations__mock"></div>
-            <figcaption>Статистика</figcaption>
-          </figure>
-        </div>
         <p class="settings-hint">
-          Макеты карточек и иконок используют те же цветовые токены, что и основной интерфейс — контент выглядит цельно как в
-          тёмном, так и в светлом оформлении.
+          Все операции, счета, долги, показатели счётчиков и резервные копии будут удалены. Настройки и справочники вернутся к
+          значениям по умолчанию.
         </p>
       </mat-card-content>
+      <mat-card-actions>
+        <button
+          mat-raised-button
+          color="warn"
+          type="button"
+          (click)="openResetDataDialog()"
+          [disabled]="isResetting"
+        >
+          Удалить все данные
+        </button>
+      </mat-card-actions>
     </mat-card>
   </div>
 </section>
