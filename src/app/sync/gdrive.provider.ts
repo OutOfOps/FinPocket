@@ -46,6 +46,8 @@ export class GDriveAuthDB extends Dexie {
   }
 }
 
+export const GDRIVE_CLIENT_ID_PATTERN = /^[a-zA-Z0-9-]+\.apps\.googleusercontent\.com$/;
+
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DRIVE_FILES_URL = 'https://www.googleapis.com/drive/v3/files';
@@ -449,8 +451,7 @@ export class GDriveProvider implements CloudProvider {
       );
     }
 
-    const pattern = /^[a-z0-9-]+\.apps\.googleusercontent\.com$/i;
-    if (!pattern.test(clientId)) {
+    if (!GDRIVE_CLIENT_ID_PATTERN.test(clientId)) {
       throw new Error(
         'Client ID Google Drive имеет неверный формат. Используйте идентификатор вида 12345-abc.apps.googleusercontent.com.'
       );

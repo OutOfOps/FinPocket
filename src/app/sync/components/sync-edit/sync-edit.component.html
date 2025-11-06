@@ -4,7 +4,7 @@
     <p>Выберите облако и параметры защиты для резервного копирования.</p>
   </header>
 
-  <form class="sync-edit__form" (ngSubmit)="save()" #syncForm="ngForm">
+  <form class="sync-edit__form" (ngSubmit)="save(syncForm)" #syncForm="ngForm">
     <mat-form-field appearance="outline">
       <mat-label>Облачный провайдер</mat-label>
       <mat-select name="provider" [(ngModel)]="selectedProvider">
@@ -29,9 +29,16 @@
           name="gdriveClientId"
           [(ngModel)]="gdriveClientId"
           autocomplete="off"
-          placeholder="1234567890.apps.googleusercontent.com"
+          placeholder="1234567890-abc.apps.googleusercontent.com"
+          [pattern]="gdriveClientIdPatternSource"
+          #gdriveClientIdModel="ngModel"
         />
         <mat-hint>Client ID из консоли Google Cloud. Значение сохраняется локально.</mat-hint>
+        <mat-error
+          *ngIf="gdriveClientIdModel.errors?.['pattern'] && (gdriveClientIdModel.dirty || gdriveClientIdModel.touched)"
+        >
+          Client ID Google Drive должен оканчиваться на .apps.googleusercontent.com и не содержать пробелов.
+        </mat-error>
       </mat-form-field>
 
       <p class="sync-edit__note">
