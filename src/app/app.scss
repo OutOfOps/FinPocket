@@ -81,9 +81,11 @@
   color: inherit;
 }
 
-.app-sidenav a[mat-list-item]:hover {
-  background: var(--finpocket-nav-hover);
-  transform: translateX(6px);
+@media (hover: hover) and (pointer: fine) {
+  .app-sidenav a[mat-list-item]:hover {
+    background: var(--finpocket-nav-hover);
+    transform: translateX(6px);
+  }
 }
 
 .app-sidenav a[mat-list-item].active {
@@ -100,23 +102,17 @@
   margin-right: 0;
   color: color-mix(in srgb, var(--finpocket-icon-accent) 85%, white 15%);
   font-size: 26px;
-}
-
-.nav-text {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.15rem;
-  text-align: left;
-  flex: 1;
+  flex-shrink: 0;
 }
 
 .nav-text__label {
+  display: block;
   font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 }
 
 .nav-text__hint {
