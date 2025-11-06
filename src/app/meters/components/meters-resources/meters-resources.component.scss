@@ -15,18 +15,6 @@
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 960px) {
-  .meters-resources__layout {
-    grid-template-columns: minmax(0, 1.75fr) minmax(320px, 400px);
-  }
-}
-
-@media (min-width: 1280px) {
-  .meters-resources__layout {
-    grid-template-columns: minmax(0, 2fr) minmax(360px, 440px);
-  }
-}
-
 .meters-resources__list table {
   width: 100%;
   border-collapse: collapse;
