@@ -19,7 +19,7 @@ export interface CloudProvider {
   getAuthState(): Promise<AuthState | null>;
   login(): Promise<AuthState>;
   logout(): Promise<void>;
-  ensureAppFolder(): Promise<string>; // возвращает id/путь папки
+  ensureAppFolder(): Promise<string>; // returns folder id/path
   listBackups(): Promise<
     Array<{ id: string; name: string; size: number; modified: number }>
   >;

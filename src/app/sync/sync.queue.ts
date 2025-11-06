@@ -19,7 +19,6 @@ const MAX_RETRY_COUNT = 10;
 
 @Injectable({ providedIn: 'root' })
 export class SyncQueue {
-  private flushTimer?: number;
   private isProcessing = false;
 
   constructor(private readonly db: FinPocketDB) {}
@@ -36,9 +35,7 @@ export class SyncQueue {
       createdAt: new Date().toISOString(),
     };
 
-    const id = await this.db.syncQueue.add(entity);
-    this.scheduleFlush();
-    return id;
+    return await this.db.syncQueue.add(entity);
   }
 
   /**
@@ -114,9 +111,6 @@ export class SyncQueue {
               nextRetryAt: new Date(Date.now() + backoffMs).toISOString(),
             } as any);
           }
-
-          // Schedule next retry
-          this.scheduleFlush(backoffMs);
         }
       }
     } finally {
@@ -125,27 +119,10 @@ export class SyncQueue {
   }
 
   /**
-   * Schedules a flush operation after a delay.
-   */
-  private scheduleFlush(delayMs: number = MIN_BACKOFF_MS): void {
-    if (this.flushTimer !== undefined) {
-      clearTimeout(this.flushTimer);
-    }
-
-    this.flushTimer = window.setTimeout(() => {
-      this.flushTimer = undefined;
-    }, delayMs);
-  }
-
-  /**
    * Clears all pending operations from the queue.
    */
   async clear(): Promise<void> {
     await this.db.syncQueue.clear();
-    if (this.flushTimer !== undefined) {
-      clearTimeout(this.flushTimer);
-      this.flushTimer = undefined;
-    }
   }
 
   /**
