@@ -5,12 +5,19 @@
   </header>
 
   <mat-card>
-    <mat-card-title>Последнее восстановление</mat-card-title>
-    <ul>
-      <li><strong>Запрос:</strong> {{ lastRestore.requestedAt | date:'d MMMM yyyy, HH:mm' }}</li>
-      <li><strong>Длительность:</strong> {{ lastRestore.duration }}</li>
-      <li><strong>Статус:</strong> {{ lastRestore.status }}</li>
-    </ul>
+    <mat-card-title>Последняя резервная копия</mat-card-title>
+
+    <ng-container *ngIf="!isLoading; else loading">
+      <ng-container *ngIf="!error; else errorTpl">
+        <ng-container *ngIf="latestBackup; else empty">
+          <ul>
+            <li><strong>Создана:</strong> {{ latestBackup.createdAt | date: 'd MMMM yyyy, HH:mm' }}</li>
+            <li><strong>Размер:</strong> {{ latestBackup.sizeLabel }}</li>
+            <li class="sync-details__checksum"><strong>Контрольная сумма:</strong> {{ latestBackup.checksum }}</li>
+          </ul>
+        </ng-container>
+      </ng-container>
+    </ng-container>
   </mat-card>
 
   <mat-card>
@@ -23,3 +30,15 @@
     </ul>
   </mat-card>
 </section>
+
+<ng-template #loading>
+  <p class="sync-details__state">Загружаем информацию о резервных копиях…</p>
+</ng-template>
+
+<ng-template #empty>
+  <p class="sync-details__state">Резервные копии ещё не создавались.</p>
+</ng-template>
+
+<ng-template #errorTpl>
+  <p class="sync-details__state sync-details__state--error">{{ error }}</p>
+</ng-template>

@@ -6,21 +6,40 @@
 
   <mat-card>
     <mat-card-title>История</mat-card-title>
-    <table>
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>Размер</th>
-          <th>Облако</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let backup of backups">
-          <td>{{ backup.createdAt | date:'d MMMM yyyy, HH:mm' }}</td>
-          <td>{{ backup.size }}</td>
-          <td>{{ backup.provider }}</td>
-        </tr>
-      </tbody>
-    </table>
+
+    <ng-container *ngIf="!isLoading; else loading">
+      <ng-container *ngIf="!error; else errorTpl">
+        <ng-container *ngIf="backups.length; else empty">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Размер</th>
+                <th>Контрольная сумма</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let backup of backups; trackBy: trackByBackup">
+                <td>{{ backup.createdAt | date: 'd MMMM yyyy, HH:mm' }}</td>
+                <td>{{ backup.sizeLabel }}</td>
+                <td class="sync-list__checksum">{{ backup.checksum }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </ng-container>
+    </ng-container>
   </mat-card>
+
+  <ng-template #loading>
+    <p class="sync-list__state">Загружаем список резервных копий…</p>
+  </ng-template>
+
+  <ng-template #empty>
+    <p class="sync-list__state">Резервные копии ещё не создавались.</p>
+  </ng-template>
+
+  <ng-template #errorTpl>
+    <p class="sync-list__state sync-list__state--error">{{ error }}</p>
+  </ng-template>
 </section>

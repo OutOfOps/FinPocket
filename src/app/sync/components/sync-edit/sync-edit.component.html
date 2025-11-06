@@ -5,12 +5,14 @@
   </header>
 
   <form class="sync-edit__form" (ngSubmit)="save()" #syncForm="ngForm">
-    <label>
-      Облачный провайдер
-      <select name="provider" [(ngModel)]="selectedProvider">
-        <option *ngFor="let provider of providers" [value]="provider.id">{{ provider.title }}</option>
-      </select>
-    </label>
+    <mat-form-field appearance="outline">
+      <mat-label>Облачный провайдер</mat-label>
+      <mat-select name="provider" [(ngModel)]="selectedProvider">
+        <mat-option *ngFor="let provider of providers" [value]="provider.id">
+          {{ provider.title }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
 
     <section class="sync-edit__options">
       <article *ngFor="let provider of providers" [class.sync-edit__option--active]="provider.id === selectedProvider">
@@ -18,6 +20,24 @@
         <p>{{ provider.description }}</p>
       </article>
     </section>
+
+    <ng-container *ngIf="selectedProvider === 'gdrive'">
+      <mat-form-field appearance="outline">
+        <mat-label>Google OAuth Client ID</mat-label>
+        <input
+          matInput
+          name="gdriveClientId"
+          [(ngModel)]="gdriveClientId"
+          autocomplete="off"
+          placeholder="1234567890.apps.googleusercontent.com"
+        />
+        <mat-hint>Client ID из консоли Google Cloud. Значение сохраняется локально.</mat-hint>
+      </mat-form-field>
+
+      <p class="sync-edit__note">
+        Без Client ID авторизация Google Drive недоступна. После обновления значения повторно откройте раздел «Аккаунты» и выполните вход.
+      </p>
+    </ng-container>
 
     <mat-slide-toggle [(ngModel)]="encryptionEnabled" name="encryption">Шифровать резервные копии</mat-slide-toggle>
 

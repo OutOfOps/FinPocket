@@ -14,3 +14,18 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   text-align: left;
 }
+
+.sync-list__checksum {
+  font-family: 'Roboto Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.8125rem;
+  word-break: break-all;
+}
+
+.sync-list__state {
+  margin: 1rem 0 0;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.sync-list__state--error {
+  color: #c62828;
+}

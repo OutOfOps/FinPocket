@@ -1,17 +1,29 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedModule } from '../../../shared/shared-module';
+import { formatBytes } from '../../../shared/utils/format-bytes';
+import { SyncService } from '../../sync.service';
+import { SyncProviderRegistryService } from '../../services/sync-provider-registry.service';
+import { AuthState, CloudProvider } from '../../cloud-provider';
+
+const MAX_ERROR_HISTORY = 5;
 
 type ProviderStatus = 'offline' | 'connected' | 'syncing' | 'error';
+
+type ProviderId = CloudProvider['id'];
+
+type SyncAction = 'upload' | 'download' | 'restore' | 'delete' | 'login' | 'logout';
 
 interface ProviderBackupEntry {
   id: string;
   name: string;
   modified: string;
-  size: string;
+  sizeBytes: number;
+  sizeLabel: string;
 }
 
 interface ProviderState {
-  id: string;
+  id: ProviderId;
   title: string;
   description: string;
   connected: boolean;
@@ -19,6 +31,7 @@ interface ProviderState {
   lastSync?: string;
   recentErrors: string[];
   backups: ProviderBackupEntry[];
+  user?: AuthState['user'];
 }
 
 @Component({
@@ -27,6 +40,7 @@ interface ProviderState {
   imports: [SharedModule],
   templateUrl: './sync-account.component.html',
   styleUrls: ['./sync-account.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SyncAccountComponent {
   private readonly statusLabels: Record<ProviderStatus, string> = {
@@ -36,120 +50,42 @@ export class SyncAccountComponent {
     error: 'Есть ошибки',
   };
 
-  providers: ProviderState[] = [
-    {
-      id: 'gdrive',
-      title: 'Google Drive',
-      description: 'Облачное хранилище с интеграцией Gmail и Android устройств.',
-      connected: true,
-      status: 'connected',
-      lastSync: '2024-03-21T18:10:00Z',
-      recentErrors: [
-        '2024-03-18 20:05 — Превышен лимит запросов, повтор через 10 минут',
-      ],
-      backups: [
-        { id: 'g-1', name: 'backup-2024-03-21.json', modified: '2024-03-21T18:00:00Z', size: '12.4 МБ' },
-        { id: 'g-2', name: 'backup-2024-03-15.json', modified: '2024-03-15T07:30:00Z', size: '11.9 МБ' },
-      ],
-    },
-    {
-      id: 'onedrive',
-      title: 'OneDrive',
-      description: 'Хранилище Microsoft с поддержкой Office 365 и Windows 11.',
-      connected: false,
-      status: 'offline',
-      lastSync: undefined,
-      recentErrors: [],
-      backups: [
-        { id: 'o-1', name: 'finpocket-2024-02-01.json', modified: '2024-02-01T08:20:00Z', size: '10.7 МБ' },
-      ],
-    },
-    {
-      id: 'dropbox',
-      title: 'Dropbox',
-      description: 'Простое и стабильное решение с версионированием файлов.',
-      connected: true,
-      status: 'error',
-      lastSync: '2024-03-10T12:42:00Z',
-      recentErrors: [
-        '2024-03-19 09:12 — Не удалось обновить токен доступа',
-        '2024-03-11 22:30 — Разрыв соединения при выгрузке',
-      ],
-      backups: [
-        { id: 'd-1', name: 'fin-pocket-prod.json', modified: '2024-03-10T12:30:00Z', size: '13.1 МБ' },
-        { id: 'd-2', name: 'fin-pocket-archive.json', modified: '2024-02-28T16:00:00Z', size: '9.8 МБ' },
-      ],
-    },
-  ];
+  private readonly descriptions: Record<ProviderId, string> = {
+    gdrive: 'Облачное хранилище Google с надёжной авторизацией через OAuth 2.0.',
+    onedrive: 'OneDrive пока не поддерживается.',
+    dropbox: 'Dropbox пока не поддерживается.',
+  };
 
-  connect(provider: ProviderState): void {
-    if (provider.connected) {
-      return;
-    }
+  readonly providers = signal<ProviderState[]>([]);
+  readonly isLoading = signal(false);
+  readonly loadError = signal<string | null>(null);
 
-    provider.connected = true;
-    provider.status = 'connected';
-    provider.lastSync = new Date().toISOString();
-    provider.recentErrors = provider.recentErrors.filter((_, index) => index < 3);
+  private readonly registry = inject(SyncProviderRegistryService);
+  private readonly syncService = inject(SyncService);
+  private readonly snackBar = inject(MatSnackBar);
 
-    console.info('Авторизация провайдера', provider.id);
+  constructor() {
+    void this.reloadProviders();
   }
 
-  disconnect(provider: ProviderState): void {
-    if (!provider.connected) {
-      return;
+  async reloadProviders(): Promise<void> {
+    this.isLoading.set(true);
+    this.loadError.set(null);
+
+    try {
+      const providers = this.registry.listProviders();
+      if (!providers.length) {
+        this.providers.set([]);
+        return;
+      }
+
+      const states = await Promise.all(providers.map((provider) => this.buildProviderState(provider)));
+      this.providers.set(states.sort((a, b) => a.title.localeCompare(b.title)));
+    } catch (error) {
+      this.loadError.set(this.describeError(error));
+    } finally {
+      this.isLoading.set(false);
     }
-
-    provider.connected = false;
-    provider.status = 'offline';
-
-    console.info('Выход из провайдера', provider.id);
-  }
-
-  triggerUpload(provider: ProviderState): void {
-    if (!provider.connected) {
-      return;
-    }
-
-    this.markSynced(provider, 'upload');
-  }
-
-  triggerDownload(provider: ProviderState): void {
-    if (!provider.connected || provider.backups.length === 0) {
-      return;
-    }
-
-    this.markSynced(provider, 'download');
-  }
-
-  downloadBackup(provider: ProviderState, backup: ProviderBackupEntry): void {
-    if (!provider.connected) {
-      return;
-    }
-
-    this.markSynced(provider, `download:${backup.id}`);
-  }
-
-  uploadBackup(provider: ProviderState, backup: ProviderBackupEntry): void {
-    if (!provider.connected) {
-      return;
-    }
-
-    this.markSynced(provider, `upload:${backup.id}`);
-  }
-
-  deleteBackup(provider: ProviderState, backup: ProviderBackupEntry): void {
-    if (!provider.connected) {
-      return;
-    }
-
-    provider.backups = provider.backups.filter((entry) => entry.id !== backup.id);
-    provider.recentErrors.unshift(
-      `${new Date().toISOString()} — Резервная копия ${backup.name} удалена вручную`
-    );
-    provider.recentErrors = provider.recentErrors.slice(0, 3);
-
-    console.info('Удаление резервной копии', { provider: provider.id, backup: backup.id });
   }
 
   statusLabel(status: ProviderStatus): string {
@@ -168,14 +104,268 @@ export class SyncAccountComponent {
     return item.id;
   }
 
-  private markSynced(provider: ProviderState, action: string): void {
-    provider.status = 'syncing';
+  async connect(state: ProviderState): Promise<void> {
+    if (state.connected) {
+      return;
+    }
 
-    setTimeout(() => {
-      provider.status = 'connected';
-      provider.lastSync = new Date().toISOString();
-      provider.recentErrors = provider.recentErrors.filter((_, index) => index < 3);
-      console.info('Синхронизация выполнена', { provider: provider.id, action });
-    }, 300);
+    const provider = this.registry.getProvider(state.id);
+    if (!provider) {
+      this.pushError(state.id, 'Провайдер не настроен, укажите Client ID в настройках.');
+      return;
+    }
+
+    this.markStatus(state.id, 'syncing');
+
+    try {
+      await provider.login();
+      this.showMessage('Авторизация выполнена.');
+      await this.refreshProvider(state.id, provider);
+    } catch (error) {
+      const message = this.describeError(error);
+      this.pushError(state.id, `Вход не выполнен: ${message}`);
+      this.showMessage(message, true);
+      this.markStatus(state.id, 'error');
+    }
+  }
+
+  async disconnect(state: ProviderState): Promise<void> {
+    if (!state.connected) {
+      return;
+    }
+
+    const provider = this.registry.getProvider(state.id);
+    if (!provider) {
+      return;
+    }
+
+    this.markStatus(state.id, 'syncing');
+
+    try {
+      await provider.logout();
+      this.showMessage('Вы вышли из аккаунта.');
+    } catch (error) {
+      const message = this.describeError(error);
+      this.pushError(state.id, `Не удалось выйти: ${message}`);
+      this.showMessage(message, true);
+    } finally {
+      await this.refreshProvider(state.id, provider);
+    }
+  }
+
+  async triggerUpload(state: ProviderState): Promise<void> {
+    await this.performSync(state, 'upload', async (provider, passphrase) => {
+      await this.syncService.twoWaySync(provider, passphrase, 'upload');
+    });
+  }
+
+  async triggerDownload(state: ProviderState): Promise<void> {
+    if (!state.backups.length) {
+      this.showMessage('Нет резервных копий для загрузки.');
+      return;
+    }
+
+    await this.performSync(state, 'download', async (provider, passphrase) => {
+      await this.syncService.twoWaySync(provider, passphrase, 'download');
+    });
+  }
+
+  async restoreBackup(state: ProviderState, backup: ProviderBackupEntry): Promise<void> {
+    await this.performSync(state, 'restore', async (provider, passphrase) => {
+      const blob = await provider.downloadBackup(backup.id);
+      await this.syncService.importBackup(blob, passphrase);
+    });
+  }
+
+  async deleteBackup(state: ProviderState, backup: ProviderBackupEntry): Promise<void> {
+    const provider = this.registry.getProvider(state.id);
+    if (!provider) {
+      this.pushError(state.id, 'Провайдер не настроен.');
+      return;
+    }
+
+    this.markStatus(state.id, 'syncing');
+
+    try {
+      await provider.deleteBackup(backup.id);
+      this.showMessage(`Резервная копия ${backup.name} удалена.`);
+    } catch (error) {
+      const message = this.describeError(error);
+      this.pushError(state.id, `Не удалось удалить копию: ${message}`);
+      this.showMessage(message, true);
+    } finally {
+      await this.refreshProvider(state.id, provider);
+    }
+  }
+
+  private async performSync(
+    state: ProviderState,
+    action: SyncAction,
+    handler: (provider: CloudProvider, passphrase: string) => Promise<void>
+  ): Promise<void> {
+    if (!state.connected) {
+      this.showMessage('Сначала выполните вход в аккаунт.');
+      return;
+    }
+
+    const provider = this.registry.getProvider(state.id);
+    if (!provider) {
+      this.pushError(state.id, 'Провайдер не настроен.');
+      return;
+    }
+
+    const previousStatus = state.status;
+    this.markStatus(state.id, 'syncing');
+
+    const passphrase = this.requestPassphrase(action);
+    if (!passphrase) {
+      this.markStatus(state.id, previousStatus);
+      this.showMessage('Действие отменено.');
+      return;
+    }
+
+    try {
+      await handler(provider, passphrase);
+      this.showMessage('Синхронизация завершена.');
+    } catch (error) {
+      const message = this.describeError(error);
+      this.pushError(state.id, `Ошибка операции: ${message}`);
+      this.showMessage(message, true);
+      this.markStatus(state.id, 'error');
+      return;
+    }
+
+    await this.refreshProvider(state.id, provider, true);
+  }
+
+  private async refreshProvider(
+    providerId: ProviderId,
+    provider: CloudProvider,
+    markSynced = false
+  ): Promise<void> {
+    try {
+      const state = await this.buildProviderState(provider);
+      if (markSynced) {
+        state.lastSync = new Date().toISOString();
+      }
+
+      this.providers.update((current) => {
+        const filtered = current.filter((item) => item.id !== providerId);
+        return [...filtered, state].sort((a, b) => a.title.localeCompare(b.title));
+      });
+    } catch (error) {
+      const message = this.describeError(error);
+      this.pushError(providerId, `Не удалось обновить состояние: ${message}`);
+      this.markStatus(providerId, 'error');
+    }
+  }
+
+  private async buildProviderState(provider: CloudProvider): Promise<ProviderState> {
+    let connected = false;
+    let auth: AuthState | null = null;
+    const errors: string[] = [];
+
+    try {
+      connected = await provider.isAuthenticated();
+      auth = connected ? await provider.getAuthState() : null;
+    } catch (error) {
+      errors.push(`Проверка статуса: ${this.describeError(error)}`);
+    }
+
+    let backups: ProviderBackupEntry[] = [];
+    if (connected) {
+      try {
+        const remoteBackups = await provider.listBackups();
+        backups = remoteBackups
+          .sort((a, b) => b.modified - a.modified)
+          .map((backup) => ({
+            id: backup.id,
+            name: backup.name,
+            modified: new Date(backup.modified).toISOString(),
+            sizeBytes: backup.size,
+            sizeLabel: formatBytes(backup.size),
+          }));
+      } catch (error) {
+        errors.push(`Список резервных копий: ${this.describeError(error)}`);
+      }
+    }
+
+    return {
+      id: provider.id,
+      title: provider.label,
+      description: this.descriptions[provider.id] ?? provider.label,
+      connected,
+      status: errors.length ? 'error' : connected ? 'connected' : 'offline',
+      lastSync: connected && backups.length ? backups[0].modified : undefined,
+      recentErrors: errors.slice(0, MAX_ERROR_HISTORY),
+      backups,
+      user: auth?.user,
+    };
+  }
+
+  private markStatus(providerId: ProviderId, status: ProviderStatus): void {
+    this.providers.update((items) =>
+      items.map((item) => (item.id === providerId ? { ...item, status } : item))
+    );
+  }
+
+  private pushError(providerId: ProviderId, message: string): void {
+    const timestamp = new Date().toISOString();
+    this.providers.update((items) =>
+      items.map((item) =>
+        item.id === providerId
+          ? {
+              ...item,
+              status: 'error',
+              recentErrors: [`${timestamp} — ${message}`, ...item.recentErrors].slice(
+                0,
+                MAX_ERROR_HISTORY
+              ),
+            }
+          : item
+      )
+    );
+  }
+
+  private requestPassphrase(action: SyncAction): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const descriptionMap: Record<SyncAction, string> = {
+      upload: 'выгрузки данных',
+      download: 'загрузки данных',
+      restore: 'восстановления из копии',
+      delete: 'удаления копии',
+      login: 'авторизации',
+      logout: 'выхода из аккаунта',
+    };
+
+    const promptMessage = `Введите мастер-пароль для ${descriptionMap[action] ?? 'операции'}`;
+    const input = window.prompt(promptMessage);
+    return input && input.trim().length > 0 ? input.trim() : null;
+  }
+
+  private showMessage(message: string, isError = false): void {
+    this.snackBar.open(message, 'OK', {
+      duration: 4000,
+      panelClass: isError ? ['sync-account__snackbar-error'] : undefined,
+    });
+  }
+
+  private describeError(error: unknown): string {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'Неизвестная ошибка';
+    }
   }
 }
