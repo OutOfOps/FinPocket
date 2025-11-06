@@ -29,8 +29,9 @@ export class SyncSettingsService {
 
   getGoogleDriveClientId(): string | undefined {
     const stored = this.read().providers.gdrive?.clientId;
-    if (stored && stored.trim().length > 0) {
-      return stored.trim();
+    const normalizedStored = stored ? this.normalizeGoogleDriveClientId(stored) : undefined;
+    if (normalizedStored && normalizedStored.length > 0) {
+      return normalizedStored;
     }
 
     return this.resolveClientIdFromEnvironment();
@@ -44,10 +45,20 @@ export class SyncSettingsService {
         next.providers.gdrive = {};
       }
     } else {
+      const normalized = this.normalizeGoogleDriveClientId(clientId);
+      if (!normalized) {
+        delete next.providers.gdrive?.clientId;
+        if (!next.providers.gdrive) {
+          next.providers.gdrive = {};
+        }
+        this.write(next);
+        return;
+      }
+
       if (!next.providers.gdrive) {
         next.providers.gdrive = {};
       }
-      next.providers.gdrive.clientId = clientId.trim();
+      next.providers.gdrive.clientId = normalized;
     }
 
     this.write(next);
@@ -132,10 +143,20 @@ export class SyncSettingsService {
   }
 
   private normalizeCandidate(candidate: unknown): string | undefined {
-    if (typeof candidate === 'string' && candidate.trim().length > 0) {
-      return candidate.trim();
+    if (typeof candidate === 'string') {
+      const normalized = this.normalizeGoogleDriveClientId(candidate);
+      if (normalized.length > 0) {
+        return normalized;
+      }
     }
 
     return undefined;
+  }
+
+  private normalizeGoogleDriveClientId(clientId: string): string {
+    return clientId
+      .trim()
+      .replace(/^['"]+|['"]+$/g, '')
+      .replace(/\s+/g, '');
   }
 }
