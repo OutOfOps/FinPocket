@@ -1,9 +1,11 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ThemeService } from './core/services/theme.service';
 import { MatSidenav } from '@angular/material/sidenav';
+import { PwaUpdateService } from './core/services/pwa-update.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 type NavigationItem = {
   label: string;
@@ -18,9 +20,11 @@ type NavigationItem = {
   standalone: false,
   styleUrl: './app.scss',
 })
-export class App {
+export class App implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly themeService = inject(ThemeService);
+  private readonly pwaUpdateService = inject(PwaUpdateService);
+  private readonly snackBar = inject(MatSnackBar);
 
   protected readonly activeTheme = this.themeService.theme;
 
@@ -32,6 +36,8 @@ export class App {
   );
 
   protected readonly title = 'FinPocket';
+  protected readonly appVersion = 'v0.1.33';
+  protected readonly appStatus = 'Offline-first PWA';
 
   protected readonly navItems: NavigationItem[] = [
     {
@@ -73,6 +79,29 @@ export class App {
   ];
 
   protected readonly hasNavigationOverlay = computed(() => this.isHandset());
+
+  ngOnInit(): void {
+    // Subscribe to version updates
+    this.pwaUpdateService.versionUpdates.subscribe((event) => {
+      if (event.type === 'VERSION_READY') {
+        const snackBarRef = this.snackBar.open(
+          'Доступна новая версия приложения!',
+          'Обновить',
+          {
+            duration: 0, // Don't auto-dismiss
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+          }
+        );
+
+        snackBarRef.onAction().subscribe(() => {
+          this.pwaUpdateService.activateUpdate().then(() => {
+            window.location.reload();
+          });
+        });
+      }
+    });
+  }
 
   protected async onNavItemSelect(drawer: MatSidenav): Promise<void> {
     if (!this.isHandset()) {

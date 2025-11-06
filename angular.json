@@ -42,6 +42,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/FinPocket/",
               "budgets": [
                 {
                   "type": "initial",
