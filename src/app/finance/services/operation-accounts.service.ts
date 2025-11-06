@@ -5,6 +5,10 @@ export interface OperationAccount {
   name: string;
 }
 
+export interface OperationAccountsSnapshot {
+  accounts: OperationAccount[];
+}
+
 const DEFAULT_ACCOUNTS: OperationAccount[] = [
   { id: 'account-main', name: 'Основной счёт' },
   { id: 'account-cash', name: 'Наличные' },
@@ -69,6 +73,23 @@ export class OperationAccountsService {
     }
 
     this.accountsSignal.set(accounts.filter((account) => account.id !== id));
+  }
+
+  getSnapshot(): OperationAccountsSnapshot {
+    return {
+      accounts: this.accountsSignal().map((account) => ({ ...account })),
+    };
+  }
+
+  restoreSnapshot(snapshot: OperationAccountsSnapshot): void {
+    const sanitized = Array.isArray(snapshot.accounts)
+      ? snapshot.accounts
+          .map((value) => this.sanitizeAccount(value))
+          .filter((account): account is OperationAccount => account !== null)
+      : [];
+
+    const finalAccounts = sanitized.length ? sanitized : [...DEFAULT_ACCOUNTS];
+    this.accountsSignal.set(finalAccounts);
   }
 
   private loadAccounts(): OperationAccount[] {
