@@ -4,6 +4,7 @@ import { Sync } from './sync';
 import { SyncListComponent } from './components/sync-list/sync-list.component';
 import { SyncEditComponent } from './components/sync-edit/sync-edit.component';
 import { SyncDetailsComponent } from './components/sync-details/sync-details.component';
+import { SyncAccountComponent } from './components/sync-account/sync-account.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,7 @@ const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'list' },
       { path: 'list', component: SyncListComponent },
       { path: 'create', component: SyncEditComponent },
+      { path: 'accounts', component: SyncAccountComponent },
       { path: 'last-restore', component: SyncDetailsComponent },
       { path: ':id/edit', component: SyncEditComponent },
       { path: ':id', component: SyncDetailsComponent },
