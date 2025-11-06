@@ -38,7 +38,7 @@ export class App implements OnInit {
   );
 
   protected readonly title = 'FinPocket';
-  protected readonly appVersion = 'v0.1.33';
+  protected readonly appVersion = 'v0.1.36';
   protected readonly appStatus = 'Offline-first PWA';
 
   protected readonly navItems: NavigationItem[] = [
