@@ -91,35 +91,68 @@ export class GoogleAuthService {
 
     const clientId = this.getClientIdOrThrow();
     const redirectUri = this.getRedirectUri();
-    const payload = new URLSearchParams();
-    payload.set('client_id', clientId);
-    payload.set('grant_type', 'authorization_code');
-    payload.set('code', code);
-    payload.set('code_verifier', verifier);
-    payload.set('redirect_uri', redirectUri);
+    const payload = new URLSearchParams({
+      client_id: clientId,
+      grant_type: 'authorization_code',
+      code,
+      code_verifier: verifier,
+      redirect_uri: redirectUri,
+    });
+
+    console.log('%c[OAuth] Начинаем обмен кода на токен...', 'color: #03A9F4');
+    console.log('→ redirect_uri:', redirectUri);
+    console.log('→ code_verifier:', verifier);
+    console.log('→ code:', code);
 
     const response = await fetch(this.tokenEndpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: payload.toString(),
     });
 
+    const raw = await response.text();
+    console.log('%c[OAuth] Ответ Google:', 'color: #FFC107', raw);
+
     if (!response.ok) {
-      const details = await response.text().catch(() => '');
+      let errorHint = '';
+      try {
+        const errJson = JSON.parse(raw);
+        if (errJson.error === 'invalid_grant') {
+          errorHint =
+            'Неверный или просроченный код авторизации. Попробуйте снова авторизоваться.';
+        } else if (errJson.error === 'invalid_request') {
+          errorHint =
+            'Некорректный запрос к Google OAuth API. Проверь redirect_uri и code_verifier.';
+        } else if (errJson.error === 'unauthorized_client') {
+          errorHint =
+            'Указанный client_id не разрешён для этого redirect_uri. Проверь настройки в Google Cloud Console.';
+        } else {
+          errorHint = errJson.error_description || '';
+        }
+      } catch {
+        errorHint = 'Не удалось прочитать ответ Google.';
+      }
+
       throw new Error(
-        details ? `Не удалось обменять код на токен Google Drive: ${details}` : 'Не удалось обменять код на токен Google Drive.'
+        `Ошибка обмена кода на токен Google Drive: ${errorHint}\n\nОтвет сервера:\n${raw}`
       );
     }
 
-    const data = (await response.json()) as TokenResponse;
-    if (!data.access_token || !data.expires_in) {
-      throw new Error('Ответ авторизации Google Drive не содержит access_token.');
+    let data: TokenResponse;
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+      throw new Error('Ошибка парсинга ответа Google OAuth API.');
     }
 
+    if (!data.access_token || !data.expires_in) {
+      throw new Error('Ответ Google не содержит access_token или expires_in.');
+    }
+
+    console.log('%c[OAuth] Токен успешно получен!', 'color: #4CAF50');
     this.saveTokens(data);
   }
+
 
   getAccessToken(): string | null {
     const tokens = this.loadTokens();
