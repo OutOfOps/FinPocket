@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { GoogleAuthService } from '../services/google-auth.service';
 
 @Component({
   selector: 'app-sync',
@@ -7,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './sync.scss',
 })
 export class Sync {
-
+  protected readonly googleAuth = inject(GoogleAuthService);
 }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthCallbackGDriveComponent } from './sync/components/auth-callback-gdrive/auth-callback-gdrive.component';
+import { AuthCallbackGdriveComponent } from './auth/auth-callback-gdrive.component';
 
 const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'finance' },
@@ -30,7 +30,7 @@ const routes: Routes = [
   },
   {
     path: 'auth/callback/gdrive',
-    component: AuthCallbackGDriveComponent,
+    component: AuthCallbackGdriveComponent,
   },
   { path: '**', redirectTo: 'finance' },
 ];

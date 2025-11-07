@@ -8,6 +8,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { PwaUpdateService } from './core/services/pwa-update.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { APP_VERSION } from './core/tokens/app-version.token';
+import { GoogleAuthService } from './services/google-auth.service';
 
 type NavigationItem = {
   label: string;
@@ -28,6 +29,8 @@ export class App implements OnInit {
   private readonly pwaUpdateService = inject(PwaUpdateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly googleAuth = inject(GoogleAuthService);
+  private tokenCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly activeTheme = this.themeService.theme;
 
@@ -99,10 +102,12 @@ export class App implements OnInit {
             }
           );
 
-          snackBarRef.onAction()
+          snackBarRef
+            .onAction()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
-              this.pwaUpdateService.activateUpdate()
+              this.pwaUpdateService
+                .activateUpdate()
                 .then(() => {
                   window.location.reload();
                 })
@@ -117,6 +122,14 @@ export class App implements OnInit {
             });
         }
       });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.tokenCheckTimer !== null) {
+        clearTimeout(this.tokenCheckTimer);
+      }
+    });
+
+    void this.ensureGoogleDriveToken();
   }
 
   protected async onNavItemSelect(drawer: MatSidenav): Promise<void> {
@@ -125,5 +138,20 @@ export class App implements OnInit {
     }
 
     await drawer.close();
+  }
+
+  private async ensureGoogleDriveToken(): Promise<void> {
+    try {
+      const token = await this.googleAuth.ensureTokenValid();
+      if (token) {
+        console.log('🔄 Google Drive токен активен');
+      }
+    } catch (error) {
+      console.error('Не удалось проверить токен Google Drive', error);
+    } finally {
+      this.tokenCheckTimer = setTimeout(() => {
+        void this.ensureGoogleDriveToken();
+      }, 5 * 60 * 1000);
+    }
   }
 }

@@ -4,13 +4,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
-import { AuthCallbackGDriveComponent } from './sync/components/auth-callback-gdrive/auth-callback-gdrive.component';
+import { AuthCallbackGdriveComponent } from './auth/auth-callback-gdrive.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { CoreModule } from './core/core-module';
 import { SharedModule } from './shared/shared-module';
 
 @NgModule({
-  declarations: [App, AuthCallbackGDriveComponent],
+  declarations: [App, AuthCallbackGdriveComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
