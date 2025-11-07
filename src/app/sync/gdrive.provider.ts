@@ -58,16 +58,7 @@ const DEFAULT_FOLDER_NAME = 'FinPocket';
 const DEFAULT_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
 export function resolveGDriveRedirectUri(): string {
-  if (typeof window === 'undefined') {
-    throw new Error('redirect_uri недоступен вне браузера');
-  }
-
-  const baseHref =
-    typeof document !== 'undefined' && document.baseURI
-      ? document.baseURI
-      : `${window.location.origin}/`;
-
-  return new URL('auth/callback/gdrive', baseHref).toString();
+  return 'https://outofops.github.io/FinPocket/auth/callback/gdrive/';
 }
 
 export class GDriveProvider implements CloudProvider {

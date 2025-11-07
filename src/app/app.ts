@@ -86,6 +86,26 @@ export class App implements OnInit {
 
   protected readonly hasNavigationOverlay = computed(() => this.isHandset());
 
+  constructor() {
+    const redirectUrl = typeof localStorage !== 'undefined' ? localStorage.getItem('oauth_redirect_url') : null;
+    if (redirectUrl) {
+      console.log('[OAuth] Restoring pending redirect URL:', redirectUrl);
+      localStorage.removeItem('oauth_redirect_url');
+
+      try {
+        const url = new URL(redirectUrl);
+        const code = url.searchParams.get('code');
+        if (code) {
+          this.googleAuth
+            .exchangeCodeForToken(code)
+            .catch((err) => console.error('[OAuth] Failed to exchange code:', err));
+        }
+      } catch (error) {
+        console.error('[OAuth] Failed to parse redirect URL:', error);
+      }
+    }
+  }
+
   ngOnInit(): void {
     // Subscribe to version updates
     this.pwaUpdateService.versionUpdates
