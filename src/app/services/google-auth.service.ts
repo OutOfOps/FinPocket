@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { GDRIVE_CLIENT_ID_PATTERN, resolveGDriveRedirectUri } from '../sync/gdrive.provider';
+import { SyncSettingsService } from '../sync/services/sync-settings.service';
 
 interface StoredTokens {
   access_token: string;
@@ -26,9 +28,8 @@ interface StoredCodeVerifierRecord {
 
 @Injectable({ providedIn: 'root' })
 export class GoogleAuthService {
-  private readonly clientId =
-    '991524252561-didtejjdj3b3cgqcdijgiu0hgst46puj.apps.googleusercontent.com';
-  private readonly redirectUri = 'https://outofops.github.io/FinPocket/auth/callback/gdrive';
+  constructor(private readonly settings: SyncSettingsService) {}
+
   private readonly scope = 'https://www.googleapis.com/auth/drive.file';
   private readonly tokenEndpoint = 'https://oauth2.googleapis.com/token';
 
@@ -37,14 +38,16 @@ export class GoogleAuthService {
       throw new Error('OAuth 2.0 доступен только в браузере.');
     }
 
+    const clientId = this.getClientIdOrThrow();
+    const redirectUri = this.getRedirectUri();
     const verifier = this.generateCodeVerifier();
     this.storeCodeVerifier(verifier);
     const challenge = await this.generateCodeChallenge(verifier);
     const state = this.generateState();
 
     const authUrl = new URL(AUTHORIZATION_ENDPOINT);
-    authUrl.searchParams.set('client_id', this.clientId);
-    authUrl.searchParams.set('redirect_uri', this.redirectUri);
+    authUrl.searchParams.set('client_id', clientId);
+    authUrl.searchParams.set('redirect_uri', redirectUri);
     authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('scope', this.scope);
     authUrl.searchParams.set('access_type', 'offline');
@@ -86,12 +89,14 @@ export class GoogleAuthService {
       throw new Error('Код подтверждения PKCE отсутствует. Повторите авторизацию.');
     }
 
+    const clientId = this.getClientIdOrThrow();
+    const redirectUri = this.getRedirectUri();
     const payload = new URLSearchParams();
-    payload.set('client_id', this.clientId);
+    payload.set('client_id', clientId);
     payload.set('grant_type', 'authorization_code');
     payload.set('code', code);
     payload.set('code_verifier', verifier);
-    payload.set('redirect_uri', this.redirectUri);
+    payload.set('redirect_uri', redirectUri);
 
     const response = await fetch(this.tokenEndpoint, {
       method: 'POST',
@@ -135,8 +140,17 @@ export class GoogleAuthService {
       return null;
     }
 
+    let clientId: string;
+    try {
+      clientId = this.getClientIdOrThrow();
+    } catch (error) {
+      console.error('[GDrive] refresh token aborted: client id unavailable', error);
+      this.logout();
+      return null;
+    }
+
     const payload = new URLSearchParams();
-    payload.set('client_id', this.clientId);
+    payload.set('client_id', clientId);
     payload.set('grant_type', 'refresh_token');
     payload.set('refresh_token', existing.refresh_token);
 
@@ -328,5 +342,26 @@ export class GoogleAuthService {
         console.warn('[GDrive] Failed to persist PKCE code verifier in localStorage', error);
       }
     }
+  }
+
+  private getClientIdOrThrow(): string {
+    const clientId = this.settings.getGoogleDriveClientId();
+    if (!clientId) {
+      throw new Error(
+        'Client ID Google Drive не настроен. Укажите значение из Google Cloud Console в настройках синхронизации.'
+      );
+    }
+
+    if (!GDRIVE_CLIENT_ID_PATTERN.test(clientId)) {
+      throw new Error(
+        'Client ID Google Drive имеет неверный формат. Используйте идентификатор вида 12345-abc.apps.googleusercontent.com.'
+      );
+    }
+
+    return clientId;
+  }
+
+  private getRedirectUri(): string {
+    return resolveGDriveRedirectUri();
   }
 }
