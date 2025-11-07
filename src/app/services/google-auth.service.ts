@@ -17,6 +17,12 @@ interface TokenResponse {
 const CODE_VERIFIER_KEY = 'gdrive_code_verifier';
 const TOKEN_STORAGE_KEY = 'gdrive_tokens';
 const AUTHORIZATION_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
+const CODE_VERIFIER_TTL_MS = 10 * 60 * 1000;
+
+interface StoredCodeVerifierRecord {
+  verifier: string;
+  createdAt: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class GoogleAuthService {
@@ -235,30 +241,28 @@ export class GoogleAuthService {
     return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
-  private storeCodeVerifier(verifier: string): void {
-    if (typeof sessionStorage === 'undefined') {
-      return;
-    }
-
-    sessionStorage.setItem(CODE_VERIFIER_KEY, verifier);
-  }
-
   private restoreCodeVerifier(): string | null {
-    if (typeof sessionStorage === 'undefined') {
+    const record = this.readStoredCodeVerifier();
+    this.clearCodeVerifier();
+    if (!record) {
       return null;
     }
 
-    const value = sessionStorage.getItem(CODE_VERIFIER_KEY);
-    this.clearCodeVerifier();
-    return value;
+    if (Date.now() - record.createdAt > CODE_VERIFIER_TTL_MS) {
+      return null;
+    }
+
+    return record.verifier;
   }
 
   private clearCodeVerifier(): void {
-    if (typeof sessionStorage === 'undefined') {
-      return;
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(CODE_VERIFIER_KEY);
     }
 
-    sessionStorage.removeItem(CODE_VERIFIER_KEY);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(CODE_VERIFIER_KEY);
+    }
   }
 
   private generateState(): string {
@@ -268,5 +272,61 @@ export class GoogleAuthService {
     }
 
     return Math.random().toString(36).slice(2, 18);
+  }
+
+  private readStoredCodeVerifier(): StoredCodeVerifierRecord | null {
+    const storages: Array<Storage | undefined> = [
+      typeof sessionStorage !== 'undefined' ? sessionStorage : undefined,
+      typeof localStorage !== 'undefined' ? localStorage : undefined,
+    ];
+
+    for (const storage of storages) {
+      if (!storage) {
+        continue;
+      }
+
+      const raw = storage.getItem(CODE_VERIFIER_KEY);
+      if (!raw) {
+        continue;
+      }
+
+      try {
+        const parsed = JSON.parse(raw) as StoredCodeVerifierRecord | null;
+        if (parsed && typeof parsed.verifier === 'string' && typeof parsed.createdAt === 'number') {
+          return parsed;
+        }
+      } catch (error) {
+        console.warn('[GDrive] Failed to parse stored PKCE code verifier', error);
+      }
+    }
+
+    return null;
+  }
+
+  private storeCodeVerifier(verifier: string): void {
+    const record: StoredCodeVerifierRecord = {
+      verifier,
+      createdAt: Date.now(),
+    };
+
+    const payload = JSON.stringify(record);
+
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        sessionStorage.setItem(CODE_VERIFIER_KEY, payload);
+        return;
+      } catch (error) {
+        console.warn('[GDrive] Failed to persist PKCE code verifier in sessionStorage', error);
+      }
+    }
+
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(CODE_VERIFIER_KEY, payload);
+        return;
+      } catch (error) {
+        console.warn('[GDrive] Failed to persist PKCE code verifier in localStorage', error);
+      }
+    }
   }
 }
