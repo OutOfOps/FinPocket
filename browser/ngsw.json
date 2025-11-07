@@ -1,0 +1,151 @@
+{
+  "configVersion": 1,
+  "timestamp": 1762517354209,
+  "index": "/FinPocket/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/FinPocket/chunk-3CATT67V.js",
+        "/FinPocket/chunk-6HSA32IX.js",
+        "/FinPocket/chunk-A4H2FJOJ.js",
+        "/FinPocket/chunk-AIYOQCO6.js",
+        "/FinPocket/chunk-D2TD4YRZ.js",
+        "/FinPocket/chunk-D7DCWF2T.js",
+        "/FinPocket/chunk-ET5B3PG2.js",
+        "/FinPocket/chunk-HJQMZG6H.js",
+        "/FinPocket/chunk-KX7B4REP.js",
+        "/FinPocket/chunk-MBWK4RVX.js",
+        "/FinPocket/chunk-MHSD756N.js",
+        "/FinPocket/chunk-NJG5PC2C.js",
+        "/FinPocket/chunk-PT2JM3JA.js",
+        "/FinPocket/chunk-QT6KMC5A.js",
+        "/FinPocket/chunk-RZG4FUBD.js",
+        "/FinPocket/chunk-SOO2G4HI.js",
+        "/FinPocket/chunk-VLCZRBLA.js",
+        "/FinPocket/chunk-W23FNQTN.js",
+        "/FinPocket/chunk-X6DWFC4Y.js",
+        "/FinPocket/chunk-XXUWZJOY.js",
+        "/FinPocket/favicon.ico",
+        "/FinPocket/index.html",
+        "/FinPocket/main-T5ZY67UZ.js",
+        "/FinPocket/manifest.webmanifest",
+        "/FinPocket/polyfills-5CFQRCPP.js",
+        "/FinPocket/styles-RQSYNKSU.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/FinPocket/icons/icon-128x128.png",
+        "/FinPocket/icons/icon-144x144.png",
+        "/FinPocket/icons/icon-152x152.png",
+        "/FinPocket/icons/icon-192x192.png",
+        "/FinPocket/icons/icon-384x384.png",
+        "/FinPocket/icons/icon-512x512.png",
+        "/FinPocket/icons/icon-72x72.png",
+        "/FinPocket/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/FinPocket/chunk-3CATT67V.js": "614231e1bda99956b80c4d0125c2eaad1b54dc4b",
+    "/FinPocket/chunk-6HSA32IX.js": "4934a594344dbd8dd2a185fcf15b4fce2cf7f1c0",
+    "/FinPocket/chunk-A4H2FJOJ.js": "10e4ad8b6cbf7320374d1a9c9749fd499aa25f11",
+    "/FinPocket/chunk-AIYOQCO6.js": "ea30da306632e8f9452a6d60776510c21dad9da9",
+    "/FinPocket/chunk-D2TD4YRZ.js": "b94778f87bb86388f5e85de498e6ae1c478459a0",
+    "/FinPocket/chunk-D7DCWF2T.js": "79042c3a92f9cb3a13a31262d42c91893d236b65",
+    "/FinPocket/chunk-ET5B3PG2.js": "d1b21b839edf5d4a85bd6571c916596bcd63afb0",
+    "/FinPocket/chunk-HJQMZG6H.js": "0126d874dabae2aab6634395cd04aaaf8b23b24c",
+    "/FinPocket/chunk-KX7B4REP.js": "e1365c8731ddf6a3c94c6bf51e9224e4d80291f0",
+    "/FinPocket/chunk-MBWK4RVX.js": "c52b0b3547021e34a76ab6af896d884b2224e978",
+    "/FinPocket/chunk-MHSD756N.js": "74c72ccd06a115988a30dbcf2e72e3912d3fe5b7",
+    "/FinPocket/chunk-NJG5PC2C.js": "13131388d07d7cdce3b4f2a53db8452d428ea57e",
+    "/FinPocket/chunk-PT2JM3JA.js": "9dc35024c3d9a08bb348b817b8548d8be75e16d5",
+    "/FinPocket/chunk-QT6KMC5A.js": "5cc325b27a6a188e3ed940b62dda3f07a4c1dd82",
+    "/FinPocket/chunk-RZG4FUBD.js": "3810f16c872540eef12cf03ef2a653965da9f35c",
+    "/FinPocket/chunk-SOO2G4HI.js": "4bcf242c9f1e3828930a749617ccb8a933b396f0",
+    "/FinPocket/chunk-VLCZRBLA.js": "e300612977c02944885a38b7136f62bef5ee4c75",
+    "/FinPocket/chunk-W23FNQTN.js": "c3709c93a225f18421b677587d0146e26a7f67de",
+    "/FinPocket/chunk-X6DWFC4Y.js": "0fd8e929a319f0a1a67a037b3a2cc3b5af162ea3",
+    "/FinPocket/chunk-XXUWZJOY.js": "62b606ad65788dc3de2f7a5c6c03e24d9a6477b1",
+    "/FinPocket/favicon.ico": "e11d03e6eb7c2edfff0162ac4c0fe0631be5c4ee",
+    "/FinPocket/icons/icon-128x128.png": "7e8a7485bee25bc277244b1e87940df3c527c2f6",
+    "/FinPocket/icons/icon-144x144.png": "547ee8a9dece4fc489c24b1388285c614d219b3b",
+    "/FinPocket/icons/icon-152x152.png": "6764fe6a02e38ccd6fc82ebe47f766b649aee4c4",
+    "/FinPocket/icons/icon-192x192.png": "ee296ce07cc1dffe2be325acccd2d1ed8361d47a",
+    "/FinPocket/icons/icon-384x384.png": "c893827a8e1643def94e0c918ea7838752891e0f",
+    "/FinPocket/icons/icon-512x512.png": "356b0c14f8257015ebe63409efa3e7b34f0f9c2c",
+    "/FinPocket/icons/icon-72x72.png": "e7faffc060e2ce49a29dc9670c49c62a363f273d",
+    "/FinPocket/icons/icon-96x96.png": "bf4c95b23b25d0b7c176e78e80a96b53edb1dffb",
+    "/FinPocket/index.html": "fc37c7fadfd94d55b35cabef201866d81726faf9",
+    "/FinPocket/main-T5ZY67UZ.js": "5773fe8c91fbab17919cf8540d7dcd8f12ace5a3",
+    "/FinPocket/manifest.webmanifest": "1c0a349a857094cb12854e53c515a2c7ab8e4a8c",
+    "/FinPocket/polyfills-5CFQRCPP.js": "f2241e9a25858f895ce299d15f6f22e849e2fd72",
+    "/FinPocket/styles-RQSYNKSU.css": "b3adf0c97132ee1bf3a57cb2930e435e09dde037"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?finance$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?finance\\/.*$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?debts$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?debts\\/.*$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?meters$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?meters\\/.*$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?stats$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?stats\\/.*$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?sync$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?sync\\/.*$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?settings$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/(?:.+\\/)?settings\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
