@@ -289,16 +289,23 @@ export class GoogleAuthService {
   }
 
   private restoreCodeVerifier(): string | null {
-    const record = this.readStoredCodeVerifier();
-    this.clearCodeVerifier();
-    if (!record) {
-      return null;
+    let record: StoredCodeVerifierRecord | null = null;
+    try {
+      const raw = localStorage.getItem(CODE_VERIFIER_KEY);
+      if (raw) record = JSON.parse(raw);
+    } catch (error) {
+      console.warn('[GDrive] Failed to parse PKCE code verifier', error);
     }
 
+    if (!record) return null;
+
+    // TTL — 10 минут
     if (Date.now() - record.createdAt > CODE_VERIFIER_TTL_MS) {
+      localStorage.removeItem(CODE_VERIFIER_KEY);
       return null;
     }
 
+    // ⚠️ Не очищаем сразу — оставляем на случай повторного обмена
     return record.verifier;
   }
 
@@ -351,29 +358,14 @@ export class GoogleAuthService {
   }
 
   private storeCodeVerifier(verifier: string): void {
-    const record: StoredCodeVerifierRecord = {
-      verifier,
-      createdAt: Date.now(),
-    };
-
+    const record: StoredCodeVerifierRecord = { verifier, createdAt: Date.now() };
     const payload = JSON.stringify(record);
 
-    if (typeof sessionStorage !== 'undefined') {
-      try {
-        sessionStorage.setItem(CODE_VERIFIER_KEY, payload);
-        return;
-      } catch (error) {
-        console.warn('[GDrive] Failed to persist PKCE code verifier in sessionStorage', error);
-      }
-    }
-
-    if (typeof localStorage !== 'undefined') {
-      try {
-        localStorage.setItem(CODE_VERIFIER_KEY, payload);
-        return;
-      } catch (error) {
-        console.warn('[GDrive] Failed to persist PKCE code verifier in localStorage', error);
-      }
+    // 💡 Сохраняем в localStorage, чтобы переживал redirect на GitHub Pages
+    try {
+      localStorage.setItem(CODE_VERIFIER_KEY, payload);
+    } catch (error) {
+      console.warn('[GDrive] Failed to persist PKCE code verifier', error);
     }
   }
 
