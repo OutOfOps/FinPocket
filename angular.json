@@ -24,6 +24,8 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/FinPocket",
+            "baseHref": "/FinPocket/",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"

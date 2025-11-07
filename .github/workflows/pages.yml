@@ -41,6 +41,9 @@ jobs:
         run: npm run build -- --base-href "/${{ github.event.repository.name }}/"
         # При необходимости добавьте --configuration production
 
+      - name: Ensure SPA fallback
+        run: node tools/create-404.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
