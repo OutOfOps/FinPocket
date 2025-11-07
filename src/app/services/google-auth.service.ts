@@ -1,0 +1,272 @@
+import { Injectable } from '@angular/core';
+
+interface StoredTokens {
+  access_token: string;
+  refresh_token?: string;
+  expires_at: number;
+}
+
+interface TokenResponse {
+  access_token: string;
+  expires_in: number;
+  refresh_token?: string;
+  scope?: string;
+  token_type?: string;
+}
+
+const CODE_VERIFIER_KEY = 'gdrive_code_verifier';
+const TOKEN_STORAGE_KEY = 'gdrive_tokens';
+const AUTHORIZATION_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
+
+@Injectable({ providedIn: 'root' })
+export class GoogleAuthService {
+  private readonly clientId =
+    '991524252561-didtejjdj3b3cgqcdijgiu0hgst46puj.apps.googleusercontent.com';
+  private readonly redirectUri = 'https://outofops.github.io/FinPocket/auth/callback/gdrive';
+  private readonly scope = 'https://www.googleapis.com/auth/drive.file';
+  private readonly tokenEndpoint = 'https://oauth2.googleapis.com/token';
+
+  async startAuthFlow(): Promise<void> {
+    if (typeof window === 'undefined' || typeof window.crypto === 'undefined') {
+      throw new Error('OAuth 2.0 доступен только в браузере.');
+    }
+
+    const verifier = this.generateCodeVerifier();
+    this.storeCodeVerifier(verifier);
+    const challenge = await this.generateCodeChallenge(verifier);
+    const state = this.generateState();
+
+    const authUrl = new URL(AUTHORIZATION_ENDPOINT);
+    authUrl.searchParams.set('client_id', this.clientId);
+    authUrl.searchParams.set('redirect_uri', this.redirectUri);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', this.scope);
+    authUrl.searchParams.set('access_type', 'offline');
+    authUrl.searchParams.set('include_granted_scopes', 'true');
+    authUrl.searchParams.set('prompt', 'consent');
+    authUrl.searchParams.set('code_challenge', challenge);
+    authUrl.searchParams.set('code_challenge_method', 'S256');
+    authUrl.searchParams.set('state', state);
+
+    window.location.href = authUrl.toString();
+  }
+
+  private generateCodeVerifier(): string {
+    const cryptoApi = globalThis.crypto;
+    if (!cryptoApi || typeof cryptoApi.getRandomValues !== 'function') {
+      throw new Error('Web Crypto API недоступен');
+    }
+
+    const randomBytes = new Uint8Array(64);
+    cryptoApi.getRandomValues(randomBytes);
+    return this.base64UrlEncode(randomBytes);
+  }
+
+  private async generateCodeChallenge(verifier: string): Promise<string> {
+    const cryptoApi = globalThis.crypto;
+    if (!cryptoApi || !cryptoApi.subtle || typeof cryptoApi.subtle.digest !== 'function') {
+      throw new Error('Web Crypto API недоступен');
+    }
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await cryptoApi.subtle.digest('SHA-256', data);
+    return this.base64UrlEncode(new Uint8Array(digest));
+  }
+
+  async exchangeCodeForToken(code: string): Promise<void> {
+    const verifier = this.restoreCodeVerifier();
+    if (!verifier) {
+      throw new Error('Код подтверждения PKCE отсутствует. Повторите авторизацию.');
+    }
+
+    const payload = new URLSearchParams();
+    payload.set('client_id', this.clientId);
+    payload.set('grant_type', 'authorization_code');
+    payload.set('code', code);
+    payload.set('code_verifier', verifier);
+    payload.set('redirect_uri', this.redirectUri);
+
+    const response = await fetch(this.tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: payload.toString(),
+    });
+
+    if (!response.ok) {
+      const details = await response.text().catch(() => '');
+      throw new Error(
+        details ? `Не удалось обменять код на токен Google Drive: ${details}` : 'Не удалось обменять код на токен Google Drive.'
+      );
+    }
+
+    const data = (await response.json()) as TokenResponse;
+    if (!data.access_token || !data.expires_in) {
+      throw new Error('Ответ авторизации Google Drive не содержит access_token.');
+    }
+
+    this.saveTokens(data);
+  }
+
+  getAccessToken(): string | null {
+    const tokens = this.loadTokens();
+    if (!tokens) {
+      return null;
+    }
+
+    if (Date.now() >= tokens.expires_at) {
+      return null;
+    }
+
+    return tokens.access_token;
+  }
+
+  async refreshAccessToken(): Promise<string | null> {
+    const existing = this.loadTokens();
+    if (!existing?.refresh_token) {
+      return null;
+    }
+
+    const payload = new URLSearchParams();
+    payload.set('client_id', this.clientId);
+    payload.set('grant_type', 'refresh_token');
+    payload.set('refresh_token', existing.refresh_token);
+
+    try {
+      const response = await fetch(this.tokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: payload.toString(),
+      });
+
+      if (!response.ok) {
+        const details = await response.text().catch(() => '');
+        throw new Error(
+          details
+            ? `Не удалось обновить токен Google Drive: ${details}`
+            : 'Не удалось обновить токен Google Drive.'
+        );
+      }
+
+      const data = (await response.json()) as TokenResponse;
+      if (!data.access_token || !data.expires_in) {
+        throw new Error('Ответ обновления токена Google Drive не содержит access_token.');
+      }
+
+      if (!data.refresh_token) {
+        data.refresh_token = existing.refresh_token;
+      }
+
+      this.saveTokens(data);
+      return data.access_token;
+    } catch (error) {
+      console.error('[GDrive] refresh token failed', error);
+      this.logout();
+      return null;
+    }
+  }
+
+  logout(): void {
+    this.clearCodeVerifier();
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
+
+  private saveTokens(data: TokenResponse): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const existing = this.loadTokens();
+    const expiresAt = Date.now() + data.expires_in * 1000;
+    const record: StoredTokens = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token ?? existing?.refresh_token,
+      expires_at: expiresAt,
+    };
+
+    localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(record));
+  }
+
+  private loadTokens(): StoredTokens | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    const raw = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as StoredTokens;
+    } catch (error) {
+      console.warn('[GDrive] Failed to parse stored tokens', error);
+      return null;
+    }
+  }
+
+  async ensureTokenValid(): Promise<string | null> {
+    const tokens = this.loadTokens();
+    if (!tokens) {
+      return null;
+    }
+
+    if (Date.now() > tokens.expires_at - 60_000) {
+      return await this.refreshAccessToken();
+    }
+
+    return tokens.access_token;
+  }
+
+  private base64UrlEncode(data: Uint8Array): string {
+    let binary = '';
+    data.forEach((value) => {
+      binary += String.fromCharCode(value);
+    });
+
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  private storeCodeVerifier(verifier: string): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+
+    sessionStorage.setItem(CODE_VERIFIER_KEY, verifier);
+  }
+
+  private restoreCodeVerifier(): string | null {
+    if (typeof sessionStorage === 'undefined') {
+      return null;
+    }
+
+    const value = sessionStorage.getItem(CODE_VERIFIER_KEY);
+    this.clearCodeVerifier();
+    return value;
+  }
+
+  private clearCodeVerifier(): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+
+    sessionStorage.removeItem(CODE_VERIFIER_KEY);
+  }
+
+  private generateState(): string {
+    const cryptoApi = globalThis.crypto;
+    if (cryptoApi && typeof cryptoApi.randomUUID === 'function') {
+      return cryptoApi.randomUUID();
+    }
+
+    return Math.random().toString(36).slice(2, 18);
+  }
+}
