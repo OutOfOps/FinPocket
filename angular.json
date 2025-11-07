@@ -36,6 +36,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets/auth",
+                "output": "auth"
               }
             ],
             "styles": [
@@ -99,6 +104,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets/auth",
+                "output": "auth"
               }
             ],
             "styles": [

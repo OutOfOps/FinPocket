@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting...</title>
+    <script>
+      // Save full OAuth URL (with code/state) and return to app root
+      localStorage.setItem('oauth_redirect_url', window.location.href);
+      window.location.replace('/FinPocket/');
+    </script>
+  </head>
+  <body>Redirecting back to FinPocket...</body>
+</html>
