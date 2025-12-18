@@ -424,7 +424,9 @@ export class GDriveProvider implements CloudProvider {
     });
 
     if (!response.ok) {
-      throw new Error('Не удалось создать папку приложения в Google Drive');
+      const errorText = await response.text().catch(() => '');
+      console.error('[GDrive] Create folder failed:', response.status, errorText);
+      throw new Error(`Не удалось создать папку приложения в Google Drive: ${response.status} ${errorText}`);
     }
 
     const folder: { id: string } = await response.json();
