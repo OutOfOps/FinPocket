@@ -18,6 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedListComponent } from './components/shared-list/shared-list.component';
 import { SharedEditComponent } from './components/shared-edit/shared-edit.component';
 import { SharedDetailsComponent } from './components/shared-details/shared-details.component';
@@ -38,7 +39,8 @@ const MATERIAL_MODULES = [
   MatSelectModule,
   MatSnackBarModule,
   MatDialogModule,
-  MatBottomSheetModule
+  MatBottomSheetModule,
+  MatTooltipModule
 ];
 
 const SHARED_COMPONENTS = [SharedListComponent, SharedEditComponent, SharedDetailsComponent];

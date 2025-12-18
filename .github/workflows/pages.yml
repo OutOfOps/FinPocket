@@ -49,6 +49,9 @@ jobs:
             sed -i "s/PLACEHOLDER_CLIENT_SECRET/$GDRIVE_CLIENT_SECRET/g" src/index.html
           fi
 
+      - name: Bump Version
+        run: node tools/bump-version.js
+
       - name: Build Angular app
         run: npm run build -- --base-href "/${{ github.event.repository.name }}/"
         # При необходимости добавьте --configuration production

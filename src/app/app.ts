@@ -152,6 +152,26 @@ export class App implements OnInit {
     void this.ensureGoogleDriveToken();
   }
 
+  async checkUpdate(): Promise<void> {
+    const sb = this.snackBar.open('Проверка обновлений...', '', { duration: 2000 });
+    try {
+      const hasUpdate = await this.pwaUpdateService.checkForUpdate();
+      sb.dismiss();
+      if (hasUpdate) {
+        const ref = this.snackBar.open('Доступна новая версия!', 'Обновить', { duration: 10000 });
+        ref.onAction().subscribe(() => {
+          this.pwaUpdateService.activateUpdate().then(() => window.location.reload());
+        });
+      } else {
+        this.snackBar.open('У вас установлена последняя версия', 'ОК', { duration: 3000 });
+      }
+    } catch (err) {
+      sb.dismiss();
+      console.error('Update check failed', err);
+      // Don't show error to user if it's just offline or configured out
+    }
+  }
+
   protected async onNavItemSelect(drawer: MatSidenav): Promise<void> {
     if (!this.isHandset()) {
       return;

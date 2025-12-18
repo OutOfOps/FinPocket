@@ -4,7 +4,10 @@
       <div class="app-logo">FP</div>
       <div class="app-brand__text">
         <span class="app-name">FinPocket</span>
-        <span class="app-tagline">{{ appStatus }} • {{ appVersion }}</span>
+        <span class="app-tagline" style="cursor: pointer;" (click)="checkUpdate()"
+          matTooltip="Нажмите для проверки обновлений">
+          {{ appStatus }} • {{ appVersion }}
+        </span>
       </div>
     </div>
 
