@@ -157,9 +157,7 @@ export class FinPocketDB extends Dexie {
       encryptionKeys: '++id, keyName, createdAt',
     });
 
-    this.version(4).stores({
-      syncQueue: '++id, entityType, action, createdAt, syncedAt, nextRetryAt',
-    });
+    // Version 4 removed as it was a duplicate definition of syncQueue from Version 1
 
     this.transactions = this.table('transactions');
     this.accounts = this.table('accounts');

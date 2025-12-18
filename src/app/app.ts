@@ -17,7 +17,6 @@ type NavigationItem = {
   label: string;
   route: string;
   icon: string;
-  description: string;
 };
 
 @Component({
@@ -80,37 +79,31 @@ export class App implements OnInit {
       label: 'Финансы',
       route: '/finance',
       icon: 'account_balance_wallet',
-      description: 'Транзакции, счета и бюджеты',
     },
     {
       label: 'Кредиты/Депозиты',
       route: '/debts',
       icon: 'handshake',
-      description: 'Обязательства, накопления и напоминания по займам',
     },
     {
       label: 'Показания',
       route: '/meters',
       icon: 'speed',
-      description: 'Учёт коммунальных счётчиков и тарифов',
     },
     {
       label: 'Статистика',
       route: '/stats',
       icon: 'insights',
-      description: 'Дашборды и динамика по периодам',
     },
     {
       label: 'Синхронизация',
       route: '/sync',
       icon: 'cloud_sync',
-      description: 'Облако, резервные копии и импорт',
     },
     {
       label: 'Настройки',
       route: '/settings',
       icon: 'tune',
-      description: 'Темы, персонализация и резервные копии',
     },
   ];
 

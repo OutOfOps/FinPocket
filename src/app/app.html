@@ -13,13 +13,11 @@
         (click)="onNavItemSelect(drawer)">
         <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
         <span matListItemTitle class="nav-text__label">{{ item.label }}</span>
-        <span matListItemLine class="nav-text__hint">{{ item.description }}</span>
       </a>
     </mat-nav-list>
 
     <div class="app-meta">
       <span class="tag-chip">Offline-first</span>
-      <p>Ваши данные живут в IndexedDB через Dexie.js и синхронизируются только когда вы готовы.</p>
     </div>
   </mat-sidenav>
 
