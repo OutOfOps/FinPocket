@@ -48,11 +48,23 @@ $finpocket-light-theme: mat.m2-define-light-theme((
   .finpocket-dark-theme {
     @include mat.all-component-colors($finpocket-dark-theme);
     @include mat.all-component-typographies($finpocket-dark-theme);
+
+    // Glassmorphism tokens
+    --finpocket-glass-bg: rgba(17, 16, 21, 0.75);
+    --finpocket-glass-border: rgba(255, 255, 255, 0.08);
+    --finpocket-glass-blur: 16px;
+    --finpocket-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
   .finpocket-light-theme {
     @include mat.all-component-colors($finpocket-light-theme);
     @include mat.all-component-typographies($finpocket-light-theme);
+
+    // Glassmorphism tokens
+    --finpocket-glass-bg: rgba(255, 255, 255, 0.75);
+    --finpocket-glass-border: rgba(255, 255, 255, 0.2);
+    --finpocket-glass-blur: 12px;
+    --finpocket-glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   }
 }
 

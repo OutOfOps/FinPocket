@@ -4,11 +4,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ThemeService } from './core/services/theme.service';
+import { trigger, transition, style, query, animate, group } from '@angular/animations';
 import { MatSidenav } from '@angular/material/sidenav';
 import { PwaUpdateService } from './core/services/pwa-update.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { APP_VERSION } from './core/tokens/app-version.token';
 import { GoogleAuthService } from './services/google-auth.service';
+import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { TemplateRef } from '@angular/core';
 
 type NavigationItem = {
   label: string;
@@ -22,6 +25,32 @@ type NavigationItem = {
   templateUrl: './app.html',
   standalone: false,
   styleUrl: './app.scss',
+  animations: [
+    trigger('routeAnimations', [
+      transition('* <=> *', [
+        style({ position: 'relative' }),
+        query(':enter, :leave', [
+          style({
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%'
+          })
+        ], { optional: true }),
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(15px)' })
+        ], { optional: true }),
+        group([
+          query(':leave', [
+            animate('200ms ease-out', style({ opacity: 0, transform: 'translateY(-15px)' }))
+          ], { optional: true }),
+          query(':enter', [
+            animate('250ms 50ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          ], { optional: true })
+        ])
+      ])
+    ])
+  ]
 })
 export class App implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
@@ -30,6 +59,7 @@ export class App implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly googleAuth = inject(GoogleAuthService);
+  protected readonly bottomSheet = inject(MatBottomSheet);
   private tokenCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly activeTheme = this.themeService.theme;
@@ -138,6 +168,10 @@ export class App implements OnInit {
     }
 
     await drawer.close();
+  }
+
+  protected openQuickActions(tpl: TemplateRef<any>): void {
+    this.bottomSheet.open(tpl);
   }
 
   private async ensureGoogleDriveToken(): Promise<void> {

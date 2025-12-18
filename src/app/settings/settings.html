@@ -233,36 +233,32 @@
       </mat-card-header>
       <mat-card-content>
         <p class="settings-hint">
-          Экспортируйте все операции, настройки и справочники в JSON-файл, чтобы продолжить работу на другом устройстве.
-          Импорт перезапишет текущие данные.
+          Сохраните полную резервную копию ваших финансов (включая настройки и валюты) в файл.
+          Вы сможете восстановить данные на любом устройстве.
         </p>
-        <label class="data-transfer">
-          <span>JSON-дамп данных</span>
-          <textarea
-            class="data-transfer__input"
-            [(ngModel)]="dataTransferContent"
-            rows="8"
-            placeholder="Нажмите «Экспорт», чтобы сгенерировать JSON, или вставьте данные для импорта"
-            spellcheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-          ></textarea>
-        </label>
+
+        <input
+          type="file"
+          id="backup-file-input"
+          (change)="onFileSelected($event)"
+          accept=".json"
+          style="display: none"
+        />
+
         <div class="data-transfer__actions">
-          <button mat-stroked-button type="button" (click)="exportData()" [disabled]="isExportingData">
+          <button mat-stroked-button type="button" (click)="downloadBackup()" [disabled]="isExportingData">
             <mat-icon aria-hidden="true">file_download</mat-icon>
-            Экспорт
+            Скачать резервную копию
           </button>
           <button
             mat-flat-button
             color="primary"
             type="button"
-            (click)="importData()"
-            [disabled]="isImportingData || !dataTransferContent.trim()"
+            (click)="triggerImport()"
+            [disabled]="isImportingData"
           >
             <mat-icon aria-hidden="true">file_upload</mat-icon>
-            Импорт
+            Восстановить из файла
           </button>
         </div>
       </mat-card-content>

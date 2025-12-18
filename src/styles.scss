@@ -23,7 +23,9 @@
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -39,13 +41,14 @@ body {
   min-height: 100%;
   font-family: 'Inter', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
   letter-spacing: 0.01em;
-  background: var(--finpocket-surface, #121212);
+  background: var(--finpocket-gradient);
+  background-attachment: fixed;
   color: var(--finpocket-text, #ffffff);
 }
 
 body.finpocket-dark-theme,
 body.finpocket-light-theme {
-  transition: background-color 180ms ease, color 180ms ease;
+  transition: background 180ms ease, color 180ms ease;
 }
 
 app-root {
@@ -75,14 +78,14 @@ a {
   --finpocket-muted: rgba(246, 242, 255, 0.48);
   --finpocket-gradient: radial-gradient(circle at 20% 20%, rgba(156, 39, 176, 0.25), transparent 55%),
     radial-gradient(circle at 80% 10%, rgba(255, 152, 0, 0.18), transparent 60%),
-    linear-gradient(160deg, rgba(52, 46, 62, 0.78), rgba(18, 16, 24, 0.88));
-  --finpocket-card-bg: color-mix(in srgb, var(--finpocket-surface-alt) 85%, rgba(156, 39, 176, 0.1));
-  --finpocket-card-shadow: 0 16px 32px rgba(10, 10, 14, 0.42);
+    linear-gradient(160deg, #1b1822, #0d0c11);
+  --finpocket-card-bg: var(--finpocket-glass-bg);
+  --finpocket-card-shadow: var(--finpocket-glass-shadow);
   --finpocket-chip-bg: rgba(255, 152, 0, 0.16);
   --finpocket-chip-text: #ffcb6b;
-  --finpocket-sidenav-bg: rgba(17, 16, 21, 0.9);
-  --finpocket-toolbar-bg: rgba(17, 16, 21, 0.85);
-  --finpocket-toolbar-border: rgba(255, 255, 255, 0.08);
+  --finpocket-sidenav-bg: var(--finpocket-glass-bg);
+  --finpocket-toolbar-bg: var(--finpocket-glass-bg);
+  --finpocket-toolbar-border: var(--finpocket-glass-border);
   --finpocket-logo-text: #1b0722;
   --finpocket-nav-hover: color-mix(in srgb, var(--finpocket-primary) 30%, transparent);
   --finpocket-nav-active: color-mix(in srgb, var(--finpocket-primary) 45%, rgba(0, 0, 0, 0.05));
@@ -103,13 +106,13 @@ a {
   --finpocket-gradient: radial-gradient(circle at 15% 15%, rgba(156, 39, 176, 0.12), transparent 55%),
     radial-gradient(circle at 85% 10%, rgba(255, 152, 0, 0.16), transparent 60%),
     linear-gradient(160deg, #ffffff, #f1ecff);
-  --finpocket-card-bg: color-mix(in srgb, #ffffff 92%, rgba(156, 39, 176, 0.05));
-  --finpocket-card-shadow: 0 16px 32px rgba(38, 26, 45, 0.1);
+  --finpocket-card-bg: var(--finpocket-glass-bg);
+  --finpocket-card-shadow: var(--finpocket-glass-shadow);
   --finpocket-chip-bg: rgba(255, 152, 0, 0.14);
   --finpocket-chip-text: #a65d00;
-  --finpocket-sidenav-bg: rgba(255, 255, 255, 0.78);
-  --finpocket-toolbar-bg: rgba(255, 255, 255, 0.82);
-  --finpocket-toolbar-border: rgba(31, 27, 46, 0.08);
+  --finpocket-sidenav-bg: var(--finpocket-glass-bg);
+  --finpocket-toolbar-bg: var(--finpocket-glass-bg);
+  --finpocket-toolbar-border: var(--finpocket-glass-border);
   --finpocket-logo-text: #2c0d36;
   --finpocket-nav-hover: color-mix(in srgb, var(--finpocket-primary) 14%, rgba(255, 255, 255, 0.6));
   --finpocket-nav-active: color-mix(in srgb, var(--finpocket-primary) 18%, rgba(255, 255, 255, 0.75));
@@ -162,6 +165,8 @@ a {
   border-radius: 18px;
   border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
   background: var(--finpocket-card-bg, rgba(17, 17, 17, 0.96));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   box-shadow: var(--finpocket-card-shadow, 0 18px 44px rgba(8, 8, 10, 0.55));
   display: flex;
   flex-direction: column;

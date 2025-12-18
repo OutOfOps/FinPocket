@@ -6,6 +6,7 @@ import { FinpocketTheme, ThemeService } from '../core/services/theme.service';
 import { DataResetService } from '../core/services/data-reset.service';
 import { ResetDataDialogComponent } from './components/reset-data-dialog/reset-data-dialog.component';
 import { DataTransferService } from './services/data-transfer.service';
+import { BackupService } from '../core/services/backup.service';
 
 @Component({
   selector: 'app-settings',
@@ -19,7 +20,7 @@ export class Settings {
   private readonly dataResetService = inject(DataResetService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly dataTransferService = inject(DataTransferService);
+  private readonly backupService = inject(BackupService);
 
   protected readonly theme = this.themeService.theme;
   protected readonly currencies = this.currencyService.currencies;
@@ -49,7 +50,6 @@ export class Settings {
   };
 
   protected isResetting = false;
-  protected dataTransferContent = '';
   protected isExportingData = false;
   protected isImportingData = false;
 
@@ -224,7 +224,7 @@ export class Settings {
     }
   }
 
-  protected async exportData(): Promise<void> {
+  protected async downloadBackup(): Promise<void> {
     if (this.isExportingData) {
       return;
     }
@@ -232,14 +232,13 @@ export class Settings {
     this.isExportingData = true;
 
     try {
-      const json = await this.dataTransferService.exportAsJson();
-      this.dataTransferContent = json;
-      this.snackBar.open('Данные экспортированы. Скопируйте JSON и сохраните его в файле.', 'Закрыть', {
-        duration: 5000,
+      await this.backupService.exportBackup();
+      this.snackBar.open('Резервная копия сохранена в файл.', 'Закрыть', {
+        duration: 3000,
       });
     } catch (error) {
-      console.error('Failed to export data', error);
-      this.snackBar.open('Не удалось экспортировать данные. Попробуйте снова.', 'Закрыть', {
+      console.error('Failed to export backup', error);
+      this.snackBar.open('Не удалось сохранить файл. Попробуйте снова.', 'Закрыть', {
         duration: 5000,
       });
     } finally {
@@ -247,34 +246,41 @@ export class Settings {
     }
   }
 
-  protected async importData(): Promise<void> {
-    if (this.isImportingData) {
+  protected triggerImport(): void {
+    const input = document.getElementById('backup-file-input') as HTMLInputElement;
+    if (input) {
+      input.click();
+    }
+  }
+
+  protected async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) {
       return;
     }
 
+    const file = input.files[0];
     this.isImportingData = true;
 
     try {
-      await this.dataTransferService.importFromJson(this.dataTransferContent);
+      await this.backupService.importBackup(file);
       this.snackBar.open(
-        'Данные импортированы. Перезапустите приложение или обновите страницу для применения.',
-        'Закрыть',
+        'Данные успешно восстановлены! Приложение перезагрузится...',
+        undefined,
         {
-          duration: 6000,
+          duration: 3000,
         }
       );
+      // Give valid UI feedback time before reload
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
-      console.error('Failed to import data', error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Не удалось импортировать данные. Проверьте JSON и повторите попытку.';
-
-      this.snackBar.open(message, 'Закрыть', {
-        duration: 6000,
+      console.error('Failed to import backup', error);
+      this.snackBar.open('Не удалось прочитать файл резервной копии.', 'Закрыть', {
+        duration: 5000,
       });
     } finally {
       this.isImportingData = false;
+      input.value = ''; // Reset input to allow re-selection of same file
     }
   }
 }

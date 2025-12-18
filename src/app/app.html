@@ -1,10 +1,5 @@
 <mat-sidenav-container class="app-shell" [hasBackdrop]="hasNavigationOverlay()">
-  <mat-sidenav
-    #drawer
-    class="app-sidenav"
-    [mode]="isHandset() ? 'over' : 'side'"
-    [opened]="!isHandset()"
-  >
+  <mat-sidenav #drawer class="app-sidenav" [mode]="isHandset() ? 'over' : 'side'" [opened]="!isHandset()">
     <div class="app-brand">
       <div class="app-logo">FP</div>
       <div class="app-brand__text">
@@ -14,13 +9,8 @@
     </div>
 
     <mat-nav-list>
-      <a
-        mat-list-item
-        *ngFor="let item of navItems"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        (click)="onNavItemSelect(drawer)"
-      >
+      <a mat-list-item *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active"
+        (click)="onNavItemSelect(drawer)">
         <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
         <span matListItemTitle class="nav-text__label">{{ item.label }}</span>
         <span matListItemLine class="nav-text__hint">{{ item.description }}</span>
@@ -35,14 +25,8 @@
 
   <mat-sidenav-content>
     <mat-toolbar class="app-toolbar" color="primary">
-      <button
-        mat-icon-button
-        class="menu-button"
-        type="button"
-        aria-label="Открыть меню"
-        (click)="drawer.toggle()"
-        *ngIf="isHandset()"
-      >
+      <button mat-icon-button class="menu-button" type="button" aria-label="Открыть меню" (click)="drawer.toggle()"
+        *ngIf="isHandset()">
         <mat-icon>menu</mat-icon>
       </button>
 
@@ -53,27 +37,45 @@
 
       <span class="spacer"></span>
 
-      <button
-        mat-icon-button
-        type="button"
+      <button mat-icon-button type="button"
         [attr.aria-label]="'Открыть настройки. Текущая тема: ' + (activeTheme() === 'dark' ? 'тёмная' : 'светлая')"
-        routerLink="/settings"
-      >
+        routerLink="/settings">
         <mat-icon>tune</mat-icon>
       </button>
 
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Перейти к синхронизации"
-        routerLink="/sync"
-      >
+      <button mat-icon-button type="button" aria-label="Перейти к синхронизации" routerLink="/sync">
         <mat-icon>cloud_sync</mat-icon>
       </button>
     </mat-toolbar>
 
-    <main class="app-content">
-      <router-outlet></router-outlet>
+    <main class="app-content" [@routeAnimations]="o.isActivated ? o.activatedRoute : ''">
+      <router-outlet #o="outlet"></router-outlet>
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<button mat-fab class="fab-bottom-right" color="accent" (click)="openQuickActions(quickActionsTpl)"
+  aria-label="Быстрые действия">
+  <mat-icon>add</mat-icon>
+</button>
+
+<ng-template #quickActionsTpl>
+  <mat-nav-list>
+    <h3 matSubheader>Быстрое добавление</h3>
+    <a mat-list-item routerLink="/finance/create" (click)="bottomSheet.dismiss()">
+      <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
+      <span matListItemTitle>Транзакция</span>
+      <span matListItemLine>Доход, расход или перевод</span>
+    </a>
+    <a mat-list-item routerLink="/debts/create" (click)="bottomSheet.dismiss()"> <!-- Assumed route -->
+      <mat-icon matListItemIcon>handshake</mat-icon>
+      <span matListItemTitle>Долг</span>
+      <span matListItemLine>Займ или кредит</span>
+    </a>
+    <a mat-list-item routerLink="/meters/create" (click)="bottomSheet.dismiss()"> <!-- Assumed route -->
+      <mat-icon matListItemIcon>speed</mat-icon>
+      <span matListItemTitle>Показания</span>
+      <span matListItemLine>Свет, вода, газ</span>
+    </a>
+  </mat-nav-list>
+</ng-template>
