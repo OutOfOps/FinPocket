@@ -65,6 +65,19 @@ export class ThemeService {
     this.accentSignal.set(accents[nextIdx]);
   }
 
+  resetToDefault(): void {
+    this.themeSignal.set('dark');
+    this.accentSignal.set('purple');
+
+    const win = this.safeWindow();
+    if (win) {
+      try {
+        win.localStorage.removeItem(this.storageKeyTheme);
+        win.localStorage.removeItem(this.storageKeyAccent);
+      } catch { }
+    }
+  }
+
   private resolveInitialTheme(): FinpocketTheme {
     const win = this.safeWindow();
     if (!win) return 'dark';

@@ -10,18 +10,11 @@
   <section class="sync-account" aria-label="Список облачных провайдеров">
     <ng-container *ngIf="!loadError(); else errorTpl">
       <ng-container *ngIf="providers().length; else empty">
-        <mat-card
-          class="sync-account__card"
-          *ngFor="let provider of providers(); trackBy: trackByProvider"
-          [attr.aria-labelledby]="'provider-' + provider.id + '-title'"
-        >
+        <mat-card class="sync-account__card" *ngFor="let provider of providers(); trackBy: trackByProvider"
+          [attr.aria-labelledby]="'provider-' + provider.id + '-title'">
           <mat-card-header>
             <div class="sync-account__status">
-              <span
-                class="sync-account__status-dot"
-                [ngClass]="statusClass(provider.status)"
-                aria-hidden="true"
-              ></span>
+              <span class="sync-account__status-dot" [ngClass]="statusClass(provider.status)" aria-hidden="true"></span>
               <span class="sync-account__status-label">{{ statusLabel(provider.status) }}</span>
               <span class="sync-account__status-sync" *ngIf="provider.lastSync">
                 Последняя синхронизация: {{ provider.lastSync | date: 'medium' }}
@@ -31,41 +24,24 @@
             <mat-card-subtitle>
               {{ provider.description }}
               <ng-container *ngIf="provider.user">
-                · {{ provider.user?.email || provider.user?.name }}
+                · {{ provider.user.email || provider.user.name }}
               </ng-container>
             </mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content>
             <div class="sync-account__controls">
-              <button
-                mat-stroked-button
-                color="primary"
-                (click)="connect(provider)"
-                *ngIf="!provider.connected"
-              >
+              <button mat-stroked-button color="primary" (click)="connect(provider)" *ngIf="!provider.connected">
                 Войти
               </button>
-              <button
-                mat-stroked-button
-                color="warn"
-                (click)="disconnect(provider)"
-                *ngIf="provider.connected"
-              >
+              <button mat-stroked-button color="warn" (click)="disconnect(provider)" *ngIf="provider.connected">
                 Выйти
               </button>
-              <button
-                mat-stroked-button
-                (click)="triggerUpload(provider)"
-                [disabled]="!provider.connected"
-              >
+              <button mat-stroked-button (click)="triggerUpload(provider)" [disabled]="!provider.connected">
                 Выгрузить данные
               </button>
-              <button
-                mat-stroked-button
-                (click)="triggerDownload(provider)"
-                [disabled]="!provider.connected || !provider.backups.length"
-              >
+              <button mat-stroked-button (click)="triggerDownload(provider)"
+                [disabled]="!provider.connected || !provider.backups.length">
                 Загрузить последний
               </button>
             </div>
@@ -85,19 +61,11 @@
                       </span>
                     </div>
                     <div class="sync-account__backup-actions">
-                      <button
-                        mat-button
-                        (click)="restoreBackup(provider, backup)"
-                        [disabled]="!provider.connected"
-                      >
+                      <button mat-button (click)="restoreBackup(provider, backup)" [disabled]="!provider.connected">
                         Восстановить
                       </button>
-                      <button
-                        mat-button
-                        color="warn"
-                        (click)="deleteBackup(provider, backup)"
-                        [disabled]="!provider.connected"
-                      >
+                      <button mat-button color="warn" (click)="deleteBackup(provider, backup)"
+                        [disabled]="!provider.connected">
                         Удалить
                       </button>
                     </div>
