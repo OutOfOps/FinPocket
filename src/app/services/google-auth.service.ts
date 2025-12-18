@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GDRIVE_CLIENT_ID_PATTERN, resolveGDriveRedirectUri, GDriveAuthDB, TOKEN_ENTRY_ID, GDriveTokenRecord } from '../sync/gdrive.provider';
+import { GDRIVE_CLIENT_ID_PATTERN, resolveGDriveRedirectUri, GDriveAuthDB, TOKEN_ENTRY_ID, GDriveTokenRecord, AUTH_CONTEXT_PREFIX } from '../sync/gdrive.provider';
 import { SyncSettingsService } from '../sync/services/sync-settings.service';
 
 interface StoredTokens {
@@ -84,14 +84,16 @@ export class GoogleAuthService {
   }
 
 
-  async exchangeCodeForToken(code: string): Promise<void> {
-    const verifier = this.restoreCodeVerifier();
+  async exchangeCodeForToken(code: string, state: string | null = null): Promise<void> {
+    const context = this.restoreAuthContext(state);
+    const verifier = context?.verifier;
+
     if (!verifier) {
       throw new Error('Код подтверждения PKCE отсутствует. Повторите авторизацию.');
     }
 
-    const clientId = this.getClientIdOrThrow();
-    const redirectUri = this.getRedirectUri();
+    const clientId = context?.clientId || this.getClientIdOrThrow();
+    const redirectUri = context?.redirectUri || this.getRedirectUri();
 
     const payload = new URLSearchParams({
       client_id: clientId,
@@ -305,25 +307,57 @@ export class GoogleAuthService {
     return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
-  private restoreCodeVerifier(): string | null {
-    let record: StoredCodeVerifierRecord | null = null;
-    try {
-      const raw = localStorage.getItem(CODE_VERIFIER_KEY);
-      if (raw) record = JSON.parse(raw);
-    } catch (error) {
-      console.warn('[GDrive] Failed to parse PKCE code verifier', error);
+  private restoreAuthContext(state: string | null = null): { verifier: string; clientId?: string; redirectUri?: string; createdAt: number } | null {
+    // 1. Проверяем в формате GDriveProvider (с state)
+    if (state) {
+      try {
+        const key = `${AUTH_CONTEXT_PREFIX}${state}`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.verifier) {
+            return {
+              verifier: parsed.verifier,
+              clientId: parsed.clientId,
+              redirectUri: parsed.redirectUri,
+              createdAt: parsed.createdAt || Date.now()
+            };
+          }
+        }
+      } catch (error) {
+        console.warn('[GDrive] Failed to restore GDriveProvider context', error);
+      }
     }
 
-    if (!record) return null;
+    // 2. Проверяем в прямом формате GoogleAuthService
+    try {
+      const raw = localStorage.getItem(CODE_VERIFIER_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as StoredCodeVerifierRecord;
+        return {
+          verifier: parsed.verifier,
+          createdAt: parsed.createdAt
+        };
+      }
+    } catch (error) {
+      console.warn('[GDrive] Failed to restore GoogleAuthService context', error);
+    }
+
+    return null;
+  }
+
+  private restoreCodeVerifier(state: string | null = null): string | null {
+    const context = this.restoreAuthContext(state);
+    if (!context) return null;
 
     // TTL — 10 минут
-    if (Date.now() - record.createdAt > CODE_VERIFIER_TTL_MS) {
+    if (Date.now() - context.createdAt > CODE_VERIFIER_TTL_MS) {
       localStorage.removeItem(CODE_VERIFIER_KEY);
+      if (state) localStorage.removeItem(`${AUTH_CONTEXT_PREFIX}${state}`);
       return null;
     }
 
-    // ⚠️ Не очищаем сразу — оставляем на случай повторного обмена
-    return record.verifier;
+    return context.verifier;
   }
 
   private clearCodeVerifier(): void {

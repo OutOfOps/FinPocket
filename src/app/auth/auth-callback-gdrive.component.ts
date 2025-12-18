@@ -23,10 +23,10 @@ export class AuthCallbackGdriveComponent implements OnInit {
       return;
     }
 
+    const state = this.route.snapshot.queryParamMap.get('state');
     try {
-      await this.auth.exchangeCodeForToken(code);
+      await this.auth.exchangeCodeForToken(code, state);
 
-      const state = this.route.snapshot.queryParamMap.get('state');
       if (window.opener && window.opener !== window) {
         window.opener.postMessage({
           provider: 'gdrive',
@@ -41,7 +41,8 @@ export class AuthCallbackGdriveComponent implements OnInit {
       this.clearQueryParams();
     } catch (error) {
       console.error(error);
-      this.snack.open('❌ Ошибка авторизации Google Drive', 'Закрыть');
+      const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      this.snack.open(`❌ Ошибка авторизации Google Drive: ${message}`, 'Закрыть');
     }
   }
 
