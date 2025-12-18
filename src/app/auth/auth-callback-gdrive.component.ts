@@ -14,7 +14,7 @@ export class AuthCallbackGdriveComponent implements OnInit {
     private readonly router: Router,
     private readonly auth: GoogleAuthService,
     private readonly snack: MatSnackBar
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     const code = this.route.snapshot.queryParamMap.get('code');
@@ -25,6 +25,18 @@ export class AuthCallbackGdriveComponent implements OnInit {
 
     try {
       await this.auth.exchangeCodeForToken(code);
+
+      const state = this.route.snapshot.queryParamMap.get('state');
+      if (window.opener && window.opener !== window) {
+        window.opener.postMessage({
+          provider: 'gdrive',
+          status: 'success',
+          state
+        }, window.location.origin);
+        window.close();
+        return;
+      }
+
       this.snack.open('✅ Google Drive успешно подключён', 'ОК', { duration: 3000 });
       this.clearQueryParams();
     } catch (error) {

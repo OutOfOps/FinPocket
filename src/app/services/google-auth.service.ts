@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GDRIVE_CLIENT_ID_PATTERN, resolveGDriveRedirectUri } from '../sync/gdrive.provider';
+import { GDRIVE_CLIENT_ID_PATTERN, resolveGDriveRedirectUri, GDriveAuthDB, TOKEN_ENTRY_ID, GDriveTokenRecord } from '../sync/gdrive.provider';
 import { SyncSettingsService } from '../sync/services/sync-settings.service';
 
 interface StoredTokens {
@@ -28,7 +28,7 @@ interface StoredCodeVerifierRecord {
 
 @Injectable({ providedIn: 'root' })
 export class GoogleAuthService {
-  constructor(private readonly settings: SyncSettingsService) {}
+  constructor(private readonly settings: SyncSettingsService) { }
 
   private readonly scope = 'https://www.googleapis.com/auth/drive.file';
   private readonly tokenEndpoint = 'https://oauth2.googleapis.com/token';
@@ -222,7 +222,10 @@ export class GoogleAuthService {
     }
 
     localStorage.removeItem(TOKEN_STORAGE_KEY);
+    void this.gdriveDb.tokens.delete(TOKEN_ENTRY_ID);
   }
+
+  private readonly gdriveDb = new GDriveAuthDB();
 
   private saveTokens(data: TokenResponse): void {
     if (typeof localStorage === 'undefined') {
@@ -238,6 +241,28 @@ export class GoogleAuthService {
     };
 
     localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(record));
+
+    // Синхронизируем с БД провайдера для совместимости с SyncService
+    void this.syncToGDriveDb(data, expiresAt);
+  }
+
+  private async syncToGDriveDb(data: TokenResponse, expiresAt: number): Promise<void> {
+    try {
+      const existing = await this.gdriveDb.tokens.get(TOKEN_ENTRY_ID);
+      const record: GDriveTokenRecord = {
+        id: TOKEN_ENTRY_ID,
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token ?? existing?.refreshToken,
+        expiresAt: expiresAt,
+        scope: data.scope ?? existing?.scope,
+        tokenType: data.token_type ?? existing?.tokenType,
+        appFolderId: existing?.appFolderId,
+        user: existing?.user,
+      };
+      await this.gdriveDb.tokens.put(record);
+    } catch (error) {
+      console.warn('[OAuth] Не удалось синхронизировать токены с GDriveAuthDB', error);
+    }
   }
 
   private loadTokens(): StoredTokens | null {

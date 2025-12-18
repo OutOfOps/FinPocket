@@ -78,7 +78,7 @@ export class GDriveProvider implements CloudProvider {
   private quotaToastVisible = false;
   private cachedRecord: GDriveTokenRecord | null = null;
 
-  constructor(private readonly options: GDriveProviderOptions) {}
+  constructor(private readonly options: GDriveProviderOptions) { }
 
   async isAuthenticated(): Promise<boolean> {
     try {
@@ -171,6 +171,9 @@ export class GDriveProvider implements CloudProvider {
 
   async logout(): Promise<void> {
     await this.db.tokens.delete(TOKEN_ENTRY_ID);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gdrive_tokens');
+    }
     this.cachedRecord = null;
   }
 
@@ -291,7 +294,28 @@ export class GDriveProvider implements CloudProvider {
       return this.cachedRecord;
     }
 
-    const record = await this.db.tokens.get(TOKEN_ENTRY_ID);
+    let record = await this.db.tokens.get(TOKEN_ENTRY_ID);
+
+    // Fallback to localStorage (GoogleAuthService storage)
+    if (!record && typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem('gdrive_tokens');
+      if (raw) {
+        try {
+          const stored = JSON.parse(raw);
+          if (stored.access_token) {
+            record = {
+              id: TOKEN_ENTRY_ID,
+              accessToken: stored.access_token,
+              refreshToken: stored.refresh_token,
+              expiresAt: stored.expires_at
+            };
+            // Sync back to indexedDB for next time
+            await this.saveTokenRecord(record);
+          }
+        } catch { }
+      }
+    }
+
     this.cachedRecord = record ?? null;
     return this.cachedRecord;
   }
@@ -509,11 +533,11 @@ export class GDriveProvider implements CloudProvider {
 
         const data = event.data as
           | {
-              provider: string;
-              state?: string;
-              status?: 'success' | 'error';
-              error?: string;
-            }
+            provider: string;
+            state?: string;
+            status?: 'success' | 'error';
+            error?: string;
+          }
           | undefined;
 
         if (!data || data.provider !== 'gdrive') {
