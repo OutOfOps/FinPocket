@@ -42,7 +42,7 @@ export class SyncService {
   constructor(
     private readonly db: FinPocketDB,
     private readonly syncQueue: SyncQueue
-  ) {}
+  ) { }
 
   /**
    * Exports all data as an encrypted backup.
@@ -134,7 +134,7 @@ export class SyncService {
     if (direction === 'upload' || direction === 'two-way') {
       // Upload local changes
       const backup = await this.exportBackup(masterPassphrase);
-      const name = `backup-${new Date().toISOString()}.json`;
+      const name = `backup-${new Date().toISOString()}.finpocket.json.enc`;
       await provider.uploadBackup(name, backup);
     }
 

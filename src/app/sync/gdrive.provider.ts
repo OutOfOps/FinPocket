@@ -199,7 +199,7 @@ export class GDriveProvider implements CloudProvider {
     const url = new URL(DRIVE_FILES_URL);
     url.searchParams.set(
       'q',
-      `('${folderId}' in parents) and trashed = false and name contains '.finpocket.json.enc'`
+      `('${folderId}' in parents) and trashed = false`
     );
     url.searchParams.set('orderBy', 'modifiedTime desc');
     url.searchParams.set('fields', 'files(id,name,size,modifiedTime)');
