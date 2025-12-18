@@ -2,20 +2,8 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { TransactionsStore } from '../../services/transactions.store';
 import { CurrencyService } from '../../../core/services/currency.service';
-import {
-  OperationAccount,
-  OperationAccountsService,
-} from '../../services/operation-accounts.service';
-
-interface FinanceFormModel {
-  type: 'income' | 'expense' | 'transfer';
-  amount: number;
-  currency: string;
-  category: string;
-  account: string;
-  date: string;
-  note: string;
-}
+import { OperationAccountsService } from '../../services/operation-accounts.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-finance-edit',
@@ -28,127 +16,100 @@ export class FinanceEditComponent {
   private readonly transactionsStore = inject(TransactionsStore);
   private readonly currencyService = inject(CurrencyService);
   private readonly accountsService = inject(OperationAccountsService);
+  private readonly router = inject(Router);
 
-  readonly formModel: FinanceFormModel = {
-    type: 'expense',
-    amount: 0,
-    currency: this.currencyService.getDefaultCurrencyCode(),
-    category: '',
-    account: '',
-    date: new Date().toISOString().substring(0, 10),
-    note: '',
-  };
+  // Form State
+  readonly type = signal<'income' | 'expense' | 'transfer'>('expense');
+  readonly amountString = signal('0');
+  readonly selectedCategory = signal<string>('');
+  readonly selectedAccount = signal<string>('');
+  readonly note = signal('');
+  readonly date = signal(new Date().toISOString().substring(0, 10));
 
-  readonly categories = ['Продукты', 'Транспорт', 'Дом', 'Здоровье', 'Образование'];
-  readonly currencies = this.currencyService.currencies;
+  // Options
+  readonly categories = ['Продукты', 'Транспорт', 'Дом', 'Кафе', 'Здоровье', 'Развлечения', 'Покупки', 'Счета', 'Зарплата', 'Долг'];
   readonly accounts = this.accountsService.accounts;
-
-  readonly accountNames = computed(() => this.accounts().map((account) => account.name));
-  readonly defaultCurrency = computed(() => this.currencyService.defaultCurrencyDetails());
-
-  protected readonly accountsEditorOpen = signal(false);
-  protected newAccountName = '';
-  protected editingAccountId: string | null = null;
-  protected editingAccountName = '';
+  readonly defaultCurrencyCode = this.transactionsStore.defaultCurrencyCode;
 
   constructor() {
-    effect(() => {
-      const defaultCurrency = this.currencyService.getDefaultCurrencyCode();
-
-      if (this.formModel.currency !== defaultCurrency) {
-        this.formModel.currency = defaultCurrency;
-      }
-    });
-
+    // Select first account by default
     effect(() => {
       const accounts = this.accounts();
-
-      if (!accounts.length) {
-        return;
-      }
-
-      if (!accounts.some((account) => account.name === this.formModel.account)) {
-        this.formModel.account = accounts[0].name;
+      if (accounts.length && !this.selectedAccount()) {
+        this.selectedAccount.set(accounts[0].name);
       }
     });
   }
 
-  updateType(type: FinanceFormModel['type']): void {
-    this.formModel.type = type;
-  }
-
-  toggleAccountsEditor(): void {
-    this.accountsEditorOpen.update((open) => !open);
-  }
-
-  addAccount(): void {
-    this.accountsService.addAccount(this.newAccountName);
-    this.newAccountName = '';
-  }
-
-  startAccountEdit(account: OperationAccount): void {
-    this.editingAccountId = account.id;
-    this.editingAccountName = account.name;
-  }
-
-  cancelAccountEdit(): void {
-    this.editingAccountId = null;
-    this.editingAccountName = '';
-  }
-
-  saveAccountEdit(): void {
-    if (!this.editingAccountId || !this.editingAccountName.trim()) {
-      return;
-    }
-
-    this.accountsService.updateAccount(this.editingAccountId, this.editingAccountName);
-    this.cancelAccountEdit();
-  }
-
-  removeAccount(account: OperationAccount): void {
-    this.accountsService.removeAccount(account.id);
-
-    if (this.formModel.account === account.name) {
-      const names = this.accountNames();
-      if (names.length) {
-        this.formModel.account = names[0];
-      } else {
-        this.formModel.account = '';
-      }
+  // Calculator Logic
+  appendDigit(digit: string): void {
+    const current = this.amountString();
+    if (current === '0' && digit !== '.') {
+      this.amountString.set(digit);
+    } else {
+      if (digit === '.' && current.includes('.')) return;
+      if (current.replace('.', '').length >= 9) return; // Limit length
+      this.amountString.set(current + digit);
     }
   }
 
-  canAddAccount(): boolean {
-    return Boolean(this.newAccountName.trim());
+  backspace(): void {
+    const current = this.amountString();
+    if (current.length === 1) {
+      this.amountString.set('0');
+    } else {
+      this.amountString.set(current.slice(0, -1));
+    }
   }
 
-  canSaveAccountEdit(): boolean {
-    return Boolean(this.editingAccountName.trim());
+  clear(): void {
+    this.amountString.set('0');
   }
 
-  trackAccount(_: number, account: OperationAccount): string {
-    return account.id;
+  setType(type: 'income' | 'expense' | 'transfer'): void {
+    this.type.set(type);
+  }
+
+  selectCategory(category: string): void {
+    this.selectedCategory.set(category);
+  }
+
+  getCategoryIcon(category: string): string {
+    const map: Record<string, string> = {
+      'Продукты': 'shopping_cart',
+      'Транспорт': 'directions_car',
+      'Дом': 'home',
+      'Кафе': 'restaurant',
+      'Здоровье': 'medical_services',
+      'Развлечения': 'movie',
+      'Покупки': 'shopping_bag',
+      'Счета': 'receipt',
+      'Зарплата': 'payments',
+      'Перевод': 'swap_horiz',
+      'Долг': 'handshake',
+    };
+    return map[category] || 'category';
+  }
+
+  get canSubmit(): boolean {
+    return parseFloat(this.amountString()) > 0 && !!this.selectedCategory() && !!this.selectedAccount();
   }
 
   async submit(): Promise<void> {
-    if (this.formModel.amount <= 0 || !this.formModel.category) {
-      return;
-    }
+    const amountVal = parseFloat(this.amountString());
+    if (amountVal <= 0 || !this.selectedCategory()) return;
 
-    const transaction = {
-      type: this.formModel.type,
-      amount: Math.abs(this.formModel.amount),
-      currency: this.formModel.currency,
-      category: this.formModel.category,
-      account: this.formModel.account,
-      occurredAt: new Date(this.formModel.date).toISOString(),
-      note: this.formModel.note.trim() || undefined,
-    } as const;
+    await this.transactionsStore.addTransaction({
+      type: this.type(),
+      amount: amountVal,
+      currency: this.currencyService.getDefaultCurrencyCode(), // Default for now
+      category: this.selectedCategory(),
+      account: this.selectedAccount(),
+      occurredAt: new Date(this.date()).toISOString(),
+      note: this.note().trim() || undefined,
+    });
 
-    await this.transactionsStore.addTransaction(transaction);
-
-    this.formModel.amount = 0;
-    this.formModel.note = '';
-    this.formModel.category = '';
+    // Go back to list
+    this.router.navigate(['/finance']);
   }
 }

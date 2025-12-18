@@ -1,38 +1,220 @@
-.finance-list {
-  display: grid;
-  gap: 1.5rem;
+/* CSS Variables for this view */
+:host {
+  display: block;
+  /* Ensure it fills height if needed */
+  min-height: 100%;
 }
 
-.finance-list__header {
+.finance-view {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  padding-bottom: 24px;
 }
 
-.finance-list__summary {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.finance-list__filters {
+/* Sticky Header */
+.finance-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: var(--finpocket-bg-app);
+  /* Or make it glass if desired, but solid is safer for scrolling text underneath */
+  padding: 16px 0 24px 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  /* Add subtle shadow on scroll? (Logic for that usually requires JS or strict structure) */
 }
 
-.finance-list__amount-positive {
-  color: #008f5a;
+.finance-balance-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--finpocket-muted);
+  margin-bottom: 8px;
+}
+
+.finance-balance-amount {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--finpocket-text);
+  margin-bottom: 16px;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-stats-row {
+  display: flex;
+  gap: 32px;
+}
+
+.finance-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  span {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  &.income {
+    color: var(--finpocket-success, #4caf50);
+    /* Or specific palette color */
+  }
+
+  &.expense {
+    color: var(--finpocket-warn, #f44336);
+  }
+}
+
+/* Filters */
+.finance-filters {
+  margin-bottom: 16px;
+  /* Horizontal scroll if needed */
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  /* Hide scrollbar */
+  padding-bottom: 4px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* List Container */
+.finance-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Slight gap? Or 0 for true list */
+}
+
+/* Transaction Item */
+.transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--finpocket-border-color);
+  /* Separator */
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.transaction-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.08);
+  /* Fallback */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  color: var(--finpocket-text);
+
+  /* Category specific colors can be added here */
+  &.Продукты {
+    color: #FF9800;
+    background-color: rgba(255, 152, 0, 0.15);
+  }
+
+  &.Транспорт {
+    color: #2196F3;
+    background-color: rgba(33, 150, 243, 0.15);
+  }
+
+  &.Дом {
+    color: #9C27B0;
+    background-color: rgba(156, 39, 176, 0.15);
+  }
+
+  &.Развлечения {
+    color: #E91E63;
+    background-color: rgba(233, 30, 99, 0.15);
+  }
+
+  &.Здоровье {
+    color: #F44336;
+    background-color: rgba(244, 67, 54, 0.15);
+  }
+
+  /* Add more mapping as needed */
+}
+
+.transaction-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.transaction-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transaction-category {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--finpocket-text);
+}
+
+.transaction-amount {
+  font-size: 16px;
   font-weight: 600;
+  font-feature-settings: "tnum";
+
+  &.positive {
+    color: var(--finpocket-success, #4caf50);
+  }
+
+  &.negative {
+    color: var(--finpocket-text);
+  }
+
+  /* Expenses usually just white/text color or red? Let's keep strict text color for cleanliness, or maybe subtle red. */
 }
 
-.finance-list__amount-negative {
-  color: #c62828;
-  font-weight: 600;
+.transaction-meta {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--finpocket-muted);
+
+  .dot {
+    margin: 0 4px;
+    font-weight: 900;
+  }
 }
 
-.finance-list__empty {
-  padding: 1.5rem;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.54);
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--finpocket-muted);
+  opacity: 0.5;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
 }

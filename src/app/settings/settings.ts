@@ -25,6 +25,7 @@ export class Settings {
   protected readonly syncSettings = inject(SyncSettingsService);
 
   protected readonly theme = this.themeService.theme;
+  protected readonly accent = this.themeService.accent;
   protected readonly currencies = this.currencyService.currencies;
   protected readonly defaultCurrency = this.currencyService.defaultCurrency;
   protected readonly baseCurrency = computed(() => {
@@ -58,6 +59,12 @@ export class Settings {
   protected setTheme(theme: FinpocketTheme | string): void {
     if (theme === 'dark' || theme === 'light') {
       this.themeService.setTheme(theme);
+    }
+  }
+
+  protected setAccent(accent: string): void {
+    if (['purple', 'blue', 'green', 'orange'].includes(accent)) {
+      this.themeService.setAccent(accent as any);
     }
   }
 

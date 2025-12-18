@@ -25,4 +25,21 @@ export class FinanceListComponent {
   readonly income = computed(() => this.transactionsStore.totalIncome());
 
   readonly defaultCurrencyCode = this.transactionsStore.defaultCurrencyCode;
+
+  getCategoryIcon(category: string): string {
+    const map: Record<string, string> = {
+      'Продукты': 'shopping_cart',
+      'Транспорт': 'directions_car',
+      'Дом': 'home',
+      'Кафе': 'restaurant',
+      'Здоровье': 'medical_services',
+      'Развлечения': 'movie',
+      'Покупки': 'shopping_bag',
+      'Счета': 'receipt',
+      'Зарплата': 'payments',
+      'Перевод': 'swap_horiz',
+      'Долг': 'handshake',
+    };
+    return map[category] || 'category';
+  }
 }

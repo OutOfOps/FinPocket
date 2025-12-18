@@ -108,9 +108,6 @@ export class App implements OnInit {
     void this.ensureGoogleDriveToken();
   }
 
-  cycleTheme(): void {
-    this.themeService.cycleAccent();
-  }
 
   async checkUpdate(): Promise<void> {
     const sb = this.snackBar.open('Проверка...', '', { duration: 1000 });

@@ -1,153 +1,83 @@
-<section class="finance-edit">
-  <header>
-    <h2>Новая операция</h2>
-    <p>Заполните ключевые поля и сохраните транзакцию в журнал FinPocket.</p>
-  </header>
+<div class="finance-edit-container">
+  <!-- Top: Amount Display -->
+  <div class="amount-display">
+    <span class="currency-symbol">{{ defaultCurrencyCode() }}</span>
+    <span class="amount-value">{{ amountString() }}</span>
+  </div>
 
-  <form (ngSubmit)="submit()" class="finance-edit__form" #transactionForm="ngForm">
-    <fieldset>
-      <legend>Тип операции</legend>
-      <mat-button-toggle-group
-        name="type"
-        [value]="formModel.type"
-        (change)="updateType($event.value)"
-        aria-label="Тип операции"
-      >
-        <mat-button-toggle value="income">Доход</mat-button-toggle>
-        <mat-button-toggle value="expense">Расход</mat-button-toggle>
-        <mat-button-toggle value="transfer">Перевод</mat-button-toggle>
-      </mat-button-toggle-group>
-    </fieldset>
+  <!-- Type Switcher -->
+  <div class="type-switcher">
+    <button class="type-btn" [class.active]="type() === 'expense'" (click)="setType('expense')"
+      mat-ripple>Расход</button>
+    <button class="type-btn" [class.active]="type() === 'income'" (click)="setType('income')" mat-ripple>Доход</button>
+    <button class="type-btn" [class.active]="type() === 'transfer'" (click)="setType('transfer')"
+      mat-ripple>Перевод</button>
+  </div>
 
-    <label>
-      Сумма
-      <input
-        type="number"
-        name="amount"
-        [(ngModel)]="formModel.amount"
-        required
-        min="0.01"
-        step="0.01"
-      />
-    </label>
-
-    <label>
-      Валюта
-      <select name="currency" [(ngModel)]="formModel.currency">
-        <option *ngFor="let currency of currencies()" [value]="currency.code">
-          {{ currency.code }} — {{ currency.name }}
-        </option>
-      </select>
-    </label>
-
-    <label>
-      Категория
-      <select name="category" [(ngModel)]="formModel.category" required>
-        <option value="" disabled>Выберите категорию</option>
-        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
-      </select>
-    </label>
-
-    <label>
-      Счёт
-      <select name="account" [(ngModel)]="formModel.account">
-        <option *ngFor="let account of accounts(); trackBy: trackAccount" [value]="account.name">
-          {{ account.name }}
-        </option>
-      </select>
-    </label>
-
-    <button
-      mat-stroked-button
-      type="button"
-      color="primary"
-      class="finance-edit__accounts-toggle"
-      (click)="toggleAccountsEditor()"
-    >
-      <mat-icon>{{ accountsEditorOpen() ? 'expand_less' : 'edit' }}</mat-icon>
-      Управлять счетами
-    </button>
-
-    <section *ngIf="accountsEditorOpen()" class="finance-edit__accounts-editor" aria-label="Управление счетами">
-      <header class="finance-edit__accounts-header">
-        <h3>Счета для операций</h3>
-        <p>Редактируйте список счетов, доступных в формах операций.</p>
-      </header>
-
-      <ul class="finance-edit__accounts-list" role="list">
-        <li *ngFor="let account of accounts(); trackBy: trackAccount" class="finance-edit__accounts-item">
-          <ng-container *ngIf="editingAccountId === account.id; else accountView">
-            <input
-              type="text"
-              [(ngModel)]="editingAccountName"
-              [ngModelOptions]="{ standalone: true }"
-              aria-label="Название счёта"
-            />
-            <div class="finance-edit__accounts-actions">
-              <button mat-stroked-button type="button" (click)="cancelAccountEdit()">Отмена</button>
-              <button
-                mat-flat-button
-                color="primary"
-                type="button"
-                (click)="saveAccountEdit()"
-                [disabled]="!canSaveAccountEdit()"
-              >
-                Сохранить
-              </button>
-            </div>
-          </ng-container>
-          <ng-template #accountView>
-            <span class="finance-edit__account-name">{{ account.name }}</span>
-            <div class="finance-edit__accounts-actions">
-              <button mat-icon-button type="button" aria-label="Редактировать счёт" (click)="startAccountEdit(account)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                type="button"
-                aria-label="Удалить счёт"
-                (click)="removeAccount(account)"
-                [disabled]="accounts().length <= 1"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </ng-template>
-        </li>
-      </ul>
-
-      <div class="finance-edit__accounts-add">
-        <input
-          type="text"
-          placeholder="Новый счёт"
-          [(ngModel)]="newAccountName"
-          [ngModelOptions]="{ standalone: true }"
-          aria-label="Название нового счёта"
-        />
-        <button
-          mat-flat-button
-          color="primary"
-          type="button"
-          (click)="addAccount()"
-          [disabled]="!canAddAccount()"
-        >
-          Добавить счёт
-        </button>
+  <!-- Category Grid (Scrollable) -->
+  <div class="category-grid-container">
+    <div class="category-grid">
+      <div class="category-item" *ngFor="let cat of categories" [class.selected]="selectedCategory() === cat"
+        (click)="selectCategory(cat)" mat-ripple>
+        <div class="category-icon" [ngClass]="cat">
+          <mat-icon>{{ getCategoryIcon(cat) }}</mat-icon>
+        </div>
+        <span class="category-name">{{ cat }}</span>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <label>
-      Дата
-      <input type="date" name="date" [(ngModel)]="formModel.date" required />
-    </label>
+  <!-- Inputs Row (Date, Account, Note) -->
+  <div class="inputs-row">
+    <div class="input-chip">
+      <mat-icon>calendar_today</mat-icon>
+      <input type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" class="date-input">
+    </div>
 
-    <label>
-      Комментарий
-      <textarea name="note" rows="4" [(ngModel)]="formModel.note"></textarea>
-    </label>
+    <div class="input-chip">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <select [ngModel]="selectedAccount()" (ngModelChange)="selectedAccount.set($event)" class="account-select">
+        <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
+      </select>
+    </div>
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="transactionForm.invalid">
-      Сохранить операцию
-    </button>
-  </form>
-</section>
+    <!-- Note Button (Simulated for now, could be a dialog later) -->
+    <div class="input-chip" title="Комментарий">
+      <mat-icon>edit_note</mat-icon>
+      <input type="text" placeholder="..." [ngModel]="note()" (ngModelChange)="note.set($event)" class="note-input">
+    </div>
+  </div>
+
+  <!-- Keypad -->
+  <div class="keypad">
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('1')" mat-ripple>1</button>
+      <button class="keypad-btn" (click)="appendDigit('2')" mat-ripple>2</button>
+      <button class="keypad-btn" (click)="appendDigit('3')" mat-ripple>3</button>
+    </div>
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('4')" mat-ripple>4</button>
+      <button class="keypad-btn" (click)="appendDigit('5')" mat-ripple>5</button>
+      <button class="keypad-btn" (click)="appendDigit('6')" mat-ripple>6</button>
+    </div>
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('7')" mat-ripple>7</button>
+      <button class="keypad-btn" (click)="appendDigit('8')" mat-ripple>8</button>
+      <button class="keypad-btn" (click)="appendDigit('9')" mat-ripple>9</button>
+    </div>
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('.')" mat-ripple>.</button>
+      <button class="keypad-btn" (click)="appendDigit('0')" mat-ripple>0</button>
+      <button class="keypad-btn" (click)="backspace()" (longPress)="clear()" mat-ripple>
+        <mat-icon>backspace</mat-icon>
+      </button>
+    </div>
+
+    <!-- Submit Button (Full Width Bottom) -->
+    <div class="keypad-row submit-row">
+      <button class="submit-btn" [disabled]="!canSubmit" (click)="submit()" mat-ripple>
+        <mat-icon>check</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

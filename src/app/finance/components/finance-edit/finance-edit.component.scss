@@ -1,111 +1,266 @@
-.finance-edit {
-  display: grid;
-  gap: 1.5rem;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.finance-edit__form {
-  display: grid;
-  gap: 1rem;
-  max-width: 480px;
+.finance-edit-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
-.finance-edit__form fieldset {
+/* Amount Display */
+.amount-display {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  padding: 24px 0;
+  color: var(--finpocket-text);
+
+  .currency-symbol {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--finpocket-muted);
+  }
+
+  .amount-value {
+    font-size: 64px;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+    letter-spacing: -2px;
+  }
+}
+
+/* Type Switcher */
+.type-switcher {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+
+  .type-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--finpocket-muted);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background-color: #333;
+      /* Dark theme default */
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+/* Global Theme Overrides for Type Switcher Active State */
+:host-context(.finpocket-theme-dark) .type-btn.active {
+  background-color: #333;
+}
+
+/* Category Grid */
+.category-grid-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 24px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 16px;
+  padding: 4px;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+
+  &.selected {
+    opacity: 1;
+
+    .category-icon {
+      background-color: var(--finpocket-primary, #6200ee);
+      color: #fff;
+      transform: scale(1.1);
+    }
+  }
+
+  .category-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .category-name {
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+}
+
+/* Inputs Row */
+.inputs-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.input-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 8px 16px;
+  min-width: 100px;
+  border: 1px solid transparent;
+
+  &:focus-within {
+    border-color: var(--finpocket-primary, #6200ee);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--finpocket-muted);
+  }
+
+  input,
+  select {
+    background: none;
+    border: none;
+    color: var(--finpocket-text);
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+
+    &::placeholder {
+      color: var(--finpocket-muted);
+    }
+  }
+
+  /* Date input specific */
+  .date-input {
+    &::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.5;
+    }
+  }
+
+  .account-select {
+    appearance: none;
+    /* Hide default arrow */
+  }
+}
+
+/* Keypad */
+.keypad {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.keypad-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  height: 56px;
+
+  &.submit-row {
+    margin-bottom: 0;
+  }
+}
+
+.keypad-btn {
+  flex: 1;
+  background: none;
   border: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.finance-edit__form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.finance-edit__form input,
-.finance-edit__form select,
-.finance-edit__form textarea {
-  padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.5rem;
-  font: inherit;
-}
-
-.finance-edit__form textarea {
-  resize: vertical;
-}
-
-.finance-edit__accounts-toggle {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.finance-edit__accounts-editor {
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.75rem;
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.finance-edit__accounts-header h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.finance-edit__accounts-header p {
-  margin: 0.25rem 0 0;
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 0.875rem;
-}
-
-.finance-edit__accounts-list {
-  display: grid;
-  gap: 0.75rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.finance-edit__accounts-item {
+  color: var(--finpocket-text);
+  font-size: 24px;
+  font-weight: 400;
+  border-radius: 28px;
+  /* High radius for pill shape or circle feeling */
+  cursor: pointer;
+  transition: background-color 0.1s;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  mat-icon {
+    font-size: 24px;
+  }
 }
 
-.finance-edit__accounts-item input {
+.submit-btn {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  font: inherit;
-}
-
-.finance-edit__account-name {
-  flex: 1;
-  font-weight: 500;
-}
-
-.finance-edit__accounts-actions {
+  background-color: var(--finpocket-primary, #6200ee);
+  border: none;
+  border-radius: 28px;
+  color: #fff;
   display: flex;
-  gap: 0.5rem;
   align-items: center;
-}
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(98, 0, 238, 0.3);
 
-.finance-edit__accounts-add {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
+  margin: 0 16px;
+  /* Inset slightly */
 
-.finance-edit__accounts-add input {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  font: inherit;
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+  }
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
 }

@@ -1,54 +1,61 @@
-<section class="finance-list">
-  <header class="finance-list__header">
-    <h2>Живой список транзакций</h2>
-    <p>Отслеживайте актуальные поступления и траты с быстрой аналитикой по фильтрам.</p>
+<div class="finance-view">
+  <!-- Sticky Balance Header -->
+  <header class="finance-header">
+    <div class="finance-balance-label">Общий баланс</div>
+    <div class="finance-balance-amount">
+      {{ currencyService.format(balance(), defaultCurrencyCode()) }}
+    </div>
+
+    <div class="finance-stats-row">
+      <div class="finance-stat income">
+        <mat-icon>arrow_downward</mat-icon>
+        <span>{{ currencyService.format(income(), defaultCurrencyCode()) }}</span>
+      </div>
+      <div class="finance-stat expense">
+        <mat-icon>arrow_upward</mat-icon>
+        <span>{{ currencyService.format(expenses(), defaultCurrencyCode()) }}</span>
+      </div>
+    </div>
   </header>
 
-  <mat-card class="finance-list__filters">
-    <mat-card-title>Фильтры</mat-card-title>
+  <!-- Filter Chips (Horizontal Scroll) -->
+  <div class="finance-filters">
     <mat-chip-listbox aria-label="Фильтры">
-      <mat-chip-option *ngFor="let filter of filters" selected>{{ filter }}</mat-chip-option>
+      <mat-chip-option *ngFor="let filter of filters" [selected]="filter === 'Все операции'">
+        {{ filter }}
+      </mat-chip-option>
     </mat-chip-listbox>
-  </mat-card>
+  </div>
 
-  <section class="finance-list__summary" aria-label="Баланс">
-    <mat-card>
-      <mat-card-title>Баланс</mat-card-title>
-      <p>{{ currencyService.format(balance(), defaultCurrencyCode()) }}</p>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>Доходы</mat-card-title>
-      <p>{{ currencyService.format(income(), defaultCurrencyCode()) }}</p>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>Расходы</mat-card-title>
-      <p>{{ currencyService.format(expenses(), defaultCurrencyCode()) }}</p>
-    </mat-card>
-  </section>
+  <!-- Transaction List -->
+  <div class="finance-list-container">
+    <ng-container *ngIf="transactions().length; else emptyState">
+      <div class="transaction-item" *ngFor="let t of transactions()" mat-ripple>
+        <div class="transaction-icon" [ngClass]="t.category">
+          <mat-icon>{{ getCategoryIcon(t.category) }}</mat-icon>
+        </div>
 
-  <mat-card>
-    <mat-card-title>Последние операции</mat-card-title>
-    <mat-list *ngIf="transactions().length; else emptyTransactions">
-      <mat-list-item *ngFor="let transaction of transactions()">
-        <div matListItemTitle>{{ transaction.description }}</div>
-        <div matListItemLine>
-          {{ transaction.category }} • {{ transaction.account }} •
-          {{ transaction.occurredAt | date:'d MMMM' }}
+        <div class="transaction-content">
+          <div class="transaction-main">
+            <span class="transaction-category">{{ t.category }}</span>
+            <span class="transaction-amount" [class.positive]="t.amount > 0" [class.negative]="t.amount < 0">
+              {{ t.amount > 0 ? '+' : '' }}{{ currencyService.format(t.convertedAmount, defaultCurrencyCode()) }}
+            </span>
+          </div>
+          <div class="transaction-meta">
+            <span>{{ t.description }}</span>
+            <span class="dot">·</span>
+            <span>{{ t.occurredAt | date:'d MMM' }}</span>
+          </div>
         </div>
-        <div
-          matListItemMeta
-          [class.finance-list__amount-positive]="transaction.amount > 0"
-          [class.finance-list__amount-negative]="transaction.amount < 0"
-        >
-          {{ currencyService.format(transaction.convertedAmount, defaultCurrencyCode()) }}
-          <span *ngIf="transaction.currency !== defaultCurrencyCode()">
-            ({{ transaction.amount | number:'1.2-2' }} {{ transaction.currency }})
-          </span>
-        </div>
-      </mat-list-item>
-    </mat-list>
-    <ng-template #emptyTransactions>
-      <div class="finance-list__empty">Добавьте первую операцию, чтобы увидеть статистику</div>
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <p>Нет операций</p>
+      </div>
     </ng-template>
-  </mat-card>
-</section>
+  </div>
+</div>

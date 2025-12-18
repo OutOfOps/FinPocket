@@ -39,6 +39,18 @@
           Запоминать ночной режим
         </mat-slide-toggle>
 
+        <h3 class="settings-subtitle">Акцентный цвет</h3>
+        <div class="settings-colors">
+          <button type="button" class="settings-color acc-purple" [class.active]="accent() === 'purple'"
+            (click)="setAccent('purple')" aria-label="Фиолетовый" mat-ripple></button>
+          <button type="button" class="settings-color acc-blue" [class.active]="accent() === 'blue'"
+            (click)="setAccent('blue')" aria-label="Синий" mat-ripple></button>
+          <button type="button" class="settings-color acc-green" [class.active]="accent() === 'green'"
+            (click)="setAccent('green')" aria-label="Зеленый" mat-ripple></button>
+          <button type="button" class="settings-color acc-orange" [class.active]="accent() === 'orange'"
+            (click)="setAccent('orange')" aria-label="Оранжевый" mat-ripple></button>
+        </div>
+
       </mat-card-content>
     </mat-card>
 
