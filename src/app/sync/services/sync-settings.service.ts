@@ -4,6 +4,7 @@ type ProviderId = 'gdrive' | 'onedrive' | 'dropbox';
 
 interface ProviderSettings {
   clientId?: string;
+  clientSecret?: string;
 }
 
 interface PersistedSyncSettings {
@@ -29,38 +30,53 @@ export class SyncSettingsService {
 
   getGoogleDriveClientId(): string | undefined {
     const stored = this.read().providers.gdrive?.clientId;
-    const normalizedStored = stored ? this.normalizeGoogleDriveClientId(stored) : undefined;
+    const normalizedStored = stored ? this.normalizeInput(stored) : undefined;
     if (normalizedStored && normalizedStored.length > 0) {
       return normalizedStored;
     }
 
-    return this.resolveClientIdFromEnvironment();
+    return this.resolveValueFromEnvironment('clientId');
   }
 
   setGoogleDriveClientId(clientId: string | null | undefined): void {
     const next = this.read();
     if (!clientId) {
       delete next.providers.gdrive?.clientId;
-      if (!next.providers.gdrive) {
-        next.providers.gdrive = {};
-      }
     } else {
-      const normalized = this.normalizeGoogleDriveClientId(clientId);
+      const normalized = this.normalizeInput(clientId);
       if (!normalized) {
         delete next.providers.gdrive?.clientId;
-        if (!next.providers.gdrive) {
-          next.providers.gdrive = {};
-        }
-        this.write(next);
-        return;
+      } else {
+        if (!next.providers.gdrive) next.providers.gdrive = {};
+        next.providers.gdrive.clientId = normalized;
       }
+    }
+    this.write(next);
+  }
 
-      if (!next.providers.gdrive) {
-        next.providers.gdrive = {};
-      }
-      next.providers.gdrive.clientId = normalized;
+  getGoogleDriveClientSecret(): string | undefined {
+    const stored = this.read().providers.gdrive?.clientSecret;
+    const normalizedStored = stored ? this.normalizeInput(stored) : undefined;
+    if (normalizedStored && normalizedStored.length > 0) {
+      return normalizedStored;
     }
 
+    return this.resolveValueFromEnvironment('clientSecret');
+  }
+
+  setGoogleDriveClientSecret(clientSecret: string | null | undefined): void {
+    const next = this.read();
+    if (!clientSecret) {
+      delete next.providers.gdrive?.clientSecret;
+    } else {
+      const normalized = this.normalizeInput(clientSecret);
+      if (!normalized) {
+        delete next.providers.gdrive?.clientSecret;
+      } else {
+        if (!next.providers.gdrive) next.providers.gdrive = {};
+        next.providers.gdrive.clientSecret = normalized;
+      }
+    }
     this.write(next);
   }
 
@@ -114,47 +130,40 @@ export class SyncSettingsService {
     };
   }
 
-  private resolveClientIdFromEnvironment(): string | undefined {
+  private resolveValueFromEnvironment(key: 'clientId' | 'clientSecret'): string | undefined {
     const globalThisAny = globalThis as any;
+    const suffix = key === 'clientId' ? 'ClientId' : 'ClientSecret';
+    const envKey = key === 'clientId' ? 'GDRIVE_CLIENT_ID' : 'GDRIVE_CLIENT_SECRET';
+
     const candidates: Array<unknown> = [
-      globalThisAny?.finPocketConfig?.gdriveClientId,
-      globalThisAny?.finPocketEnv?.gdriveClientId,
-      globalThisAny?.FINPOCKET_GDRIVE_CLIENT_ID,
-      globalThisAny?.NG_APP_GDRIVE_CLIENT_ID,
+      globalThisAny?.finPocketConfig?.[key],
+      globalThisAny?.finPocketEnv?.[key],
+      globalThisAny?.[`FINPOCKET_${envKey}`],
+      globalThisAny?.[`NG_APP_${envKey}`],
     ];
 
     for (const candidate of candidates) {
-      const value = this.normalizeCandidate(candidate);
-      if (value) {
-        return value;
+      if (typeof candidate === 'string') {
+        const normalized = this.normalizeInput(candidate);
+        if (normalized.length > 0) return normalized;
       }
     }
 
     if (typeof document !== 'undefined') {
-      const meta = document.querySelector('meta[name="finpocket-gdrive-client-id"]');
+      const metaName = `finpocket-gdrive-${key === 'clientId' ? 'client-id' : 'client-secret'}`;
+      const meta = document.querySelector(`meta[name="${metaName}"]`);
       const content = meta?.getAttribute('content');
-      const normalized = this.normalizeCandidate(content);
-      if (normalized) {
-        return normalized;
+      if (content) {
+        const normalized = this.normalizeInput(content);
+        if (normalized.length > 0) return normalized;
       }
     }
 
     return undefined;
   }
 
-  private normalizeCandidate(candidate: unknown): string | undefined {
-    if (typeof candidate === 'string') {
-      const normalized = this.normalizeGoogleDriveClientId(candidate);
-      if (normalized.length > 0) {
-        return normalized;
-      }
-    }
-
-    return undefined;
-  }
-
-  private normalizeGoogleDriveClientId(clientId: string): string {
-    return clientId
+  private normalizeInput(value: string): string {
+    return value
       .trim()
       .replace(/^['"]+|['"]+$/g, '')
       .replace(/\s+/g, '');

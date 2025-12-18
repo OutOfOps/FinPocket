@@ -35,6 +35,7 @@ interface GoogleAboutResponse {
 
 export interface GDriveProviderOptions {
   clientId: string;
+  clientSecret?: string;
 }
 
 export class GDriveAuthDB extends Dexie {
@@ -372,6 +373,11 @@ export class GDriveProvider implements CloudProvider {
     params.set('client_id', this.requireClientId());
     params.set('grant_type', 'refresh_token');
     params.set('refresh_token', refreshToken);
+
+    const clientSecret = this.normalizeClientId(this.options.clientSecret);
+    if (clientSecret) {
+      params.set('client_secret', clientSecret);
+    }
 
     return this.requestToken(params);
   }
