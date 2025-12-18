@@ -165,6 +165,31 @@
     <mat-card class="feature-card settings-card">
       <div class="feature-card__accent"></div>
       <mat-card-header>
+        <mat-card-title class="feature-card__title">Google Drive API</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="settings-hint">
+          Настройте свои ключи доступа к Google Cloud Console для работы синхронизации.
+        </div>
+        <div class="currency-form__fields">
+          <label class="currency-field">
+            <span>Client ID</span>
+            <input type="text" [ngModel]="syncSettings.getGoogleDriveClientId()"
+              (ngModelChange)="syncSettings.setGoogleDriveClientId($event)"
+              placeholder="1234567-abc.apps.googleusercontent.com" />
+          </label>
+          <label class="currency-field">
+            <span>Client Secret</span>
+            <input type="password" [ngModel]="syncSettings.getGoogleDriveClientSecret()"
+              (ngModelChange)="syncSettings.setGoogleDriveClientSecret($event)" placeholder="GOCSPX-..." />
+          </label>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="feature-card settings-card">
+      <div class="feature-card__accent"></div>
+      <mat-card-header>
         <mat-card-title class="feature-card__title">Очистка данных</mat-card-title>
       </mat-card-header>
       <mat-card-content>

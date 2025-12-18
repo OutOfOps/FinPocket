@@ -8,7 +8,7 @@ export class SyncProviderRegistryService {
   private readonly cache = new Map<CloudProvider['id'], CloudProvider>();
   private cachedGDriveClientId?: string;
 
-  constructor(private readonly settings: SyncSettingsService) {}
+  constructor(private readonly settings: SyncSettingsService) { }
 
   listProviders(): CloudProvider[] {
     const providers: CloudProvider[] = [];
@@ -46,6 +46,7 @@ export class SyncProviderRegistryService {
   }
 
   private ensureGDriveProvider(clientId: string): CloudProvider {
+    const clientSecret = this.settings.getGoogleDriveClientSecret();
     if (this.cachedGDriveClientId === clientId) {
       const cached = this.cache.get('gdrive');
       if (cached) {
@@ -53,7 +54,7 @@ export class SyncProviderRegistryService {
       }
     }
 
-    const provider = new GDriveProvider({ clientId });
+    const provider = new GDriveProvider({ clientId, clientSecret });
     this.cachedGDriveClientId = clientId;
     this.cache.set('gdrive', provider);
     return provider;

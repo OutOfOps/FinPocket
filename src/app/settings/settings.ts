@@ -7,6 +7,7 @@ import { DataResetService } from '../core/services/data-reset.service';
 import { ResetDataDialogComponent } from './components/reset-data-dialog/reset-data-dialog.component';
 import { DataTransferService } from './services/data-transfer.service';
 import { BackupService } from '../core/services/backup.service';
+import { SyncSettingsService } from '../sync/services/sync-settings.service';
 
 @Component({
   selector: 'app-settings',
@@ -21,6 +22,7 @@ export class Settings {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly backupService = inject(BackupService);
+  protected readonly syncSettings = inject(SyncSettingsService);
 
   protected readonly theme = this.themeService.theme;
   protected readonly currencies = this.currencyService.currencies;

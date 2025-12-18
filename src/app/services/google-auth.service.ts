@@ -94,6 +94,7 @@ export class GoogleAuthService {
 
     const clientId = context?.clientId || this.getClientIdOrThrow();
     const redirectUri = context?.redirectUri || this.getRedirectUri();
+    const clientSecret = this.settings.getGoogleDriveClientSecret();
 
     const payload = new URLSearchParams({
       client_id: clientId,
@@ -102,6 +103,10 @@ export class GoogleAuthService {
       code_verifier: verifier,
       redirect_uri: redirectUri,
     });
+
+    if (clientSecret) {
+      payload.set('client_secret', clientSecret);
+    }
 
     console.group('%c[OAuth] Обмен кода на токен', 'color:#03A9F4');
     console.log('client_id:', clientId);
@@ -180,6 +185,11 @@ export class GoogleAuthService {
     payload.set('client_id', clientId);
     payload.set('grant_type', 'refresh_token');
     payload.set('refresh_token', existing.refresh_token);
+
+    const clientSecret = this.settings.getGoogleDriveClientSecret();
+    if (clientSecret) {
+      payload.set('client_secret', clientSecret);
+    }
 
     try {
       const response = await fetch(this.tokenEndpoint, {
