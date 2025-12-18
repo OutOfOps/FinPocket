@@ -23,6 +23,12 @@ export class OperationAccountsService {
     });
   }
 
+  ensureDefaults(): void {
+    if (this.accountsSignal().length === 0) {
+      this.accountsSignal.set(this.getDefaults());
+    }
+  }
+
   addAccount(name: string): void {
     const trimmed = name.trim();
 
@@ -72,8 +78,8 @@ export class OperationAccountsService {
   restoreSnapshot(snapshot: OperationAccountsSnapshot): void {
     const sanitized = Array.isArray(snapshot.accounts)
       ? snapshot.accounts
-          .map((value) => this.sanitizeAccount(value))
-          .filter((account): account is OperationAccount => account !== null)
+        .map((value) => this.sanitizeAccount(value))
+        .filter((account): account is OperationAccount => account !== null)
       : [];
 
     this.accountsSignal.set(sanitized);
@@ -103,10 +109,21 @@ export class OperationAccountsService {
         .map((value) => this.sanitizeAccount(value))
         .filter((account): account is OperationAccount => account !== null);
 
+      if (sanitized.length === 0) {
+        return this.getDefaults();
+      }
+
       return sanitized;
     } catch {
-      return [];
+      return this.getDefaults();
     }
+  }
+
+  private getDefaults(): OperationAccount[] {
+    return [
+      { id: 'acc-cash', name: 'Наличные' },
+      { id: 'acc-card', name: 'Карта' }
+    ];
   }
 
   private sanitizeAccount(value: unknown): OperationAccount | null {

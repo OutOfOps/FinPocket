@@ -32,6 +32,8 @@ export class FinanceEditComponent {
   readonly defaultCurrencyCode = this.transactionsStore.defaultCurrencyCode;
 
   constructor() {
+    this.accountsService.ensureDefaults();
+
     // Select first account by default
     effect(() => {
       const accounts = this.accounts();
