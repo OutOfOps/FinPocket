@@ -1,82 +1,68 @@
-<mat-sidenav-container class="app-shell" [hasBackdrop]="hasNavigationOverlay()">
-  <mat-sidenav #drawer class="app-sidenav" [mode]="isHandset() ? 'over' : 'side'" [opened]="!isHandset()">
-    <div class="app-brand">
-      <div class="app-logo">FP</div>
-      <div class="app-brand__text">
-        <span class="app-name">FinPocket</span>
-        <span class="app-tagline" style="cursor: pointer;" (click)="checkUpdate()"
+<div class="app-layout">
+  <!-- Top Header (Sticky) -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="header-brand">
+        <span class="header-title">FinPocket</span>
+        <span class="header-version" style="cursor: pointer;" (click)="checkUpdate()"
           matTooltip="Нажмите для проверки обновлений">
-          {{ appStatus }} • {{ appVersion }}
+          {{ appVersion }}
         </span>
       </div>
-    </div>
 
-    <mat-nav-list>
-      <a mat-list-item *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active"
-        (click)="onNavItemSelect(drawer)">
-        <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
-        <span matListItemTitle class="nav-text__label">{{ item.label }}</span>
-      </a>
-    </mat-nav-list>
-
-    <div class="app-meta">
-      <span class="tag-chip">Offline-first</span>
-    </div>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <mat-toolbar class="app-toolbar" color="primary">
-      <button mat-icon-button class="menu-button" type="button" aria-label="Открыть меню" (click)="drawer.toggle()"
-        *ngIf="isHandset()">
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <div class="toolbar-title">
-        <span class="toolbar-name">FinPocket</span>
-        <span class="toolbar-subtitle">финансы в одном кармане</span>
+      <div class="header-actions">
+        <!-- Theme/Accent Cycler -->
+        <button mat-icon-button (click)="cycleTheme()" matTooltip="Сменить цвет">
+          <mat-icon class="icon-gradient">palette</mat-icon>
+        </button>
       </div>
+    </div>
+  </header>
 
-      <span class="spacer"></span>
+  <!-- Main Content Area -->
+  <main class="app-main" [@routeAnimations]="o.isActivated ? o.activatedRoute : ''">
+    <!-- Router Outlet -->
+    <router-outlet #o="outlet"></router-outlet>
 
-      <button mat-icon-button type="button"
-        [attr.aria-label]="'Открыть настройки. Текущая тема: ' + (activeTheme() === 'dark' ? 'тёмная' : 'светлая')"
-        routerLink="/settings">
-        <mat-icon>tune</mat-icon>
-      </button>
+    <!-- Safe spacing for bottom nav -->
+    <div class="bottom-nav-spacer"></div>
+  </main>
 
-      <button mat-icon-button type="button" aria-label="Перейти к синхронизации" routerLink="/sync">
-        <mat-icon>cloud_sync</mat-icon>
-      </button>
-    </mat-toolbar>
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active" class="nav-item" mat-ripple>
+      <mat-icon>{{ item.icon }}</mat-icon>
+      <!-- Labels removed for minimalism, or maybe show active only? Let's show none as per 'Neo' plan -->
+    </a>
 
-    <main class="app-content" [@routeAnimations]="o.isActivated ? o.activatedRoute : ''">
-      <router-outlet #o="outlet" style="display: none;"></router-outlet>
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    <!-- Settings Tab (Explicit) -->
+    <a routerLink="/settings" routerLinkActive="active" class="nav-item" mat-ripple>
+      <mat-icon>settings</mat-icon>
+    </a>
+  </nav>
 
-<button mat-fab class="fab-bottom-right" color="accent" (click)="openQuickActions(quickActionsTpl)"
-  aria-label="Быстрые действия">
-  <mat-icon>add</mat-icon>
-</button>
+  <!-- FAB (Floating Action Button) -->
+  <button mat-fab class="fab-main" color="primary" (click)="openQuickActions(quickActionsTpl)">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
 
 <ng-template #quickActionsTpl>
-  <mat-nav-list>
-    <h3 matSubheader>Быстрое добавление</h3>
-    <a mat-list-item routerLink="/finance/create" (click)="bottomSheet.dismiss()">
-      <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
-      <span matListItemTitle>Транзакция</span>
-      <span matListItemLine>Доход, расход или перевод</span>
-    </a>
-    <a mat-list-item routerLink="/debts/create" (click)="bottomSheet.dismiss()"> <!-- Assumed route -->
-      <mat-icon matListItemIcon>handshake</mat-icon>
-      <span matListItemTitle>Долг</span>
-      <span matListItemLine>Займ или кредит</span>
-    </a>
-    <a mat-list-item routerLink="/meters/create" (click)="bottomSheet.dismiss()"> <!-- Assumed route -->
-      <mat-icon matListItemIcon>speed</mat-icon>
-      <span matListItemTitle>Показания</span>
-      <span matListItemLine>Свет, вода, газ</span>
-    </a>
-  </mat-nav-list>
+  <div class="quick-actions-sheet">
+    <div class="sheet-header">Добавить</div>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/finance/create" (click)="bottomSheet.dismiss()">
+        <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
+        <span matListItemTitle>Транзакция</span>
+      </a>
+      <a mat-list-item routerLink="/debts/create" (click)="bottomSheet.dismiss()">
+        <mat-icon matListItemIcon>handshake</mat-icon>
+        <span matListItemTitle>Долг</span>
+      </a>
+      <a mat-list-item routerLink="/meters/create" (click)="bottomSheet.dismiss()">
+        <mat-icon matListItemIcon>speed</mat-icon>
+        <span matListItemTitle>Показания</span>
+      </a>
+    </mat-nav-list>
+  </div>
 </ng-template>

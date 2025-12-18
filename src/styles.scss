@@ -41,19 +41,22 @@ body {
   min-height: 100%;
   font-family: 'Inter', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
   letter-spacing: 0.01em;
-  background: var(--finpocket-gradient);
-  background-attachment: fixed;
-  color: var(--finpocket-text, #ffffff);
+  background-color: var(--finpocket-bg-app);
+  color: var(--finpocket-text);
+  overflow-x: hidden;
 }
 
 body.finpocket-dark-theme,
 body.finpocket-light-theme {
-  transition: background 180ms ease, color 180ms ease;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 app-root {
   display: block;
-  min-height: 100vh;
+  // Use full viewport height for "app feel"
+  height: 100vh;
+  // Ensure safe areas for mobile notches
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 a {
@@ -62,62 +65,34 @@ a {
 }
 
 ::selection {
-  background: var(--finpocket-selection, rgba(156, 39, 176, 0.35));
-  color: var(--finpocket-text, #ffffff);
+  background: var(--finpocket-primary-color);
+  color: #000;
 }
 
 .finpocket-dark-theme {
   color-scheme: dark;
-  --finpocket-primary: #9c27b0;
-  --finpocket-accent: #ff9800;
-  --finpocket-surface: #121212;
-  --finpocket-surface-alt: #1b1b22;
-  --finpocket-border: rgba(255, 255, 255, 0.08);
-  --finpocket-text: #f6f2ff;
-  --finpocket-subtle: rgba(246, 242, 255, 0.72);
-  --finpocket-muted: rgba(246, 242, 255, 0.48);
-  --finpocket-gradient: radial-gradient(circle at 20% 20%, rgba(156, 39, 176, 0.25), transparent 55%),
-    radial-gradient(circle at 80% 10%, rgba(255, 152, 0, 0.18), transparent 60%),
-    linear-gradient(160deg, #1b1822, #0d0c11);
-  --finpocket-card-bg: var(--finpocket-glass-bg);
-  --finpocket-card-shadow: var(--finpocket-glass-shadow);
-  --finpocket-chip-bg: rgba(255, 152, 0, 0.16);
-  --finpocket-chip-text: #ffcb6b;
-  --finpocket-sidenav-bg: var(--finpocket-glass-bg);
-  --finpocket-toolbar-bg: var(--finpocket-glass-bg);
-  --finpocket-toolbar-border: var(--finpocket-glass-border);
-  --finpocket-logo-text: #1b0722;
-  --finpocket-nav-hover: color-mix(in srgb, var(--finpocket-primary) 30%, transparent);
-  --finpocket-nav-active: color-mix(in srgb, var(--finpocket-primary) 45%, rgba(0, 0, 0, 0.05));
-  --finpocket-icon-accent: color-mix(in srgb, var(--finpocket-accent) 78%, white 22%);
-  --finpocket-selection: rgba(156, 39, 176, 0.35);
+  --finpocket-text: #ffffff;
+  --finpocket-subtle: #a0a0a0;
+  --finpocket-muted: #666666;
+
+  --finpocket-card-bg: var(--finpocket-bg-surface);
+  --finpocket-card-border: 1px solid var(--finpocket-border-color);
+
+  --finpocket-nav-bg: rgba(18, 18, 18, 0.95);
+  --finpocket-nav-border: 1px solid var(--finpocket-border-color);
 }
 
 .finpocket-light-theme {
   color-scheme: light;
-  --finpocket-primary: #9c27b0;
-  --finpocket-accent: #ff9800;
-  --finpocket-surface: #f8f5ff;
-  --finpocket-surface-alt: #ffffff;
-  --finpocket-border: rgba(31, 27, 46, 0.08);
-  --finpocket-text: #1f1b2e;
-  --finpocket-subtle: rgba(31, 27, 46, 0.72);
-  --finpocket-muted: rgba(31, 27, 46, 0.56);
-  --finpocket-gradient: radial-gradient(circle at 15% 15%, rgba(156, 39, 176, 0.12), transparent 55%),
-    radial-gradient(circle at 85% 10%, rgba(255, 152, 0, 0.16), transparent 60%),
-    linear-gradient(160deg, #ffffff, #f1ecff);
-  --finpocket-card-bg: var(--finpocket-glass-bg);
-  --finpocket-card-shadow: var(--finpocket-glass-shadow);
-  --finpocket-chip-bg: rgba(255, 152, 0, 0.14);
-  --finpocket-chip-text: #a65d00;
-  --finpocket-sidenav-bg: var(--finpocket-glass-bg);
-  --finpocket-toolbar-bg: var(--finpocket-glass-bg);
-  --finpocket-toolbar-border: var(--finpocket-glass-border);
-  --finpocket-logo-text: #2c0d36;
-  --finpocket-nav-hover: color-mix(in srgb, var(--finpocket-primary) 14%, rgba(255, 255, 255, 0.6));
-  --finpocket-nav-active: color-mix(in srgb, var(--finpocket-primary) 18%, rgba(255, 255, 255, 0.75));
-  --finpocket-icon-accent: color-mix(in srgb, var(--finpocket-accent) 70%, #5a3300 30%);
-  --finpocket-selection: rgba(156, 39, 176, 0.2);
+  --finpocket-text: #000000;
+  --finpocket-subtle: #5f6368;
+  --finpocket-muted: #9aa0a6;
+
+  --finpocket-card-bg: var(--finpocket-bg-surface);
+  --finpocket-card-border: 1px solid var(--finpocket-border-color);
+
+  --finpocket-nav-bg: rgba(255, 255, 255, 0.95);
+  --finpocket-nav-border: 1px solid var(--finpocket-border-color);
 }
 
 .feature-shell {

@@ -3,42 +3,50 @@ import { Injectable, Inject, Optional, effect, signal } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
 
 export type FinpocketTheme = 'dark' | 'light';
+export type FinpocketAccent = 'purple' | 'blue' | 'green' | 'orange';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private readonly storageKey = 'finpocket-theme';
+  private readonly storageKeyTheme = 'finpocket-theme';
+  private readonly storageKeyAccent = 'finpocket-accent';
+
   private readonly themeClasses: Record<FinpocketTheme, string> = {
     dark: 'finpocket-dark-theme',
     light: 'finpocket-light-theme',
   };
 
+  private readonly accentClasses: Record<FinpocketAccent, string> = {
+    purple: 'acc-purple', // Default, no extra class needed usually but good for consistency
+    blue: 'acc-blue',
+    green: 'acc-green',
+    orange: 'acc-orange',
+  };
+
   private readonly themeSignal = signal<FinpocketTheme>(this.resolveInitialTheme());
-  private skipPersistence = false;
+  private readonly accentSignal = signal<FinpocketAccent>(this.resolveInitialAccent());
 
   readonly theme = this.themeSignal.asReadonly();
+  readonly accent = this.accentSignal.asReadonly();
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
     @Optional() private readonly overlayContainer: OverlayContainer | null
   ) {
-    this.applyThemeClass(this.themeSignal());
+    // Apply initial state
+    this.updateBodyClasses();
 
+    // React to changes
     effect(() => {
-      const current = this.themeSignal();
-      this.applyThemeClass(current);
-      if (this.skipPersistence) {
-        this.skipPersistence = false;
-        return;
-      }
-      this.persistTheme(current);
+      const currentTheme = this.themeSignal();
+      const currentAccent = this.accentSignal();
+
+      this.updateBodyClasses();
+      this.persistTheme(currentTheme);
+      this.persistAccent(currentAccent);
     });
   }
 
   setTheme(theme: FinpocketTheme): void {
-    if (this.themeSignal() === theme) {
-      return;
-    }
-
     this.themeSignal.set(theme);
   }
 
@@ -46,75 +54,79 @@ export class ThemeService {
     this.themeSignal.update((current) => (current === 'dark' ? 'light' : 'dark'));
   }
 
-  resetToDefault(): void {
-    this.skipPersistence = true;
-    this.themeSignal.set('dark');
-    const win = this.safeWindow();
+  setAccent(accent: FinpocketAccent): void {
+    this.accentSignal.set(accent);
+  }
 
-    if (!win) {
-      return;
-    }
-
-    try {
-      win.localStorage.removeItem(this.storageKey);
-    } catch {
-      // Ignore storage errors during reset.
-    }
+  cycleAccent(): void {
+    const accents: FinpocketAccent[] = ['purple', 'blue', 'green', 'orange'];
+    const currentIdx = accents.indexOf(this.accentSignal());
+    const nextIdx = (currentIdx + 1) % accents.length;
+    this.accentSignal.set(accents[nextIdx]);
   }
 
   private resolveInitialTheme(): FinpocketTheme {
     const win = this.safeWindow();
-
-    if (win) {
-      try {
-        const stored = win.localStorage.getItem(this.storageKey) as FinpocketTheme | null;
-        if (stored === 'dark' || stored === 'light') {
-          return stored;
-        }
-      } catch {
-        // Ignore storage errors and fallback to media query/default.
-      }
-
-      if (win.matchMedia && win.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
-
-      if (win.matchMedia && win.matchMedia('(prefers-color-scheme: light)').matches) {
-        return 'light';
-      }
-    }
-
-    return 'dark';
+    if (!win) return 'dark';
+    try {
+      const stored = win.localStorage.getItem(this.storageKeyTheme) as FinpocketTheme | null;
+      if (stored === 'dark' || stored === 'light') return stored;
+    } catch { }
+    return (win.matchMedia && win.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
   }
 
-  private applyThemeClass(theme: FinpocketTheme): void {
-    const classList = this.document.body.classList;
-    const overlayClassList = this.overlayContainer?.getContainerElement().classList ?? null;
+  private resolveInitialAccent(): FinpocketAccent {
+    const win = this.safeWindow();
+    if (!win) return 'purple';
+    try {
+      const stored = win.localStorage.getItem(this.storageKeyAccent) as FinpocketAccent | null;
+      if (stored && ['purple', 'blue', 'green', 'orange'].includes(stored)) {
+        return stored;
+      }
+    } catch { }
+    return 'purple';
+  }
 
-    Object.values(this.themeClasses).forEach((themeClass) => {
-      classList.remove(themeClass);
-      overlayClassList?.remove(themeClass);
+  private updateBodyClasses(): void {
+    const theme = this.themeSignal();
+    const accent = this.accentSignal();
+
+    const classList = this.document.body.classList;
+    const overlayClassList = this.overlayContainer?.getContainerElement().classList;
+
+    // Remove all known theme classes
+    Object.values(this.themeClasses).forEach(c => {
+      classList.remove(c);
+      overlayClassList?.remove(c);
     });
 
-    if (Object.hasOwn(this.themeClasses, theme)) {
-      const themeClass = this.themeClasses[theme];
-      classList.add(themeClass);
-      overlayClassList?.add(themeClass);
+    // Remove all known accent classes
+    Object.values(this.accentClasses).forEach(c => {
+      classList.remove(c);
+      overlayClassList?.remove(c);
+    });
+
+    // Add current theme class
+    const themeClass = this.themeClasses[theme];
+    classList.add(themeClass);
+    overlayClassList?.add(themeClass);
+
+    // Add current accent class (if not default/empty)
+    const accentClass = this.accentClasses[accent];
+    if (accentClass) {
+      classList.add(accentClass);
+      overlayClassList?.add(accentClass);
     }
   }
 
   private persistTheme(theme: FinpocketTheme): void {
     const win = this.safeWindow();
+    if (win) try { win.localStorage.setItem(this.storageKeyTheme, theme); } catch { }
+  }
 
-    if (!win) {
-      return;
-    }
-
-    try {
-      win.localStorage.setItem(this.storageKey, theme);
-    } catch {
-      // Ignore storage write errors (private mode, etc.).
-    }
+  private persistAccent(accent: FinpocketAccent): void {
+    const win = this.safeWindow();
+    if (win) try { win.localStorage.setItem(this.storageKeyAccent, accent); } catch { }
   }
 
   private safeWindow(): (Window & typeof globalThis) | null {

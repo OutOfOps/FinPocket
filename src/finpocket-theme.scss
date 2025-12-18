@@ -1,77 +1,102 @@
 @use '@angular/material' as mat;
+@use 'sass:map';
 
 $finpocket-headline-font: 'Poppins', 'Inter', sans-serif;
 $finpocket-text-font: 'Inter', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-$finpocket-typography: mat.m2-define-typography-config(
-  $font-family: $finpocket-text-font,
-  $headline-1: mat.m2-define-typography-level(96px, 112px, 600, $finpocket-headline-font, -1.5px),
-  $headline-2: mat.m2-define-typography-level(60px, 72px, 600, $finpocket-headline-font, -0.5px),
-  $headline-3: mat.m2-define-typography-level(48px, 56px, 600, $finpocket-headline-font, 0px),
-  $headline-4: mat.m2-define-typography-level(34px, 40px, 600, $finpocket-headline-font, 0px),
-  $headline-5: mat.m2-define-typography-level(24px, 32px, 600, $finpocket-headline-font, 0px),
-  $headline-6: mat.m2-define-typography-level(20px, 28px, 600, $finpocket-headline-font, 0px),
-  $subtitle-1: mat.m2-define-typography-level(16px, 24px, 500, $finpocket-headline-font, 0.15px),
-  $subtitle-2: mat.m2-define-typography-level(14px, 20px, 600, $finpocket-headline-font, 0.1px),
-  $body-1: mat.m2-define-typography-level(16px, 24px, 400, $finpocket-text-font, 0.15px),
-  $body-2: mat.m2-define-typography-level(14px, 20px, 400, $finpocket-text-font, 0.1px),
-  $button: mat.m2-define-typography-level(14px, 16px, 600, $finpocket-headline-font, 0.75px),
-  $caption: mat.m2-define-typography-level(12px, 16px, 400, $finpocket-text-font, 0.4px),
-  $overline: mat.m2-define-typography-level(12px, 16px, 600, $finpocket-headline-font, 1px)
-);
+$finpocket-typography: mat.m2-define-typography-config($font-family: $finpocket-text-font,
+    $headline-1: mat.m2-define-typography-level(96px, 112px, 600, $finpocket-headline-font, -1.5px),
+    $headline-2: mat.m2-define-typography-level(60px, 72px, 600, $finpocket-headline-font, -0.5px),
+    $headline-3: mat.m2-define-typography-level(48px, 56px, 600, $finpocket-headline-font, 0px),
+    $headline-4: mat.m2-define-typography-level(34px, 40px, 600, $finpocket-headline-font, 0px),
+    $headline-5: mat.m2-define-typography-level(24px, 32px, 600, $finpocket-headline-font, 0px),
+    $headline-6: mat.m2-define-typography-level(20px, 28px, 600, $finpocket-headline-font, 0px),
+    $subtitle-1: mat.m2-define-typography-level(16px, 24px, 500, $finpocket-headline-font, 0.15px),
+    $subtitle-2: mat.m2-define-typography-level(14px, 20px, 600, $finpocket-headline-font, 0.1px),
+    $body-1: mat.m2-define-typography-level(16px, 24px, 400, $finpocket-text-font, 0.15px),
+    $body-2: mat.m2-define-typography-level(14px, 20px, 400, $finpocket-text-font, 0.1px),
+    $button: mat.m2-define-typography-level(14px, 16px, 600, $finpocket-headline-font, 0.75px),
+    $caption: mat.m2-define-typography-level(12px, 16px, 400, $finpocket-text-font, 0.4px),
+    $overline: mat.m2-define-typography-level(12px, 16px, 600, $finpocket-headline-font, 1px));
 
-$finpocket-primary: mat.m2-define-palette(mat.$m2-purple-palette, 500, 300, 700);
-$finpocket-accent: mat.m2-define-palette(mat.$m2-orange-palette, 500, 300, 700);
-$finpocket-warn: mat.m2-define-palette(mat.$m2-red-palette, 500);
+// Define palettes
+$palette-blue: mat.m2-define-palette(mat.$m2-blue-palette, 500, 300, 700);
+$palette-green: mat.m2-define-palette(mat.$m2-green-palette, A400, A200, A700);
+$palette-purple: mat.m2-define-palette(mat.$m2-deep-purple-palette, A200, A100, A400);
+$palette-orange: mat.m2-define-palette(mat.$m2-orange-palette, 500, 300, 700);
+$palette-warn: mat.m2-define-palette(mat.$m2-red-palette, 500);
 
-$finpocket-dark-theme: mat.m2-define-dark-theme((
-  color: (
-    primary: $finpocket-primary,
-    accent: $finpocket-accent,
-    warn: $finpocket-warn,
-  ),
-  typography: $finpocket-typography,
-));
+// Default theme (Purple/Orange)
+$default-primary: $palette-purple;
+$default-accent: $palette-orange;
 
-$finpocket-light-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $finpocket-primary,
-    accent: $finpocket-accent,
-    warn: $finpocket-warn,
-  ),
-  typography: $finpocket-typography,
-));
+$finpocket-dark-theme: mat.m2-define-dark-theme((color: (primary: $default-primary,
+        accent: $default-accent,
+        warn: $palette-warn,
+      ),
+      typography: $finpocket-typography,
+    ));
+
+$finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-primary,
+        accent: $default-accent,
+        warn: $palette-warn,
+      ),
+      typography: $finpocket-typography,
+    ));
 
 @mixin apply() {
   @include mat.core();
 
+  // Base themes
   .finpocket-dark-theme {
     @include mat.all-component-colors($finpocket-dark-theme);
     @include mat.all-component-typographies($finpocket-dark-theme);
 
-    // Glassmorphism tokens
-    --finpocket-glass-bg: rgba(17, 16, 21, 0.75);
-    --finpocket-glass-border: rgba(255, 255, 255, 0.08);
-    --finpocket-glass-blur: 16px;
-    --finpocket-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    // OLED Colors
+    --finpocket-bg-app: #000000;
+    --finpocket-bg-surface: #121212;
+    --finpocket-bg-surface-2: #1e1e1e;
+    --finpocket-border-color: #333333;
+
+    // Default Accent (Purple)
+    --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
+    --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
   }
 
   .finpocket-light-theme {
     @include mat.all-component-colors($finpocket-light-theme);
     @include mat.all-component-typographies($finpocket-light-theme);
 
-    // Glassmorphism tokens
-    --finpocket-glass-bg: rgba(255, 255, 255, 0.75);
-    --finpocket-glass-border: rgba(255, 255, 255, 0.2);
-    --finpocket-glass-blur: 12px;
-    --finpocket-glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --finpocket-bg-app: #f5f5f7;
+    --finpocket-bg-surface: #ffffff;
+    --finpocket-bg-surface-2: #ffffff;
+    --finpocket-border-color: #e0e0e0;
+
+    --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
+    --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
   }
-}
 
-@function dark-theme() {
-  @return $finpocket-dark-theme;
-}
+  // Color Variants (Overrides)
+  // Usage: <body class="finpocket-dark-theme acc-blue">
 
-@function light-theme() {
-  @return $finpocket-light-theme;
+  .acc-blue {
+    $theme: mat.m2-define-dark-theme((color: (primary: $palette-blue, accent: $palette-blue, warn: $palette-warn)));
+    @include mat.all-component-colors($theme);
+    --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-blue, 500)};
+    --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-blue, A200)};
+  }
+
+  .acc-green {
+    $theme: mat.m2-define-dark-theme((color: (primary: $palette-green, accent: $palette-green, warn: $palette-warn)));
+    @include mat.all-component-colors($theme);
+    --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-green, A400)};
+    --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-green, A200)};
+  }
+
+  .acc-orange {
+    $theme: mat.m2-define-dark-theme((color: (primary: $palette-orange, accent: $palette-orange, warn: $palette-warn)));
+    @include mat.all-component-colors($theme);
+    --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
+    --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, A200)};
+  }
 }
