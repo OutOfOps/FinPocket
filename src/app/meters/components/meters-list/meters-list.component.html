@@ -1,56 +1,71 @@
-<section class="meters-list">
-  <header>
-    <h2>Учёт показаний</h2>
-    <p>Все объекты и ресурсы в одном интерфейсе для своевременной передачи данных.</p>
+<div class="meters-view">
+  <header class="meters-header">
+    <div class="header-content">
+      <h1>Показания счётчиков</h1>
+      <p>История и текущий расход ресурсов</p>
+    </div>
+    <a mat-fab extended color="primary" routerLink="../create" class="add-reading-fab">
+      <mat-icon>add</mat-icon>
+      Внести
+    </a>
   </header>
 
-  <mat-card>
-    <mat-card-title>Последние показания</mat-card-title>
-    <ng-container *ngIf="readings$ | async as readings; else emptyState">
-      <table *ngIf="readings.length; else emptyState">
-        <thead>
-          <tr>
-            <th>Объект</th>
-            <th>Ресурс</th>
-            <th>Показания</th>
-            <th>Расход</th>
-            <th>Стоимость</th>
-            <th>Дата</th>
-            <th class="meters-list__actions">Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let reading of readings; trackBy: trackReading">
-            <td>{{ reading.objectName }}</td>
-            <td>
-              <div class="meters-list__resource">
-                <span>{{ reading.resourceName }}</span>
-                <small>{{ reading.typeLabel }}</small>
-              </div>
-            </td>
-            <td>{{ formatValues(reading) }}</td>
-            <td>
-              <ng-container *ngIf="reading.zones.length; else noConsumption">
-                {{ formatConsumption(reading) }}
-              </ng-container>
-            </td>
-            <td>
-              <ng-container *ngIf="formatCost(reading) as cost; else noCost">{{ cost }}</ng-container>
-            </td>
-            <td>{{ reading.submittedAt | date: 'd MMMM yyyy' }}</td>
-            <td class="meters-list__actions">
-              <a mat-button color="primary" [routerLink]="['../', reading.id, 'edit']">Редактировать</a>
-              <a mat-button [routerLink]="['../', reading.resourceId]">Детали</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </ng-container>
-  </mat-card>
+  <div class="meters-list-container">
+    <ng-container *ngIf="readings$ | async as readings; else loading">
+      <ng-container *ngIf="readings.length; else emptyState">
 
-  <ng-template #noConsumption>—</ng-template>
-  <ng-template #noCost>—</ng-template>
-  <ng-template #emptyState>
-    <p class="meters-list__empty">Пока нет ни одного показания. Добавьте первое, чтобы отслеживать изменения.</p>
-  </ng-template>
-</section>
+        <div class="meter-card" *ngFor="let reading of readings; trackBy: trackReading"
+          [routerLink]="['../', reading.id, 'edit']" mat-ripple>
+          <div class="meter-icon" [ngClass]="getTypeClass(reading.type)">
+            <mat-icon>{{ getIcon(reading.type) }}</mat-icon>
+          </div>
+
+          <div class="meter-content">
+            <div class="meter-header">
+              <span class="meter-resource">{{ reading.resourceName }}</span>
+              <span class="meter-object">{{ reading.objectName }}</span>
+            </div>
+
+            <div class="meter-values">
+              <div class="value-group">
+                <span class="label">Расход</span>
+                <span class="value consumption">
+                  <ng-container *ngIf="reading.zones.length; else noConsumption">
+                    {{ formatConsumption(reading) }}
+                  </ng-container>
+                </span>
+              </div>
+
+              <div class="value-group">
+                <span class="label">Показания</span>
+                <span class="value reading">{{ formatValues(reading) }}</span>
+              </div>
+            </div>
+
+            <div class="meter-footer">
+              <span class="date">{{ reading.submittedAt | date: 'd MMMM' }}</span>
+              <span class="cost" *ngIf="formatCost(reading) as cost">
+                {{ cost }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="loading-state">Загрузка...</div>
+    </ng-template>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <mat-icon>speed</mat-icon>
+        <p>Нет показаний</p>
+        <span class="hint">Внесите первые данные счётчиков</span>
+      </div>
+    </ng-template>
+
+    <ng-template #noConsumption>—</ng-template>
+  </div>
+</div>

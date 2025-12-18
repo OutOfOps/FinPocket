@@ -1,89 +1,76 @@
-<section class="debts-edit">
-  <header>
-    <h2>Добавление кредита или депозита</h2>
-    <p>Сформируйте карточку обязательства, задайте участников и контролируйте выплаты.</p>
-  </header>
+<div class="debts-edit-container">
+  <!-- Top: Amount Display -->
+  <div class="amount-display">
+    <span class="currency-symbol">{{ defaultCurrencyCode() }}</span>
+    <span class="amount-value" [class.negative]="direction() === 'borrowed'" [class.positive]="direction() === 'lent'">
+      {{ amountString() }}
+    </span>
+  </div>
 
-  <form (ngSubmit)="submit()" #debtForm="ngForm" class="debts-edit__form">
-    <fieldset>
-      <legend>Тип операции</legend>
-      <mat-button-toggle-group
-        name="type"
-        [value]="model.type"
-        (change)="model.type = $event.value"
-        aria-label="Тип операции"
-      >
-        <mat-button-toggle *ngFor="let option of typeOptions" [value]="option.value">
-          {{ option.label }}
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-    </fieldset>
+  <!-- Type Switcher -->
+  <div class="type-switcher">
+    <button class="type-btn" [class.active]="direction() === 'borrowed'" (click)="setType('borrowed')" mat-ripple>
+      Я должен
+    </button>
+    <button class="type-btn" [class.active]="direction() === 'lent'" (click)="setType('lent')" mat-ripple>
+      Мне должны
+    </button>
+  </div>
 
-    <label>
-      Название
-      <input type="text" name="name" [(ngModel)]="model.name" required />
-    </label>
+  <!-- Contact Name Input (Large) -->
+  <div class="contact-input-container">
+    <div class="contact-avatar-placeholder">
+      <mat-icon>person</mat-icon>
+    </div>
+    <input type="text" placeholder="Имя контакта" [ngModel]="contactName()" (ngModelChange)="contactName.set($event)"
+      class="contact-name-input">
+  </div>
 
-    <label>
-      Сумма
-      <input type="number" name="amount" [(ngModel)]="model.amount" required min="0" />
-    </label>
+  <!-- Inputs Row (Date, Note) -->
+  <div class="inputs-row">
+    <div class="input-chip">
+      <mat-icon>calendar_today</mat-icon>
+      <input type="date" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" class="date-input">
+    </div>
 
-    <label>
-      Валюта
-      <select name="currency" [(ngModel)]="model.currency">
-        <option *ngFor="let currency of currencies()" [value]="currency.code">
-          {{ currency.code }} — {{ currency.name }}
-        </option>
-      </select>
-    </label>
+    <div class="input-chip flex-grow">
+      <mat-icon>edit_note</mat-icon>
+      <input type="text" placeholder="Заметка..." [ngModel]="note()" (ngModelChange)="note.set($event)"
+        class="note-input">
+    </div>
+  </div>
 
-    <label>
-      Срок погашения
-      <input type="date" name="dueDate" [(ngModel)]="model.dueDate" />
-    </label>
+  <!-- Keypad -->
+  <div class="keypad">
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('1')" mat-ripple>1</button>
+      <button class="keypad-btn" (click)="appendDigit('2')" mat-ripple>2</button>
+      <button class="keypad-btn" (click)="appendDigit('3')" mat-ripple>3</button>
+    </div>
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('4')" mat-ripple>4</button>
+      <button class="keypad-btn" (click)="appendDigit('5')" mat-ripple>5</button>
+      <button class="keypad-btn" (click)="appendDigit('6')" mat-ripple>6</button>
+    </div>
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('7')" mat-ripple>7</button>
+      <button class="keypad-btn" (click)="appendDigit('8')" mat-ripple>8</button>
+      <button class="keypad-btn" (click)="appendDigit('9')" mat-ripple>9</button>
+    </div>
+    <div class="keypad-row">
+      <button class="keypad-btn" (click)="appendDigit('.')" mat-ripple>.</button>
+      <button class="keypad-btn" (click)="appendDigit('0')" mat-ripple>0</button>
+      <button class="keypad-btn" (click)="backspace()" (longPress)="clear()" mat-ripple>
+        <mat-icon>backspace</mat-icon>
+      </button>
+    </div>
 
-    <label>
-      Статус
-      <select name="status" [(ngModel)]="model.status">
-        <option *ngFor="let status of statusOptions; trackBy: trackStatus" [value]="status">
-          {{ statusLabel(status) }}
-        </option>
-      </select>
-    </label>
-
-    <section class="debts-edit__participants">
-      <h3>Участники</h3>
-      <ul>
-        <li *ngFor="let participant of model.participants; index as i; trackBy: trackParticipant">
-          <label class="debts-edit__participant-input">
-            <input
-              type="text"
-              [(ngModel)]="model.participants[i]"
-              name="participant-{{ i }}"
-              required
-              aria-label="Участник {{ i + 1 }}"
-            />
-          </label>
-          <button
-            mat-icon-button
-            type="button"
-            aria-label="Удалить участника"
-            (click)="model.participants.splice(i, 1)"
-            [disabled]="model.participants.length <= 1"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
-        </li>
-      </ul>
-      <button mat-stroked-button type="button" (click)="addParticipant()">Добавить участника</button>
-    </section>
-
-    <label>
-      Заметка
-      <textarea name="note" rows="3" [(ngModel)]="model.note"></textarea>
-    </label>
-
-    <button mat-raised-button color="primary" type="submit" [disabled]="debtForm.invalid">Сохранить</button>
-  </form>
-</section>
+    <!-- Submit Button -->
+    <div class="keypad-row submit-row">
+      <button class="submit-btn" [disabled]="!canSubmit" (click)="submit()" mat-ripple>
+        <mat-icon>check</mat-icon>
+        Сохранить
+      </button>
+    </div>
+  </div>
+</div>

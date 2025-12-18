@@ -1,18 +1,8 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { DebtsStore, DebtKind, DebtStatus } from '../../services/debts.store';
-
-interface DebtForm {
-  name: string;
-  type: DebtKind;
-  amount: number;
-  currency: string;
-  dueDate: string;
-  participants: string[];
-  status: DebtStatus;
-  note: string;
-}
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-debts-edit',
@@ -24,99 +14,75 @@ interface DebtForm {
 export class DebtsEditComponent {
   private readonly currencyService = inject(CurrencyService);
   private readonly debtsStore = inject(DebtsStore);
+  private readonly router = inject(Router);
 
-  readonly model: DebtForm = {
-    name: '',
-    type: 'credit',
-    amount: 0,
-    currency: this.currencyService.getDefaultCurrencyCode(),
-    dueDate: new Date().toISOString().substring(0, 10),
-    participants: ['Вы'],
-    status: 'active',
-    note: '',
-  };
+  // Form State
+  readonly direction = signal<'borrowed' | 'lent'>('borrowed'); // borrowed = I owe, lent = Owed to me
+  readonly amountString = signal('0');
+  readonly contactName = signal('');
+  readonly note = signal('');
+  readonly dueDate = signal(new Date().toISOString().substring(0, 10));
 
-  readonly typeOptions: { value: DebtKind; label: string }[] = [
-    { value: 'credit', label: 'Кредит' },
-    { value: 'deposit', label: 'Депозит' },
-    { value: 'loan', label: 'Займ' },
-    { value: 'lend', label: 'Даю в займы' },
-  ];
-
-  readonly statusOptions: DebtStatus[] = ['active', 'paid', 'overdue'];
-  readonly currencies = this.currencyService.currencies;
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
-  constructor() {
-    effect(() => {
-      const defaultCurrency = this.currencyService.getDefaultCurrencyCode();
-      if (this.model.currency !== defaultCurrency) {
-        this.model.currency = defaultCurrency;
-      }
-    });
+  // Logic to map direction to DebtKind
+  // borrowed -> loan (primary)
+  // lent -> lend (primary)
+
+  setType(dir: 'borrowed' | 'lent'): void {
+    this.direction.set(dir);
   }
 
-  addParticipant(): void {
-    this.model.participants = [...this.model.participants, ''];
-  }
-
-  trackStatus(index: number, status: DebtForm['status']): string {
-    return status;
-  }
-
-  trackParticipant(index: number): number {
-    return index;
-  }
-
-  statusLabel(status: DebtForm['status']): string {
-    switch (status) {
-      case 'active':
-        return 'В процессе';
-      case 'paid':
-        return 'Закрыт';
-      case 'overdue':
-        return 'Просрочен';
+  // Calculator Logic
+  appendDigit(digit: string): void {
+    const current = this.amountString();
+    if (current === '0' && digit !== '.') {
+      this.amountString.set(digit);
+    } else {
+      if (digit === '.' && current.includes('.')) return;
+      if (current.replace('.', '').length >= 9) return;
+      this.amountString.set(current + digit);
     }
+  }
 
-    return 'Неизвестно';
+  backspace(): void {
+    const current = this.amountString();
+    if (current.length === 1) {
+      this.amountString.set('0');
+    } else {
+      this.amountString.set(current.slice(0, -1));
+    }
+  }
+
+  clear(): void {
+    this.amountString.set('0');
+  }
+
+  get canSubmit(): boolean {
+    return parseFloat(this.amountString()) > 0 && !!this.contactName().trim();
   }
 
   async submit(): Promise<void> {
-    if (!this.model.name.trim() || this.model.amount <= 0) {
-      return;
-    }
+    const amountVal = parseFloat(this.amountString());
+    if (amountVal <= 0 || !this.contactName().trim()) return;
 
-    const participants = this.model.participants
-      .map((participant) => participant.trim())
-      .filter(Boolean);
-
-    if (!participants.length) {
-      participants.push('Вы');
-    }
-
-    const dueDate = this.model.dueDate ? new Date(this.model.dueDate).toISOString() : undefined;
-
-    const direction = this.model.type === 'credit' || this.model.type === 'loan' ? 'owed' : 'lent';
+    const dir = this.direction();
+    const kind: DebtKind = dir === 'borrowed' ? 'loan' : 'lend';
+    const dbDirection = dir === 'borrowed' ? 'owed' : 'lent';
 
     await this.debtsStore.addDebt({
-      contact: this.model.name.trim(),
-      kind: this.model.type,
-      direction,
-      amount: Math.abs(this.model.amount),
-      currency: this.currencyService.normalizeCode(this.model.currency),
-      dueDate,
-      status: this.model.status,
-      participants,
-      note: this.model.note.trim() || undefined,
+      contact: this.contactName().trim(),
+      kind: kind,
+      direction: dbDirection,
+      amount: amountVal,
+      currency: this.currencyService.getDefaultCurrencyCode(),
+      dueDate: new Date(this.dueDate()).toISOString(),
+      status: 'active',
+      participants: ['Вы', this.contactName().trim()],
+      note: this.note().trim() || undefined,
       createdAt: new Date().toISOString(),
     });
 
-    this.model.name = '';
-    this.model.type = 'credit';
-    this.model.amount = 0;
-    this.model.participants = ['Вы'];
-    this.model.status = 'active';
-    this.model.dueDate = new Date().toISOString().substring(0, 10);
-    this.model.note = '';
+    this.router.navigate(['/debts']);
   }
 }

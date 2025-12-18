@@ -1,131 +1,117 @@
-<section class="meters-edit">
-  <header>
-    <h2>Передача показаний</h2>
-    <p>
-      Выберите объект и ресурс, сравните данные с предыдущим периодом и сразу увидите расчёт расхода и стоимость.
-    </p>
-  </header>
+<div class="meters-edit-container">
+  <!-- Minimal Header -->
+  <div class="edit-header">
+    <h2>{{ isEditMode ? 'Редактировать' : 'Новые показания' }}</h2>
+  </div>
 
-  <form (ngSubmit)="submit()" #meterForm="ngForm" class="meters-edit__form">
-    <div class="meters-edit__grid">
-      <label>
-        Объект
-        <input
-          type="text"
-          name="objectName"
-          [ngModel]="form.objectName"
-          (ngModelChange)="handleObjectChange($event)"
-          list="meter-objects"
-          required
-        />
-        <datalist id="meter-objects">
-          <option
-            *ngFor="let object of objectOptions$ | async; trackBy: trackObject"
-            [value]="object.name"
-          ></option>
-        </datalist>
-      </label>
+  <form (ngSubmit)="submit()" #meterForm="ngForm" class="meters-edit-form">
 
-      <label>
-        Ресурс
-        <select
-          name="resourceId"
-          [ngModel]="form.resourceId"
-          (ngModelChange)="handleResourceChange($event)"
-          [disabled]="!resources.length"
-          required
-        >
-          <option *ngFor="let resource of resources" [value]="resource.id">
-            {{ resource.name }}
-          </option>
-        </select>
-      </label>
+    <!-- Top Configuration Card -->
+    <div class="config-card">
+      <div class="input-group">
+        <label>Объект</label>
+        <div class="input-wrapper">
+          <mat-icon>home</mat-icon>
+          <input type="text" name="objectName" [ngModel]="form.objectName" (ngModelChange)="handleObjectChange($event)"
+            list="meter-objects" placeholder="Например: Квартира" required class="neo-input" />
+          <datalist id="meter-objects">
+            <option *ngFor="let object of objectOptions$ | async; trackBy: trackObject" [value]="object"></option>
+          </datalist>
+        </div>
+      </div>
 
-      <label>
-        Дата передачи
-        <input
-          type="date"
-          name="submittedAt"
-          [ngModel]="form.submittedAt"
-          (ngModelChange)="handleDateChange($event)"
-          required
-        />
-      </label>
+      <div class="input-row">
+        <div class="input-group flex-grow">
+          <label>Ресурс</label>
+          <div class="input-wrapper">
+            <mat-icon>category</mat-icon>
+            <select name="resourceId" [ngModel]="form.resourceId" (ngModelChange)="handleResourceChange($event)"
+              [disabled]="!resources.length" required class="neo-select">
+              <option *ngFor="let resource of resources" [value]="resource.id">
+                {{ resource.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Дата</label>
+          <div class="input-wrapper">
+            <input type="date" name="submittedAt" [ngModel]="form.submittedAt"
+              (ngModelChange)="handleDateChange($event)" required class="neo-input date-input" />
+          </div>
+        </div>
+      </div>
     </div>
 
-    <section class="meters-edit__zones" *ngIf="selectedResource; else noResourceSelected">
-      <header class="meters-edit__zones-header">
-        <h3>Показания по зонам</h3>
-        <p *ngIf="previousReadingDate">Последние показания: {{ previousReadingDate | date: 'd MMMM yyyy' }}</p>
-      </header>
-
-      <article class="meters-edit__zone" *ngFor="let zone of zones; trackBy: trackZone">
-        <label>
-          {{ zone.zone.name }} ({{ selectedResource.unit }})
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            [name]="'zone-' + zone.zone.id"
-            [ngModel]="form.values[zone.zone.id]"
-            (ngModelChange)="updateZoneValue(zone.zone.id, $event)"
-            required
-          />
-        </label>
-
-        <dl class="meters-edit__zone-meta">
-          <div>
-            <dt>Предыдущее значение</dt>
-            <dd>
-              <ng-container *ngIf="zone.previous !== undefined; else noPrevious">
-                {{ zone.previous | number: '1.2-2' }} {{ selectedResource.unit }}
-              </ng-container>
-            </dd>
+    <!-- Zones / Readings -->
+    <ng-container *ngIf="selectedResource; else noResourceSelected">
+      <div class="zones-container">
+        <div class="zone-card" *ngFor="let zone of zones; trackBy: trackZone">
+          <div class="zone-header">
+            <span class="zone-name">{{ zone.zone.name }}</span>
+            <span class="zone-unit">{{ selectedResource.unit }}</span>
           </div>
-          <div>
-            <dt>Расход за период</dt>
-            <dd>{{ zone.consumption | number: '1.2-2' }} {{ selectedResource.unit }}</dd>
+
+          <!-- Large Input for Reading -->
+          <div class="reading-input-wrapper">
+            <input type="number" min="0" step="0.01" [name]="'zone-' + zone.zone.id"
+              [ngModel]="form.values[zone.zone.id]" (ngModelChange)="updateZoneValue(zone.zone.id, $event)" required
+              class="reading-input" placeholder="0" />
           </div>
-        </dl>
-      </article>
-    </section>
 
-    <section class="meters-edit__summary" *ngIf="selectedResource">
-      <h3>Итоги периода</h3>
-      <ul>
-        <li *ngFor="let zone of zones; trackBy: trackZone">
-          <strong>{{ zone.zone.name }}:</strong>
-          {{ zone.consumption | number: '1.2-2' }} {{ selectedResource.unit }}
-        </li>
-      </ul>
-
-      <p *ngIf="estimatedCost !== undefined && estimatedCurrency">
-        Расчётная стоимость: {{ formatCurrency(estimatedCost, estimatedCurrency) }}
-      </p>
-
-      <div class="meters-edit__tariffs" *ngIf="activeTariffs.length">
-        <h4>Действующие тарифы на выбранную дату</h4>
-        <ul>
-          <li *ngFor="let tariff of activeTariffs">
-            <strong>{{ zoneName(tariff.zoneId) }}:</strong>
-            {{ formatCurrency(tariff.price, tariff.currency) }}
-            <span class="meters-edit__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
-          </li>
-        </ul>
+          <!-- Stats (Previous & Delta) -->
+          <div class="zone-stats">
+            <div class="stat-item">
+              <span class="stat-label">Было</span>
+              <span class="stat-value">
+                <ng-container *ngIf="zone.previous !== undefined; else noPrevious">
+                  {{ zone.previous | number: '1.0-2' }}
+                </ng-container>
+              </span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-label">Расход</span>
+              <span class="stat-value delta" [class.has-consumption]="zone.consumption > 0">
+                +{{ zone.consumption | number: '1.0-2' }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="meterForm.invalid || isSubmitDisabled">
-      {{ isEditMode ? 'Обновить показания' : 'Отправить показания' }}
-    </button>
+      <!-- Summary / Cost -->
+      <div class="summary-card" *ngIf="estimatedCost !== undefined && estimatedCurrency">
+        <div class="cost-row">
+          <span>К оплате (расчёт):</span>
+          <span class="total-cost">{{ formatCurrency(estimatedCost, estimatedCurrency) }}</span>
+        </div>
+
+        <div class="tariffs-info" *ngIf="activeTariffs.length">
+          <div *ngFor="let tariff of activeTariffs" class="tariff-chip">
+            {{ formatCurrency(tariff.price, tariff.currency) }} / {{ selectedResource.unit }}
+          </div>
+        </div>
+      </div>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="meterForm.invalid || isSubmitDisabled"
+        class="submit-btn full-width">
+        <mat-icon>check</mat-icon>
+        {{ isEditMode ? 'Сохранить изменения' : 'Внести показания' }}
+      </button>
+
+    </ng-container>
+
+    <ng-template #noPrevious>—</ng-template>
+
+    <ng-template #noResourceSelected>
+      <div class="empty-resource-state">
+        <mat-icon>info</mat-icon>
+        <p>Выберите объект и ресурс для ввода</p>
+        <a routerLink="../resources" mat-button color="accent">Управление ресурсами</a>
+      </div>
+    </ng-template>
+
   </form>
-
-  <ng-template #noPrevious>—</ng-template>
-
-  <ng-template #noResourceSelected>
-    <p class="meters-edit__empty">
-      Для выбранного объекта пока нет ресурсов. Добавьте их на странице
-      <a routerLink="../resources">управления ресурсами</a>.
-    </p>
-  </ng-template>
-</section>
+</div>

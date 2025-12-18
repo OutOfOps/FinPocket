@@ -1,41 +1,214 @@
-.meters-list {
-  display: grid;
-  gap: 1.5rem;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.meters-list table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.meters-list th,
-.meters-list td {
-  padding: 0.75rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  text-align: left;
-}
-
-.meters-list__actions {
-  text-align: right;
-  white-space: nowrap;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.meters-list__resource {
+.meters-view {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  padding-bottom: 80px;
 }
 
-.meters-list__resource small {
-  color: rgba(255, 255, 255, 0.56);
-  font-size: 0.75rem;
+.meters-header {
+  padding: 16px;
+  background-color: var(--finpocket-bg-app);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .header-content {
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--finpocket-text);
+    }
+
+    p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--finpocket-muted);
+    }
+  }
 }
 
-.meters-list__empty {
-  margin: 0;
-  padding: 1rem 0 0;
-  color: rgba(255, 255, 255, 0.7);
+.add-reading-fab {
+  box-shadow: 0 4px 12px rgba(98, 0, 238, 0.3) !important;
+}
+
+/* List */
+.meters-list-container {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meter-card {
+  background-color: #1a1a1a;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  cursor: pointer;
+  transition: transform 0.1s, background-color 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+    background-color: #222;
+  }
+}
+
+.meter-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--finpocket-muted);
+
+  mat-icon {
+    font-size: 24px;
+  }
+
+  /* Type Colors */
+  &.type-water {
+    color: #42a5f5;
+    background-color: rgba(66, 165, 245, 0.1);
+  }
+
+  &.type-gas {
+    color: #ff7043;
+    background-color: rgba(255, 112, 67, 0.1);
+  }
+
+  &.type-electricity {
+    color: #ffca28;
+    background-color: rgba(255, 202, 40, 0.1);
+  }
+
+  &.type-heat {
+    color: #ef5350;
+    background-color: rgba(239, 83, 80, 0.1);
+  }
+
+  &.type-service {
+    color: #ab47bc;
+    background-color: rgba(171, 71, 188, 0.1);
+  }
+}
+
+.meter-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.meter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  .meter-resource {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--finpocket-text);
+  }
+
+  .meter-object {
+    font-size: 13px;
+    color: var(--finpocket-muted);
+  }
+}
+
+.meter-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.value-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--finpocket-muted);
+    font-weight: 500;
+  }
+
+  .value {
+    font-size: 15px;
+    font-feature-settings: "tnum";
+
+    &.consumption {
+      font-weight: 700;
+      color: var(--finpocket-text);
+    }
+
+    &.reading {
+      font-weight: 400;
+      color: var(--finpocket-muted);
+    }
+  }
+}
+
+.meter-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+
+  .date {
+    color: var(--finpocket-muted);
+  }
+
+  .cost {
+    font-weight: 600;
+    color: var(--finpocket-text);
+  }
+}
+
+/* Empty State */
+.loading-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--finpocket-muted);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--finpocket-muted);
+  text-align: center;
+  opacity: 0.6;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  .hint {
+    font-size: 13px;
+    margin-top: 8px;
+  }
 }

@@ -1,64 +1,188 @@
-.debts-list {
-  display: grid;
-  gap: 1.5rem;
+:host {
+  display: block;
+  min-height: 100%;
 }
 
-.debts-list__summary {
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  margin-bottom: 1rem;
+.debts-view {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 80px;
+  /* Space for FAB and bottom nav */
 }
 
-.debts-list__summary div {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 0.75rem;
-  background: rgba(0, 0, 0, 0.02);
+/* Header Summary */
+.debts-header {
+  padding: 16px;
+  background-color: var(--finpocket-bg-app);
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
-.debts-list__summary strong {
-  font-size: 1.125rem;
+.debts-summary-card {
+  background-color: #1a1a1a;
+  /* Card-like background slightly lighter than black */
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.debts-list__kind {
-  margin-left: 0.5rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(26, 115, 232, 0.12);
-  color: #1a73e8;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+
+  .label {
+    font-size: 13px;
+    color: var(--finpocket-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .amount {
+    font-size: 20px;
+    font-weight: 700;
+    font-feature-settings: "tnum";
+  }
+
+  &.owed {
+    .amount {
+      color: var(--finpocket-success, #4caf50);
+    }
+  }
+
+  &.debt {
+    .amount {
+      color: var(--finpocket-warn, #f44336);
+    }
+  }
 }
 
-.debts-list__status-active {
-  color: #1a73e8;
+.divider {
+  width: 1px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 0 16px;
 }
 
-.debts-list__status-paid {
-  color: #008f5a;
-  font-weight: 600;
+/* List */
+.debts-list-container {
+  padding: 0 16px;
 }
 
-.debts-list__status-overdue {
-  color: #c62828;
-  font-weight: 600;
+.list-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 16px 0 12px 0;
+  color: var(--finpocket-text);
+  padding-left: 8px;
+  /* Align slightly with avatars? Or keep flushed */
 }
 
-.debts-list__empty {
-  margin: 1rem 0;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.debts-list__item {
+.debt-contact-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  /* Rounded items or just list? Let's do list style but with touch feedback */
+  transition: background-color 0.2s;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  margin-bottom: 8px;
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
 }
 
-.debts-list__item:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+.contact-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-right: 16px;
+  flex-shrink: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.contact-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--finpocket-text);
+}
+
+.contact-amount {
+  font-size: 16px;
+  font-weight: 700;
+  font-feature-settings: "tnum";
+
+  &.positive {
+    color: var(--finpocket-success, #4caf50);
+  }
+
+  &.negative {
+    color: var(--finpocket-warn, #f44336);
+  }
+}
+
+.contact-meta-row {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--finpocket-muted);
+
+  .dot {
+    margin: 0 4px;
+  }
+
+  .contact-date.overdue {
+    color: var(--finpocket-warn, #f44336);
+    font-weight: 600;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--finpocket-muted);
+  text-align: center;
+  opacity: 0.6;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  .hint {
+    font-size: 13px;
+    margin-top: 8px;
+    max-width: 200px;
+  }
 }

@@ -1,53 +1,58 @@
-<section class="debts-list">
-  <header>
-    <h2>Список кредитов и депозитов</h2>
-    <p>Контролируйте обязательства, накопления и следите за статусами выплат.</p>
+<div class="debts-view">
+  <!-- Header with Summary -->
+  <header class="debts-header">
+    <div class="debts-summary-card">
+      <div class="summary-item owed">
+        <span class="label">Мне должны</span>
+        <span class="amount">{{ currencyService.format(totals().lent, totals().defaultCurrency, 0) }}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="summary-item debt">
+        <span class="label">Я должен</span>
+        <span class="amount">{{ currencyService.format(totals().owed, totals().defaultCurrency, 0) }}</span>
+      </div>
+    </div>
   </header>
 
-  <mat-card>
-    <mat-card-title>Текущие долги</mat-card-title>
-    <section class="debts-list__summary" aria-label="Сводка">
-      <div>
-        <span>Мы должны</span>
-        <strong>{{ currencyService.format(totals().owed, totals().defaultCurrency, 0) }}</strong>
-      </div>
-      <div>
-        <span>Нам должны</span>
-        <strong>{{ currencyService.format(totals().lent, totals().defaultCurrency, 0) }}</strong>
-      </div>
-      <div>
-        <span>Итог</span>
-        <strong>{{ currencyService.format(totals().net, totals().defaultCurrency, 0) }}</strong>
-      </div>
-    </section>
+  <!-- Contact List -->
+  <div class="debts-list-container">
+    <h3 class="list-title">Контакты</h3>
 
     <ng-container *ngIf="debts().length; else emptyState">
-      <mat-list>
-        <mat-list-item *ngFor="let debt of debts(); trackBy: trackDebt" [routerLink]="['/debts', debt.id]" class="debts-list__item">
-          <div matListItemTitle>
-            {{ debt.name }}
-            <span class="debts-list__kind">{{ debt.kindLabel }}</span>
-          </div>
-          <div matListItemLine>
-            <span>Статус: {{ debt.statusLabel }}</span>
-            <span *ngIf="debt.dueDate">• Срок: {{ debt.dueDate | date:'d MMMM yyyy' }}</span>
-          </div>
-          <div matListItemLine *ngIf="debt.participants.length">
-            Участники: {{ debt.participants.join(', ') }}
-          </div>
-          <div matListItemLine *ngIf="debt.note">{{ debt.note }}</div>
-          <div matListItemMeta [ngClass]="'debts-list__status-' + debt.status">
-            {{ currencyService.format(debt.convertedAmount, defaultCurrencyCode(), 0) }}
-            <span *ngIf="debt.currency !== defaultCurrencyCode()">
-              ({{ debt.amount | number:'1.2-2' }} {{ debt.currency }})
+      <div class="debt-contact-item" *ngFor="let debt of debts(); trackBy: trackDebt" [routerLink]="['/debts', debt.id]"
+        mat-ripple>
+
+        <!-- Avatar -->
+        <div class="contact-avatar" [style.background-color]="getAvatarColor(debt.name)">
+          {{ getInitials(debt.name) }}
+        </div>
+
+        <!-- Info -->
+        <div class="contact-info">
+          <div class="contact-name-row">
+            <span class="contact-name">{{ debt.name }}</span>
+            <span class="contact-amount" [class.positive]="debt.kind === 'deposit' || debt.kind === 'lend'"
+              [class.negative]="debt.kind === 'credit' || debt.kind === 'loan'">
+              {{ currencyService.format(debt.convertedAmount, defaultCurrencyCode(), 0) }}
             </span>
           </div>
-        </mat-list-item>
-      </mat-list>
+          <div class="contact-meta-row">
+            <span class="contact-kind">{{ debt.kindLabel }}</span>
+            <span class="dot" *ngIf="debt.dueDate">·</span>
+            <span class="contact-date" *ngIf="debt.dueDate" [class.overdue]="debt.status === 'overdue'">
+              {{ debt.dueDate | date:'d MMM' }}
+            </span>
+          </div>
+        </div>
+      </div>
     </ng-container>
 
     <ng-template #emptyState>
-      <p class="debts-list__empty">Добавьте первый кредит или депозит, чтобы начать учёт.</p>
+      <div class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <p>Список пуст</p>
+        <span class="hint">Добавьте, кому вы заняли или кто занял вам</span>
+      </div>
     </ng-template>
-  </mat-card>
-</section>
+  </div>
+</div>

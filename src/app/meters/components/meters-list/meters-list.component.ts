@@ -43,4 +43,12 @@ export class MetersListComponent {
 
     return this.currencyService.format(reading.cost, reading.currency);
   }
+
+  getIcon(type: any): string {
+    return this.store.typeIcon(type);
+  }
+
+  getTypeClass(type: string): string {
+    return `type-${type}`;
+  }
 }

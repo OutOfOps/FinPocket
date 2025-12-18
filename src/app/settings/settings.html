@@ -1,216 +1,118 @@
-<section class="feature-shell settings-shell">
-  <header class="feature-shell__header">
-    <span class="tag-chip">Настройки</span>
-    <h1 class="feature-shell__title">Персонализация FinPocket</h1>
+<div class="settings-view">
+  <header class="settings-header">
+    <h1>Настройки</h1>
   </header>
 
-  <div class="feature-shell__grid settings-grid">
-    <mat-card class="feature-card settings-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Тема интерфейса</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-button-toggle-group class="settings-toggle" name="theme-toggle" [value]="theme()"
-          (valueChange)="setTheme($event)" aria-label="Переключение темы">
-          <mat-button-toggle value="dark">
+  <div class="settings-container">
+
+    <!-- Appearance Section -->
+    <section class="settings-section">
+      <h3 class="section-title">Внешний вид</h3>
+
+      <div class="setting-item">
+        <div class="setting-content">
+          <span class="setting-label">Тема оформления</span>
+          <span class="setting-desc">{{ theme() === 'dark' ? 'Тёмная' : 'Светлая' }}</span>
+        </div>
+        <div class="theme-toggle-wrapper">
+          <button class="theme-btn" [class.active]="theme() === 'dark'" (click)="setTheme('dark')">
             <mat-icon>nights_stay</mat-icon>
-            Тёмная
-          </mat-button-toggle>
-          <mat-button-toggle value="light">
+          </button>
+          <button class="theme-btn" [class.active]="theme() === 'light'" (click)="setTheme('light')">
             <mat-icon>wb_sunny</mat-icon>
-            Светлая
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-
-        <div class="settings-previews" role="list">
-          <button type="button" class="settings-preview settings-preview--dark" [class.active]="theme() === 'dark'"
-            (click)="setTheme('dark')" aria-label="Применить тёмную тему" role="listitem">
-            <span>Тёмная тема</span>
-          </button>
-          <button type="button" class="settings-preview settings-preview--light" [class.active]="theme() === 'light'"
-            (click)="setTheme('light')" aria-label="Применить светлую тему" role="listitem">
-            <span>Светлая тема</span>
           </button>
         </div>
+      </div>
 
-        <mat-slide-toggle class="settings-slide" [checked]="theme() === 'dark'" (change)="toggleTheme()"
-          aria-label="Переключить тему">
-          Запоминать ночной режим
-        </mat-slide-toggle>
-
-        <h3 class="settings-subtitle">Акцентный цвет</h3>
-        <div class="settings-colors">
-          <button type="button" class="settings-color acc-purple" [class.active]="accent() === 'purple'"
-            (click)="setAccent('purple')" aria-label="Фиолетовый" mat-ripple></button>
-          <button type="button" class="settings-color acc-blue" [class.active]="accent() === 'blue'"
-            (click)="setAccent('blue')" aria-label="Синий" mat-ripple></button>
-          <button type="button" class="settings-color acc-green" [class.active]="accent() === 'green'"
-            (click)="setAccent('green')" aria-label="Зеленый" mat-ripple></button>
-          <button type="button" class="settings-color acc-orange" [class.active]="accent() === 'orange'"
-            (click)="setAccent('orange')" aria-label="Оранжевый" mat-ripple></button>
+      <div class="setting-item column">
+        <span class="setting-label">Акцентный цвет</span>
+        <div class="colors-row">
+          <button type="button" class="color-circle acc-purple" [class.active]="accent() === 'purple'"
+            (click)="setAccent('purple')" mat-ripple></button>
+          <button type="button" class="color-circle acc-blue" [class.active]="accent() === 'blue'"
+            (click)="setAccent('blue')" mat-ripple></button>
+          <button type="button" class="color-circle acc-green" [class.active]="accent() === 'green'"
+            (click)="setAccent('green')" mat-ripple></button>
+          <button type="button" class="color-circle acc-orange" [class.active]="accent() === 'orange'"
+            (click)="setAccent('orange')" mat-ripple></button>
         </div>
+      </div>
+    </section>
 
-      </mat-card-content>
-    </mat-card>
+    <!-- Currencies Section -->
+    <section class="settings-section">
+      <h3 class="section-title">Валюты</h3>
 
-    <mat-card class="feature-card settings-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Валюты FinPocket</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <form class="currency-form" (ngSubmit)="addCurrency()" novalidate>
-          <div class="currency-form__fields">
-            <label class="currency-field">
-              <span>Название валюты</span>
-              <input type="text" name="currencyName" [(ngModel)]="newCurrency.name" required maxlength="48"
-                placeholder="Например, Злотый" />
-            </label>
-            <label class="currency-field">
-              <span>Код</span>
-              <input type="text" name="currencyCode" [(ngModel)]="newCurrency.code" required maxlength="6"
-                placeholder="UAH" />
-            </label>
-            <label class="currency-field">
-              <span>Курс к {{ baseCurrency()?.code ?? 'базовой валюте' }}</span>
-              <input type="number" name="currencyRate" [(ngModel)]="newCurrency.rate" required min="0.0001" step="0.01"
-                placeholder="1.0000" />
-            </label>
+      <div class="currencies-list">
+        <div class="currency-item" *ngFor="let currency of currencies(); trackBy: trackCurrency">
+          <div class="currency-info">
+            <span class="currency-code">{{ currency.code }}</span>
+            <span class="currency-name">{{ currency.name }}</span>
           </div>
-          <div class="currency-form__actions">
-            <button mat-flat-button color="primary" type="submit" [disabled]="!canAddCurrency()">
-              Добавить валюту
+
+          <div class="currency-actions">
+            <span class="currency-rate" *ngIf="currency.id !== defaultCurrency()">
+              {{ getRelativeRate(currency) | number:'1.2-4' }}
+            </span>
+
+            <button mat-icon-button *ngIf="currency.id !== defaultCurrency()" (click)="setDefaultCurrency(currency.id)"
+              title="Сделать основной">
+              <mat-icon>star_border</mat-icon>
+            </button>
+            <mat-icon *ngIf="currency.id === defaultCurrency()" class="default-icon">star</mat-icon>
+
+            <button mat-icon-button color="warn" *ngIf="currency.id !== defaultCurrency()"
+              (click)="removeCurrency(currency.id)">
+              <mat-icon>delete</mat-icon>
             </button>
           </div>
-        </form>
+        </div>
+      </div>
 
-        <ul class="currency-list" role="list">
-          <li class="currency-list__item" *ngFor="let currency of currencies(); trackBy: trackCurrency"
-            [class.currency-list__item--default]="currency.id === defaultCurrency()">
-            <ng-container *ngIf="editingCurrencyId === currency.id; else currencyView">
-              <form class="currency-edit" (ngSubmit)="saveCurrencyEdit()" novalidate>
-                <div class="currency-edit__fields">
-                  <label class="currency-field">
-                    <span>Название валюты</span>
-                    <input type="text" name="editCurrencyName" [(ngModel)]="editingCurrency.name" required
-                      maxlength="48" />
-                  </label>
-                  <label class="currency-field">
-                    <span>Код</span>
-                    <input type="text" name="editCurrencyCode" [(ngModel)]="editingCurrency.code" required
-                      maxlength="6" />
-                  </label>
-                  <label class="currency-field">
-                    <span>Курс к {{ baseCurrency()?.code ?? 'базовой валюте' }}</span>
-                    <input type="number" name="editCurrencyRate" [(ngModel)]="editingCurrency.rate" required
-                      min="0.0001" step="0.0001" />
-                  </label>
-                </div>
-                <div class="currency-edit__actions">
-                  <button mat-button type="button" (click)="cancelCurrencyEdit()">Отмена</button>
-                  <button mat-flat-button color="primary" type="submit" [disabled]="!canSaveCurrencyEdit()">
-                    Сохранить
-                  </button>
-                </div>
-              </form>
-            </ng-container>
-            <ng-template #currencyView>
-              <div class="currency-list__row">
-                <div class="currency-list__details">
-                  <strong>{{ currency.name }}</strong>
-                  <span class="currency-code">{{ currency.code }}</span>
-                  <span class="currency-rate">
-                    1 {{ currency.code }} =
-                    {{ getRelativeRate(currency) | number: '1.2-4' }} {{ baseCurrency()?.code ?? currency.code }}
-                  </span>
-                </div>
-                <div class="currency-list__actions">
-                  <button mat-stroked-button type="button" color="primary" *ngIf="currency.id !== defaultCurrency()"
-                    (click)="setDefaultCurrency(currency.id)">
-                    Сделать основной
-                  </button>
-                  <span class="currency-default" *ngIf="currency.id === defaultCurrency()">
-                    <mat-icon aria-hidden="true">star</mat-icon>
-                    По умолчанию
-                  </span>
-                  <button mat-icon-button type="button" aria-label="Редактировать валюту"
-                    (click)="startCurrencyEdit(currency)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" aria-label="Удалить валюту"
-                    (click)="removeCurrency(currency.id)" [disabled]="currency.id === defaultCurrency()">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              </div>
-            </ng-template>
-          </li>
-        </ul>
+      <!-- Add Currency Form (Simplified) -->
+      <form class="add-currency-form" (ngSubmit)="addCurrency()">
+        <input type="text" [(ngModel)]="newCurrency.code" name="code" placeholder="Код (USD)" required maxlength="3"
+          class="neo-input small">
+        <input type="number" [(ngModel)]="newCurrency.rate" name="rate" placeholder="Курс" required step="0.01"
+          class="neo-input small">
+        <button mat-icon-button type="submit" [disabled]="!canAddCurrency()" color="primary">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </form>
+    </section>
 
-      </mat-card-content>
-    </mat-card>
+    <!-- Data & Sync -->
+    <section class="settings-section">
+      <h3 class="section-title">Синхронизация</h3>
 
-    <mat-card class="feature-card settings-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Экспорт и импорт данных</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+      <div class="setting-item column">
+        <span class="setting-label">Google Drive API</span>
+        <input type="text" [ngModel]="syncSettings.getGoogleDriveClientId()"
+          (ngModelChange)="syncSettings.setGoogleDriveClientId($event)" placeholder="Client ID" class="neo-input">
+        <input type="password" [ngModel]="syncSettings.getGoogleDriveClientSecret()"
+          (ngModelChange)="syncSettings.setGoogleDriveClientSecret($event)" placeholder="Client Secret"
+          class="neo-input">
+      </div>
 
+      <div class="actions-row">
+        <button mat-stroked-button (click)="downloadBackup()" [disabled]="isExportingData">
+          <mat-icon>download</mat-icon> Скачать бэкап
+        </button>
+        <button mat-stroked-button (click)="triggerImport()" [disabled]="isImportingData">
+          <mat-icon>upload</mat-icon> Восстановить
+        </button>
         <input type="file" id="backup-file-input" (change)="onFileSelected($event)" accept=".json"
           style="display: none" />
+      </div>
+    </section>
 
-        <div class="data-transfer__actions">
-          <button mat-stroked-button type="button" (click)="downloadBackup()" [disabled]="isExportingData">
-            <mat-icon aria-hidden="true">file_download</mat-icon>
-            Скачать резервную копию
-          </button>
-          <button mat-flat-button color="primary" type="button" (click)="triggerImport()" [disabled]="isImportingData">
-            <mat-icon aria-hidden="true">file_upload</mat-icon>
-            Восстановить из файла
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    <!-- Danger Zone -->
+    <section class="settings-section danger">
+      <button mat-button color="warn" (click)="openResetDataDialog()" [disabled]="isResetting" class="reset-btn">
+        <mat-icon>delete_forever</mat-icon>
+        Сбросить все данные
+      </button>
+    </section>
 
-    <mat-card class="feature-card settings-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Google Drive API</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="settings-hint">
-          Настройте свои ключи доступа к Google Cloud Console для работы синхронизации.
-        </div>
-        <div class="currency-form__fields">
-          <label class="currency-field">
-            <span>Client ID</span>
-            <input type="text" [ngModel]="syncSettings.getGoogleDriveClientId()"
-              (ngModelChange)="syncSettings.setGoogleDriveClientId($event)"
-              placeholder="1234567-abc.apps.googleusercontent.com" />
-          </label>
-          <label class="currency-field">
-            <span>Client Secret</span>
-            <input type="password" [ngModel]="syncSettings.getGoogleDriveClientSecret()"
-              (ngModelChange)="syncSettings.setGoogleDriveClientSecret($event)" placeholder="GOCSPX-..." />
-          </label>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="feature-card settings-card">
-      <div class="feature-card__accent"></div>
-      <mat-card-header>
-        <mat-card-title class="feature-card__title">Очистка данных</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="warn" type="button" (click)="openResetDataDialog()" [disabled]="isResetting">
-          Удалить все данные
-        </button>
-      </mat-card-actions>
-    </mat-card>
   </div>
-</section>
+</div>

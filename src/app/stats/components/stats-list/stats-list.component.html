@@ -1,22 +1,36 @@
-<section class="stats-list">
-  <header>
-    <h2>Графики по ключевым направлениям</h2>
-    <p>Следите за динамикой расходов, долговой нагрузки и потребления ресурсов.</p>
+<div class="stats-view">
+  <header class="stats-header">
+    <div class="header-content">
+      <h1>Аналитика</h1>
+      <p>Обзор основных показателей</p>
+    </div>
   </header>
 
-  <div class="stats-list__grid" *ngIf="hasTransactions(); else emptyState">
-    <mat-card *ngFor="let chart of charts()" class="stats-list__card">
-      <mat-card-title>{{ chart.title }}</mat-card-title>
-      <div class="stats-list__value">{{ chart.value }}</div>
-      <p class="stats-list__trend" [ngClass]="'stats-list__trend--' + chart.trend">
-        {{ chart.description }}
-      </p>
-    </mat-card>
+  <div class="stats-grid" *ngIf="hasTransactions(); else emptyState">
+    <div class="chart-card" *ngFor="let chart of charts()">
+      <div class="card-header">
+        <span class="card-title">{{ chart.title }}</span>
+        <mat-icon [class.up]="chart.trend === 'up'" [class.down]="chart.trend === 'down'" class="trend-icon">
+          {{ chart.trend === 'up' ? 'trending_up' : (chart.trend === 'down' ? 'trending_down' : 'remove') }}
+        </mat-icon>
+      </div>
+
+      <div class="card-value">{{ chart.value }}</div>
+
+      <div class="card-footer">
+        <span class="trend-desc" [class.negative]="chart.description.includes('Больше')"
+          [class.positive]="chart.description.includes('Меньше')">
+          {{ chart.description }}
+        </span>
+      </div>
+    </div>
   </div>
 
   <ng-template #emptyState>
-    <div class="stats-list__placeholder stats-list__placeholder--empty">
-      Операции ещё не добавлены — статистика появится после первой записи
+    <div class="empty-state">
+      <mat-icon>bar_chart</mat-icon>
+      <p>Нет данных</p>
+      <span class="hint">Статистика появится после добавления операций</span>
     </div>
   </ng-template>
-</section>
+</div>

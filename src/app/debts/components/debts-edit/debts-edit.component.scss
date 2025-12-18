@@ -1,63 +1,234 @@
-.debts-edit {
-  display: grid;
-  gap: 1.5rem;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.debts-edit__form {
-  display: grid;
-  gap: 1rem;
-  max-width: 520px;
-}
-
-.debts-edit__form label {
+.debts-edit-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
-.debts-edit__form input,
-.debts-edit__form select {
-  padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.5rem;
-  font: inherit;
-}
-
-.debts-edit__participants {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.debts-edit__participants ul {
-  display: grid;
-  gap: 0.5rem;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.debts-edit__participants li {
+/* Amount Display */
+.amount-display {
   display: flex;
-  gap: 0.5rem;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  padding: 24px 0;
+  color: var(--finpocket-text);
+
+  .currency-symbol {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--finpocket-muted);
+  }
+
+  .amount-value {
+    font-size: 64px;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+    letter-spacing: -2px;
+    color: var(--finpocket-text);
+
+    &.negative {
+      color: var(--finpocket-warn, #f44336);
+    }
+
+    &.positive {
+      color: var(--finpocket-success, #4caf50);
+    }
+  }
+}
+
+/* Type Switcher */
+.type-switcher {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+
+  .type-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--finpocket-muted);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background-color: #333;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+/* Contact Name Input */
+.contact-input-container {
+  display: flex;
   align-items: center;
+  margin-bottom: 24px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 8px 16px;
+
+  &:focus-within {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 }
 
-.debts-edit__participant-input {
+.contact-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  color: var(--finpocket-muted);
+}
+
+.contact-name-input {
   flex: 1;
+  background: none;
+  border: none;
+  color: var(--finpocket-text);
+  font-size: 18px;
+  padding: 12px 0;
+  outline: none;
+
+  &::placeholder {
+    color: var(--finpocket-muted);
+    opacity: 0.5;
+  }
 }
 
-.debts-edit__participant-input input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.5rem;
-  font: inherit;
+/* Inputs Row */
+.inputs-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: auto;
+  /* Push keypad to bottom */
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
-.debts-edit textarea {
-  padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 0.5rem;
-  font: inherit;
-  resize: vertical;
+.input-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 8px 16px;
+  min-width: 120px;
+  border: 1px solid transparent;
+
+  &.flex-grow {
+    flex: 1;
+  }
+
+  &:focus-within {
+    border-color: var(--finpocket-primary, #6200ee);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--finpocket-muted);
+  }
+
+  input {
+    background: none;
+    border: none;
+    color: var(--finpocket-text);
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+
+    &::placeholder {
+      color: var(--finpocket-muted);
+    }
+  }
+
+  .date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.5;
+  }
+}
+
+/* Keypad */
+.keypad {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  padding-top: 16px;
+}
+
+.keypad-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  height: 56px;
+
+  &.submit-row {
+    margin-bottom: 0;
+  }
+}
+
+.keypad-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--finpocket-text);
+  font-size: 24px;
+  font-weight: 400;
+  border-radius: 28px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  mat-icon {
+    font-size: 24px;
+  }
+}
+
+.submit-btn {
+  flex: 1;
+  background-color: var(--finpocket-primary, #6200ee);
+  border: none;
+  border-radius: 28px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(98, 0, 238, 0.3);
+  margin: 0 16px;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+  }
 }

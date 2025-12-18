@@ -1,50 +1,130 @@
-.stats-list {
+:host {
+  display: block;
+  height: 100%;
+}
+
+.stats-view {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 80px;
+}
+
+.stats-header {
+  padding: 16px;
+  background-color: var(--finpocket-bg-app);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
+  .header-content {
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--finpocket-text);
+    }
+
+    p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--finpocket-muted);
+    }
+  }
+}
+
+/* Grid */
+.stats-grid {
   display: grid;
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 8px 16px;
 }
 
-.stats-list__grid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.chart-card {
+  background-color: #1a1a1a;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.stats-list__card {
-  display: grid;
-  gap: 0.75rem;
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.stats-list__value {
-  font-size: 1.75rem;
-  font-weight: 600;
+.card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--finpocket-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.stats-list__trend {
-  margin: 0;
+.trend-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--finpocket-muted);
+
+  &.up {
+    color: var(--finpocket-warn, #f44336);
+  }
+
+  /* Typically up in expenses is bad, need context */
+  &.down {
+    color: var(--finpocket-success, #4caf50);
+  }
 }
 
-.stats-list__trend--up {
-  color: #1a73e8;
+/* Specific overrides based on chart type logic in TS could be better, but generic for now */
+
+.card-value {
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--finpocket-text);
+  font-feature-settings: "tnum";
 }
 
-.stats-list__trend--down {
-  color: #008f5a;
+.card-footer {
+  font-size: 13px;
 }
 
-.stats-list__trend--stable {
-  color: #666;
+.trend-desc {
+  color: var(--finpocket-muted);
+
+  /* Simple heuristic coloring */
+  &.negative {
+    color: var(--finpocket-warn, #f44336);
+  }
+
+  &.positive {
+    color: var(--finpocket-success, #4caf50);
+  }
 }
 
-.stats-list__placeholder {
-  border: 1px dashed rgba(0, 0, 0, 0.2);
-  border-radius: 1rem;
-  color: rgba(0, 0, 0, 0.54);
-}
-
-.stats-list__placeholder--empty {
-  min-height: 160px;
-  display: grid;
-  place-items: center;
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--finpocket-muted);
   text-align: center;
-  padding: 1.5rem;
+  opacity: 0.6;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  .hint {
+    font-size: 13px;
+    margin-top: 8px;
+  }
 }
