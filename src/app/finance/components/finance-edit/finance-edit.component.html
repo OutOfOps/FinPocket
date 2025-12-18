@@ -1,9 +1,4 @@
 <div class="finance-edit-container">
-  <!-- Top: Amount Display -->
-  <div class="amount-display">
-    <span class="currency-symbol">{{ defaultCurrencyCode() }}</span>
-    <span class="amount-value">{{ amountString() }}</span>
-  </div>
 
   <!-- Type Switcher -->
   <div class="type-switcher">
@@ -14,70 +9,88 @@
       mat-ripple>Перевод</button>
   </div>
 
-  <!-- Category Grid (Scrollable) -->
-  <div class="category-grid-container">
-    <div class="category-grid">
-      <div class="category-item" *ngFor="let cat of categories" [class.selected]="selectedCategory() === cat"
-        (click)="selectCategory(cat)" mat-ripple>
-        <div class="category-icon" [ngClass]="cat">
-          <mat-icon>{{ getCategoryIcon(cat) }}</mat-icon>
-        </div>
-        <span class="category-name">{{ cat }}</span>
+  <!-- Amount & Currency -->
+  <div class="amount-wrapper">
+    <div class="currency-selector">
+      <select [ngModel]="selectedCurrency()" (ngModelChange)="selectedCurrency.set($event)">
+        <option *ngFor="let curr of currencies()" [value]="curr.code">{{ curr.code }}</option>
+      </select>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+
+    <input type="number" [ngModel]="amount()" (ngModelChange)="amount.set($event)" placeholder="0" class="amount-input"
+      inputmode="decimal" autofocus>
+  </div>
+
+  <!-- Transfer Config (If Transfer) -->
+  <div class="transfer-config" *ngIf="type() === 'transfer'">
+    <div class="account-selector">
+      <label>Откуда</label>
+      <div class="selector-box">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)">
+          <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="transfer-arrow">
+      <mat-icon>arrow_downward</mat-icon>
+    </div>
+
+    <div class="account-selector">
+      <label>Куда</label>
+      <div class="selector-box">
+        <mat-icon>savings</mat-icon>
+        <select [ngModel]="accountTo()" (ngModelChange)="accountTo.set($event)">
+          <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
+        </select>
       </div>
     </div>
   </div>
 
-  <!-- Inputs Row (Date, Account, Note) -->
-  <div class="inputs-row">
-    <div class="input-chip">
-      <mat-icon>calendar_today</mat-icon>
-      <input type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" class="date-input">
+  <!-- Standard Config (If Not Transfer) -->
+  <ng-container *ngIf="type() !== 'transfer'">
+    <!-- Category Grid -->
+    <div class="category-grid-container">
+      <div class="category-grid">
+        <div class="category-item" *ngFor="let cat of categories" [class.selected]="selectedCategory() === cat"
+          (click)="selectCategory(cat)" mat-ripple>
+          <div class="category-icon" [ngClass]="cat">
+            <mat-icon>{{ getCategoryIcon(cat) }}</mat-icon>
+          </div>
+          <span class="category-name">{{ cat }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="input-chip">
-      <mat-icon>account_balance_wallet</mat-icon>
-      <select [ngModel]="selectedAccount()" (ngModelChange)="selectedAccount.set($event)" class="account-select">
-        <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
-      </select>
-    </div>
+    <!-- Inputs Row (Date, Account, Note) -->
+    <div class="inputs-row">
+      <div class="input-chip">
+        <mat-icon>calendar_today</mat-icon>
+        <input type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" class="date-input">
+      </div>
 
-    <!-- Note Button (Simulated for now, could be a dialog later) -->
-    <div class="input-chip" title="Комментарий">
-      <mat-icon>edit_note</mat-icon>
-      <input type="text" placeholder="..." [ngModel]="note()" (ngModelChange)="note.set($event)" class="note-input">
-    </div>
-  </div>
+      <div class="input-chip">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)" class="account-select">
+          <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
+        </select>
+      </div>
 
-  <!-- Keypad -->
-  <div class="keypad">
-    <div class="keypad-row">
-      <button class="keypad-btn" (click)="appendDigit('1')" mat-ripple>1</button>
-      <button class="keypad-btn" (click)="appendDigit('2')" mat-ripple>2</button>
-      <button class="keypad-btn" (click)="appendDigit('3')" mat-ripple>3</button>
+      <div class="input-chip full-width-mobile" title="Комментарий">
+        <mat-icon>edit_note</mat-icon>
+        <input type="text" placeholder="Комментарий..." [ngModel]="note()" (ngModelChange)="note.set($event)"
+          class="note-input">
+      </div>
     </div>
-    <div class="keypad-row">
-      <button class="keypad-btn" (click)="appendDigit('4')" mat-ripple>4</button>
-      <button class="keypad-btn" (click)="appendDigit('5')" mat-ripple>5</button>
-      <button class="keypad-btn" (click)="appendDigit('6')" mat-ripple>6</button>
-    </div>
-    <div class="keypad-row">
-      <button class="keypad-btn" (click)="appendDigit('7')" mat-ripple>7</button>
-      <button class="keypad-btn" (click)="appendDigit('8')" mat-ripple>8</button>
-      <button class="keypad-btn" (click)="appendDigit('9')" mat-ripple>9</button>
-    </div>
-    <div class="keypad-row">
-      <button class="keypad-btn" (click)="appendDigit('.')" mat-ripple>.</button>
-      <button class="keypad-btn" (click)="appendDigit('0')" mat-ripple>0</button>
-      <button class="keypad-btn" (click)="backspace()" (longPress)="clear()" mat-ripple>
-        <mat-icon>backspace</mat-icon>
-      </button>
-    </div>
+  </ng-container>
 
-    <!-- Submit Button (Full Width Bottom) -->
-    <div class="keypad-row submit-row">
-      <button class="submit-btn" [disabled]="!canSubmit" (click)="submit()" mat-ripple>
-        <mat-icon>check</mat-icon>
-      </button>
-    </div>
+  <div class="spacer"></div>
+
+  <div class="actions-footer">
+    <button class="save-fab" [disabled]="!canSubmit" (click)="submit()" mat-fab color="primary">
+      <mat-icon>check</mat-icon>
+    </button>
   </div>
 </div>

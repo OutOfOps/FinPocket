@@ -20,16 +20,21 @@ export class FinanceEditComponent {
 
   // Form State
   readonly type = signal<'income' | 'expense' | 'transfer'>('expense');
-  readonly amountString = signal('0');
+  readonly amount = signal<number | null>(null);
+  readonly selectedCurrency = signal<string>(this.transactionsStore.defaultCurrencyCode());
   readonly selectedCategory = signal<string>('');
-  readonly selectedAccount = signal<string>('');
+
+  // Accounts
+  readonly accountFrom = signal<string>('');
+  readonly accountTo = signal<string>('');
+
   readonly note = signal('');
   readonly date = signal(new Date().toISOString().substring(0, 10));
 
   // Options
   readonly categories = ['Продукты', 'Транспорт', 'Дом', 'Кафе', 'Здоровье', 'Развлечения', 'Покупки', 'Счета', 'Зарплата', 'Долг'];
   readonly accounts = this.accountsService.accounts;
-  readonly defaultCurrencyCode = this.transactionsStore.defaultCurrencyCode;
+  readonly currencies = this.currencyService.currencies;
 
   constructor() {
     this.accountsService.ensureDefaults();
@@ -37,35 +42,14 @@ export class FinanceEditComponent {
     // Select first account by default
     effect(() => {
       const accounts = this.accounts();
-      if (accounts.length && !this.selectedAccount()) {
-        this.selectedAccount.set(accounts[0].name);
+      if (accounts.length) {
+        if (!this.accountFrom()) this.accountFrom.set(accounts[0].name);
+        if (!this.accountTo()) this.accountTo.set(accounts.length > 1 ? accounts[1].name : accounts[0].name);
       }
     });
-  }
 
-  // Calculator Logic
-  appendDigit(digit: string): void {
-    const current = this.amountString();
-    if (current === '0' && digit !== '.') {
-      this.amountString.set(digit);
-    } else {
-      if (digit === '.' && current.includes('.')) return;
-      if (current.replace('.', '').length >= 9) return; // Limit length
-      this.amountString.set(current + digit);
-    }
-  }
-
-  backspace(): void {
-    const current = this.amountString();
-    if (current.length === 1) {
-      this.amountString.set('0');
-    } else {
-      this.amountString.set(current.slice(0, -1));
-    }
-  }
-
-  clear(): void {
-    this.amountString.set('0');
+    // Reset categories when switching type? Optional but good for UX maybe.
+    // Keeping it simple for now.
   }
 
   setType(type: 'income' | 'expense' | 'transfer'): void {
@@ -94,21 +78,43 @@ export class FinanceEditComponent {
   }
 
   get canSubmit(): boolean {
-    return parseFloat(this.amountString()) > 0 && !!this.selectedCategory() && !!this.selectedAccount();
+    const amt = this.amount();
+    if (!amt || amt <= 0) return false;
+
+    if (this.type() === 'transfer') {
+      // For transfer we need both accounts (and usually they shouldn't be the same, but we allow it for simplicity)
+      return !!this.accountFrom() && !!this.accountTo();
+    }
+
+    return !!this.selectedCategory() && !!this.accountFrom();
   }
 
   async submit(): Promise<void> {
-    const amountVal = parseFloat(this.amountString());
-    if (amountVal <= 0 || !this.selectedCategory()) return;
+    const amountVal = this.amount();
+    if (!amountVal || amountVal <= 0) return;
+
+    const isTransfer = this.type() === 'transfer';
+    const mainAccount = this.accountFrom();
+
+    // For transfers, we effectively ignore category or set it to 'Перевод'
+    const category = isTransfer ? 'Перевод' : (this.selectedCategory() || 'Прочее');
+
+    // Construct Note
+    let finalNote = this.note().trim();
+    if (isTransfer) {
+      const to = this.accountTo();
+      const autoNote = `Перевод на ${to}`;
+      finalNote = finalNote ? `${finalNote} (${autoNote})` : autoNote;
+    }
 
     await this.transactionsStore.addTransaction({
       type: this.type(),
       amount: amountVal,
-      currency: this.currencyService.getDefaultCurrencyCode(), // Default for now
-      category: this.selectedCategory(),
-      account: this.selectedAccount(),
+      currency: this.selectedCurrency(),
+      category: category,
+      account: mainAccount,
       occurredAt: new Date(this.date()).toISOString(),
-      note: this.note().trim() || undefined,
+      note: finalNote || undefined,
     });
 
     // Go back to list
