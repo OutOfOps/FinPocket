@@ -1,6 +1,7 @@
 import { Component, DestroyRef, computed, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { combineLatest } from 'rxjs';
 import { SharedModule } from '../../../shared/shared-module';
 import { ResourceEntity, ResourceSummary, TariffHistoryEntry } from '../../models/resource';
 import { MetersStoreService } from '../../services/meters-store.service';
@@ -38,15 +39,18 @@ export class MetersDetailsComponent {
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
   constructor() {
-    this.route.paramMap
+    combineLatest([
+      this.route.paramMap,
+      this.store.resources$,
+      this.store.readings$,
+      this.store.tariffs$
+    ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
+      .subscribe(([params]) => {
         const resourceId = params.get('id');
-        if (!resourceId) {
-          return;
+        if (resourceId) {
+          this.load(resourceId);
         }
-
-        this.load(resourceId);
       });
   }
 

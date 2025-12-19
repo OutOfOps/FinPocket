@@ -55,6 +55,40 @@ export interface MeterReadingEntity {
   recordedAt: string;
 }
 
+export interface MeterObjectEntity {
+  id: string;
+  name: string;
+}
+
+export interface MeterResourceEntity {
+  id: string;
+  objectId: string;
+  type: string;
+  name: string;
+  unit: string;
+  pricingModel: 'per_unit' | 'fixed';
+  zones: { id: string; name: string }[];
+  fixedAmount?: number;
+  fixedCurrency?: string;
+}
+
+export interface MeterReadingRecord {
+  id: string;
+  objectId: string;
+  resourceId: string;
+  submittedAt: string;
+  values: { zoneId: string; value: number }[];
+}
+
+export interface TariffEntity {
+  id: string;
+  resourceId: string;
+  effectiveFrom: string;
+  price: number;
+  currency: string;
+  zoneId?: string;
+}
+
 export interface CategoryEntity {
   id?: number;
   name: string;
@@ -104,6 +138,11 @@ export class FinPocketDB extends Dexie {
   backups!: Table<BackupEntity, number>;
   syncQueue!: Table<SyncQueueEntity, number>;
   encryptionKeys!: Table<EncryptionKeyEntity, number>;
+
+  meterObjects!: Table<MeterObjectEntity, string>;
+  meterResources!: Table<MeterResourceEntity, string>;
+  meterReadings!: Table<MeterReadingRecord, string>;
+  tariffs!: Table<TariffEntity, string>;
 
   constructor() {
     super('FinPocketDB');
@@ -168,5 +207,18 @@ export class FinPocketDB extends Dexie {
     this.backups = this.table('backups');
     this.syncQueue = this.table('syncQueue');
     this.encryptionKeys = this.table('encryptionKeys');
+
+    // Version 5: New Meters Module Structure
+    this.version(5).stores({
+      meterObjects: 'id',
+      meterResources: 'id, objectId',
+      meterReadings: 'id, resourceId, objectId, submittedAt',
+      tariffs: 'id, resourceId',
+    });
+
+    this.meterObjects = this.table('meterObjects');
+    this.meterResources = this.table('meterResources');
+    this.meterReadings = this.table('meterReadings');
+    this.tariffs = this.table('tariffs');
   }
 }

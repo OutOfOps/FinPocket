@@ -1,71 +1,67 @@
 <div class="meters-view">
   <header class="meters-header">
     <div class="header-content">
-      <h1>Показания счётчиков</h1>
-      <p>История и текущий расход ресурсов</p>
+      <h1>Счётчики</h1>
+      <p>Учет коммунальных услуг</p>
     </div>
-    <a mat-fab extended color="primary" routerLink="../create" class="add-reading-fab">
-      <mat-icon>add</mat-icon>
-      Внести
+
+    <!-- Link to manage resources/counters -->
+    <a mat-stroked-button color="basic" routerLink="../resources" class="manage-btn" matTooltip="Настройка счетчиков">
+      <mat-icon>settings</mat-icon>
     </a>
   </header>
 
   <div class="meters-list-container">
-    <ng-container *ngIf="readings$ | async as readings; else loading">
-      <ng-container *ngIf="readings.length; else emptyState">
+    @if (readings$ | async; as readings) {
+    @if (readings.length) {
+    @for (reading of readings; track trackReading($index, reading)) {
+    <div class="meter-card" [routerLink]="['../', reading.id, 'edit']" mat-ripple>
+      <div class="meter-icon" [ngClass]="getTypeClass(reading.type)">
+        <mat-icon>{{ getIcon(reading.type) }}</mat-icon>
+      </div>
 
-        <div class="meter-card" *ngFor="let reading of readings; trackBy: trackReading"
-          [routerLink]="['../', reading.id, 'edit']" mat-ripple>
-          <div class="meter-icon" [ngClass]="getTypeClass(reading.type)">
-            <mat-icon>{{ getIcon(reading.type) }}</mat-icon>
-          </div>
+      <div class="meter-content">
+        <div class="meter-header">
+          <span class="meter-resource">{{ reading.resourceName }}</span>
+          <span class="meter-object">{{ reading.objectName }}</span>
+        </div>
 
-          <div class="meter-content">
-            <div class="meter-header">
-              <span class="meter-resource">{{ reading.resourceName }}</span>
-              <span class="meter-object">{{ reading.objectName }}</span>
-            </div>
-
-            <div class="meter-values">
-              <div class="value-group">
-                <span class="label">Расход</span>
-                <span class="value consumption">
-                  <ng-container *ngIf="reading.zones.length; else noConsumption">
-                    {{ formatConsumption(reading) }}
-                  </ng-container>
-                </span>
-              </div>
-
-              <div class="value-group">
-                <span class="label">Показания</span>
-                <span class="value reading">{{ formatValues(reading) }}</span>
-              </div>
-            </div>
-
-            <div class="meter-footer">
-              <span class="date">{{ reading.submittedAt | date: 'd MMMM' }}</span>
-              <span class="cost" *ngIf="formatCost(reading) as cost">
-                {{ cost }}
-              </span>
-            </div>
+        <div class="meter-values">
+          <div class="value-group">
+            <span class="label">Расход</span>
+            <span class="value consumption">
+              @if (reading.zones.length) {
+              {{ formatConsumption(reading) }}
+              } @else {
+              —
+              }
+            </span>
           </div>
         </div>
 
-      </ng-container>
-    </ng-container>
-
-    <ng-template #loading>
-      <div class="loading-state">Загрузка...</div>
-    </ng-template>
-
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <mat-icon>speed</mat-icon>
-        <p>Нет показаний</p>
-        <span class="hint">Внесите первые данные счётчиков</span>
+        <div class="meter-footer">
+          <span class="date">{{ reading.submittedAt | date: 'd MMMM' }}</span>
+          @if (formatCost(reading); as cost) {
+          <span class="cost">{{ cost }}</span>
+          }
+        </div>
       </div>
-    </ng-template>
-
-    <ng-template #noConsumption>—</ng-template>
+    </div>
+    }
+    } @else {
+    <div class="empty-state">
+      <mat-icon>speed</mat-icon>
+      <p>Нет показаний</p>
+      <span class="hint">Внесите данные или добавьте счётчики в настройках</span>
+    </div>
+    }
+    } @else {
+    <div class="loading-state">Загрузка...</div>
+    }
   </div>
+
+  <!-- Floating Action Button for adding new reading -->
+  <button mat-fab class="fab-main" color="primary" routerLink="../create">
+    <mat-icon>add</mat-icon>
+  </button>
 </div>

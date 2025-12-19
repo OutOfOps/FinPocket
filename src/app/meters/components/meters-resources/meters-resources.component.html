@@ -1,167 +1,176 @@
 <section class="meters-resources">
   <header class="meters-resources__header">
-    <h2>Управление ресурсами и тарифами</h2>
+    <h2>Управление ресурсами</h2>
     <p>
-      Добавляйте и обновляйте ресурсы для каждого объекта, настраивайте схемы учёта и храните историю тарифов для точных
-      расчётов.
+      Настройка счётчиков и тарифов для коммунальных услуг.
     </p>
   </header>
 
   <div class="meters-resources__layout">
+    <!-- List Section -->
     <section class="meters-resources__list">
-      <h3>Ресурсы по объектам</h3>
-      <ng-container *ngIf="resources$ | async as resources">
-        <table *ngIf="resources.length; else emptyResources">
-          <thead>
-            <tr>
-              <th>Объект</th>
-              <th>Ресурс</th>
-              <th>Тип</th>
-              <th>Зоны</th>
-              <th>Учёт</th>
-              <th class="meters-resources__actions">Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let resource of resources; trackBy: trackResource">
-              <td>{{ resource.objectName }}</td>
-              <td>{{ resource.entity.name }}</td>
-              <td class="meters-resources__type">
-                <mat-icon>{{ resource.typeIcon }}</mat-icon>
-                <span>
-                  <strong>{{ resource.typeLabel }}</strong>
-                  <small>{{ resource.typeDescription }}</small>
-                </span>
-              </td>
-              <td>{{ resource.zoneSummary }}</td>
-              <td class="meters-resources__pricing">
-                <ng-container *ngIf="resource.isService; else meteredPricing">
-                  <div class="meters-resources__price-value">
-                    <ng-container *ngIf="resource.fixedAmount !== undefined; else noAmount">
-                      {{ formatCurrency(resource.fixedAmount, resource.fixedCurrency) }}
-                    </ng-container>
-                    <ng-template #noAmount>—</ng-template>
-                  </div>
-                  <span class="meters-resources__price-hint">{{ resource.pricingLabel }}</span>
-                </ng-container>
-                <ng-template #meteredPricing>{{ resource.pricingLabel }}</ng-template>
-              </td>
-              <td class="meters-resources__actions">
-                <button mat-button color="primary" type="button" (click)="editResource(resource.entity, resource.objectName)">
-                  Изменить
-                </button>
-                <button mat-button type="button" (click)="selectForTariffs(resource.entity)">Тарифы</button>
-                <button mat-button color="warn" type="button" (click)="deleteResource(resource.entity)">
-                  Удалить
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </ng-container>
+      <h3>Ваши ресурсы</h3>
+
+      @if (resources$ | async; as resources) {
+      @if (resources.length) {
+      @for (resource of resources; track trackResource($index, resource)) {
+      <div class="resource-card">
+        <div class="resource-header">
+          <div class="resource-info">
+            <div class="icon-box">
+              <mat-icon>{{ resource.typeIcon }}</mat-icon>
+            </div>
+            <div class="names">
+              <strong>{{ resource.entity.name }}</strong>
+              <small>{{ resource.objectName }}</small>
+            </div>
+          </div>
+
+          <button mat-icon-button [matMenuTriggerFor]="resourceMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #resourceMenu="matMenu">
+            <button mat-menu-item (click)="editResource(resource.entity, resource.objectName)">
+              <mat-icon>edit</mat-icon>
+              <span>Изменить</span>
+            </button>
+            <button mat-menu-item (click)="selectForTariffs(resource.entity)">
+              <mat-icon>attach_money</mat-icon>
+              <span>Тарифы</span>
+            </button>
+            <button mat-menu-item (click)="deleteResource(resource.entity)">
+              <mat-icon>delete</mat-icon>
+              <span>Удалить</span>
+            </button>
+          </mat-menu>
+        </div>
+
+        <div class="resource-details">
+          <div>
+            <span class="label">Тип</span>
+            <span class="value">{{ resource.typeLabel }}</span>
+          </div>
+          <div>
+            <span class="label">Зоны</span>
+            <span class="value">{{ resource.zoneSummary }}</span>
+          </div>
+          <div>
+            <span class="label">Оплата</span>
+            <span class="value">
+              @if (resource.isService && resource.fixedAmount !== undefined) {
+              {{ formatCurrency(resource.fixedAmount, resource.fixedCurrency) }}
+              } @else {
+              {{ resource.pricingLabel }}
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+      }
+      } @else {
+      <div class="meters-resources__empty">
+        Нет добавленных ресурсов. Создайте новый ниже.
+      </div>
+      }
+      }
     </section>
 
+    <!-- Forms Section -->
     <section class="meters-resources__forms">
+
+      <!-- Resource Form -->
       <form (ngSubmit)="saveResource()" #resourceFormRef="ngForm" class="meters-resources__form">
         <h3>{{ resourceForm.id ? 'Редактирование ресурса' : 'Новый ресурс' }}</h3>
 
         <label>
-          Объект
-          <input
-            type="text"
-            name="resourceObject"
-            [ngModel]="resourceForm.objectName"
-            (ngModelChange)="resourceForm.objectName = $event"
-            list="resource-objects"
-            required
-          />
+          Объект (Дом, Квартира)
+          <input type="text" name="resourceObject" [ngModel]="resourceForm.objectName"
+            (ngModelChange)="resourceForm.objectName = $event" list="resource-objects" required
+            placeholder="Например: Дом, Офис" />
           <datalist id="resource-objects">
-            <option *ngFor="let object of objectOptions$ | async; trackBy: trackObject" [value]="object.name"></option>
+            @for (object of objectOptions$ | async; track trackObject($index, object)) {
+            <option [value]="object.name"></option>
+            }
           </datalist>
         </label>
 
         <label>
           Тип ресурса
-          <select
-            name="resourceType"
-            [ngModel]="resourceForm.type"
-            (ngModelChange)="onTypeChange($event)"
-            required
-          >
-            <option *ngFor="let option of typeOptions" [value]="option.type">{{ option.label }}</option>
+          <select name="resourceType" [ngModel]="resourceForm.type" (ngModelChange)="onTypeChange($event)" required>
+            @for (option of typeOptions; track option.type) {
+            <option [value]="option.type">{{ option.label }}</option>
+            }
           </select>
         </label>
 
         <label>
-          Название
-          <input type="text" name="resourceName" [(ngModel)]="resourceForm.name" required />
+          Название счётчика
+          <input type="text" name="resourceName" [(ngModel)]="resourceForm.name" required
+            placeholder="Например: Счётчик на кухне" />
         </label>
 
-        <label *ngIf="resourceForm.type !== 'service'">
+        @if (resourceForm.type !== 'service') {
+        <label>
           Единица измерения
           <input type="text" name="resourceUnit" [(ngModel)]="resourceForm.unit" required />
         </label>
 
-        <label *ngIf="resourceForm.type !== 'service'">
+        <label>
           Модель расчёта
-          <select
-            name="resourcePricing"
-            [ngModel]="resourceForm.pricingModel"
-            (ngModelChange)="onPricingModelChange($event)"
-          >
-            <option *ngFor="let option of pricingModels" [value]="option.value">{{ option.label }}</option>
+          <select name="resourcePricing" [ngModel]="resourceForm.pricingModel"
+            (ngModelChange)="onPricingModelChange($event)">
+            @for (option of pricingModels; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+            }
           </select>
         </label>
+        }
 
-        <label *ngIf="resourceForm.type === 'service'">
-          Сумма, {{ defaultCurrencyCode() }}
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            name="resourceServiceAmount"
-            [(ngModel)]="resourceForm.serviceAmount"
-            required
-          />
+        @if (resourceForm.type === 'service') {
+        <label>
+          Стоимость услуги ({{ defaultCurrencyCode() }})
+          <input type="number" min="0" step="0.01" name="resourceServiceAmount" [(ngModel)]="resourceForm.serviceAmount"
+            required />
         </label>
+        }
 
-        <label *ngIf="resourceForm.type === 'electricity' && resourceForm.pricingModel !== 'fixed'">
+        @if (resourceForm.type === 'electricity' && resourceForm.pricingModel !== 'fixed') {
+        <label>
           Зоны учёта
           <select name="resourceZones" [(ngModel)]="resourceForm.zoneTemplate">
-            <option *ngFor="let option of zoneTemplates" [value]="option.value">{{ option.label }}</option>
+            @for (option of zoneTemplates; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+            }
           </select>
         </label>
+        }
 
         <div class="meters-resources__form-actions">
+          <button mat-button type="button" (click)="resetResourceForm()">Отмена</button>
           <button mat-raised-button color="primary" type="submit" [disabled]="resourceFormRef.invalid">
-            {{ resourceForm.id ? 'Сохранить изменения' : 'Добавить ресурс' }}
+            {{ resourceForm.id ? 'Сохранить' : 'Добавить' }}
           </button>
-          <button mat-button type="button" (click)="resetResourceForm()">Сбросить</button>
         </div>
       </form>
 
-      <section class="meters-resources__tariffs" *ngIf="selectedResource as resource">
-        <h3>{{ resource.type === 'service' ? 'Параметры услуги' : 'Тарифы: ' + resource.name }}</h3>
+      <!-- Tariff Form (Visible when resource selected) -->
+      @if (selectedResource; as resource) {
+      <section class="meters-resources__tariffs">
+        <h3>Тарифы: {{ resource.name }}</h3>
 
-        <ng-container *ngIf="resource.type === 'service'; else tariffEditor">
-          <div class="meters-resources__service-card">
-            <p>
-              Услуга оплачивается фиксированной суммой. Текущая сумма:
-              <strong>{{ formatCurrency(resource.fixedAmount ?? 0, resource.fixedCurrency) }}</strong>
-            </p>
-            <p class="meters-resources__service-hint">
-              Измените значение в форме ресурса, чтобы обновить ежемесячный платёж.
-            </p>
-          </div>
-        </ng-container>
-
-        <ng-template #tariffEditor>
-          <form (ngSubmit)="saveTariff()" #tariffFormRef="ngForm" class="meters-resources__tariff-form">
+        @if (resource.type === 'service') {
+        <div class="meters-resources__empty">
+          Услуга с фиксированной стоимостью настраивается в параметрах ресурса.
+        </div>
+        } @else {
+        <form (ngSubmit)="saveTariff()" #tariffFormRef="ngForm" class="meters-resources__tariff-form">
           <div class="meters-resources__tariff-grid">
             <label>
               Зона
               <select name="tariffZone" [(ngModel)]="tariffForm.zoneId">
-                <option *ngFor="let option of zoneOptions" [ngValue]="option.id">{{ option.label }}</option>
+                @for (option of zoneOptions; track option.id) {
+                <option [ngValue]="option.id">{{ option.label }}</option>
+                }
               </select>
             </label>
 
@@ -172,14 +181,8 @@
 
             <label>
               Валюта
-              <input
-                type="text"
-                name="tariffCurrency"
-                [(ngModel)]="tariffForm.currency"
-                maxlength="3"
-                required
-                [placeholder]="defaultCurrencyCode()"
-              />
+              <input type="text" name="tariffCurrency" [(ngModel)]="tariffForm.currency" required
+                [placeholder]="defaultCurrencyCode()" />
             </label>
 
             <label>
@@ -190,38 +193,43 @@
 
           <label>
             Комментарий
-            <input type="text" name="tariffDescription" [(ngModel)]="tariffForm.description" />
+            <input type="text" name="tariffDescription" [(ngModel)]="tariffForm.description"
+              placeholder="Например: тариф с 1 января" />
           </label>
 
           <div class="meters-resources__form-actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="tariffFormRef.invalid">
+            <button mat-raised-button color="accent" type="submit" [disabled]="tariffFormRef.invalid">
               Добавить тариф
             </button>
           </div>
         </form>
 
         <h4>История тарифов</h4>
-        <ul class="meters-resources__tariff-history" *ngIf="tariffHistory.length; else emptyTariffs">
-          <li *ngFor="let tariff of tariffHistory; trackBy: trackTariff">
+        @if (tariffHistory.length) {
+        <ul class="meters-resources__tariff-history">
+          @for (tariff of tariffHistory; track trackTariff($index, tariff)) {
+          <li>
             <div>
               <strong>{{ zoneName(tariff.zoneId) }}</strong>
-              — {{ formatCurrency(tariff.price, tariff.currency) }}
-              <span class="meters-resources__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
-              <span class="meters-resources__tariff-description" *ngIf="tariff.description">{{ tariff.description }}</span>
+              <span>{{ formatCurrency(tariff.price, tariff.currency) }} (с {{ tariff.effectiveFrom | date: 'd MMM y'
+                }})</span>
+              @if (tariff.description) {
+              <small>{{ tariff.description }}</small>
+              }
             </div>
-            <button mat-button type="button" color="warn" (click)="removeTariff(tariff)">Удалить</button>
+            <button mat-icon-button color="warn" (click)="removeTariff(tariff)">
+              <mat-icon>delete</mat-icon>
+            </button>
           </li>
+          }
         </ul>
-        </ng-template>
+        } @else {
+        <p class="meters-resources__empty">Нет записей тарифов.</p>
+        }
+        }
       </section>
+      }
+
     </section>
   </div>
-
-  <ng-template #emptyResources>
-    <p class="meters-resources__empty">Пока нет ни одного ресурса. Добавьте первый, чтобы начать передавать показания.</p>
-  </ng-template>
-
-  <ng-template #emptyTariffs>
-    <p class="meters-resources__empty">Тарифов пока нет. Добавьте первый тариф для точных расчётов.</p>
-  </ng-template>
 </section>

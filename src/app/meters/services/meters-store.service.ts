@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { StorageService } from '../../core/services/storage.service';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { MeterReading, MeterReadingValue } from '../models/meter-reading';
 import {
@@ -23,7 +24,7 @@ export interface UpsertResourcePayload extends Omit<ResourceEntity, 'id' | 'obje
   zones: ResourceZone[];
 }
 
-export interface AddTariffPayload extends Omit<TariffHistoryEntry, 'id'> {}
+export interface AddTariffPayload extends Omit<TariffHistoryEntry, 'id'> { }
 
 export interface MeterReadingListItem {
   id: string;
@@ -84,6 +85,8 @@ export class MetersStoreService {
       description: 'Фиксированные платежи без показаний',
     },
   ];
+
+  private readonly storage = inject(StorageService);
 
   private readonly objectsSubject = new BehaviorSubject<MeterObject[]>([]);
 
@@ -146,15 +149,37 @@ export class MetersStoreService {
     )
   );
 
+  constructor() {
+    this.refresh();
+  }
+
+  async refresh(): Promise<void> {
+    const [objects, resources, readings, tariffs] = await Promise.all([
+      this.storage.getMeterObjects(),
+      this.storage.getMeterResources(),
+      this.storage.getMeterReadingsV2(),
+      this.storage.getTariffs()
+    ]);
+
+    this.objectsSubject.next(objects);
+
+    // Cast entities to internal types if needed (interfaces match mostly)
+    this.resourcesSubject.next(resources as any);
+    this.readingsSubject.next(readings as any);
+    this.tariffsSubject.next(tariffs as any);
+  }
+
   getDefaultObjectId(): string | undefined {
     return this.objectsSubject.value[0]?.id;
   }
 
   reset(): void {
+    // No-op or clear local state. Wiping DB is handled by DataResetService.
     this.objectsSubject.next([]);
     this.resourcesSubject.next([]);
     this.tariffsSubject.next([]);
     this.readingsSubject.next([]);
+    this.refresh();
   }
 
   typeLabel(type: ResourceType): string {
@@ -193,6 +218,7 @@ export class MetersStoreService {
       name: trimmed,
     };
 
+    this.storage.addMeterObject(created);
     this.objectsSubject.next([...this.objectsSubject.value, created]);
     return created;
   }
@@ -301,6 +327,8 @@ export class MetersStoreService {
           submittedAt: payload.submittedAt,
           values: normalisedValues,
         };
+
+        this.storage.updateMeterReadingV2(payload.id, updated);
         readings[index] = updated;
         this.readingsSubject.next(this.sortReadings(readings));
         return updated;
@@ -315,6 +343,7 @@ export class MetersStoreService {
       values: normalisedValues,
     };
 
+    this.storage.addMeterReadingV2(created);
     readings.push(created);
     this.readingsSubject.next(this.sortReadings(readings));
     return created;
@@ -339,9 +368,9 @@ export class MetersStoreService {
           fixedAmount: payload.fixedAmount,
           fixedCurrency: payload.fixedCurrency,
         };
-        if (Number.isInteger(index) && index >= 0 && index < resources.length) {
+
+        this.storage.updateMeterResource(payload.id, updated);
         resources[index] = updated;
-        }
         this.resourcesSubject.next(resources);
         return updated;
       }
@@ -359,6 +388,7 @@ export class MetersStoreService {
       fixedCurrency: payload.fixedCurrency,
     };
 
+    this.storage.addMeterResource(created);
     resources.push(created);
     this.resourcesSubject.next(resources);
     return created;
@@ -366,9 +396,17 @@ export class MetersStoreService {
 
   deleteResource(resourceId: string): void {
     const resources = this.resourcesSubject.value.filter((resource) => resource.id !== resourceId);
+    this.storage.deleteMeterResource(resourceId);
     this.resourcesSubject.next(resources);
+
+    // Cascading delete for readings and tariffs?
+    // For now, let's just filter them out from state. Ideally purge from DB too.
+    const relatedReadings = this.readingsSubject.value.filter((reading) => reading.resourceId === resourceId);
+    relatedReadings.forEach(r => this.storage.deleteMeterReadingV2(r.id));
+
     this.readingsSubject.next(this.readingsSubject.value.filter((reading) => reading.resourceId !== resourceId));
     this.tariffsSubject.next(this.tariffsSubject.value.filter((tariff) => tariff.resourceId !== resourceId));
+    // TODO: delete tariffs from DB
   }
 
   addTariff(payload: AddTariffPayload): TariffHistoryEntry {
@@ -377,11 +415,13 @@ export class MetersStoreService {
       id: this.generateId('TRF'),
     };
 
+    this.storage.addTariff(tariff);
     this.tariffsSubject.next([...this.tariffsSubject.value, tariff]);
     return tariff;
   }
 
   removeTariff(tariffId: string): void {
+    this.storage.deleteTariff(tariffId);
     this.tariffsSubject.next(this.tariffsSubject.value.filter((tariff) => tariff.id !== tariffId));
   }
 

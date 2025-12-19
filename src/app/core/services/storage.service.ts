@@ -8,6 +8,10 @@ import {
   FinPocketDB,
   MeterReadingEntity,
   TransactionEntity,
+  MeterObjectEntity,
+  MeterResourceEntity,
+  MeterReadingRecord,
+  TariffEntity,
 } from './finpocket-db.service';
 
 @Injectable({ providedIn: 'root' })
@@ -129,6 +133,76 @@ export class StorageService {
 
   deleteMeterReading(id: number): Promise<void> {
     return this.db.meters.delete(id);
+  }
+
+  // --- Meters Module V2 ---
+
+  // Objects (Residences)
+  getMeterObjects(): Promise<MeterObjectEntity[]> {
+    return this.db.meterObjects.toArray();
+  }
+
+  addMeterObject(item: MeterObjectEntity): Promise<string> {
+    return this.db.meterObjects.add(item);
+  }
+
+  updateMeterObject(id: string, changes: Partial<MeterObjectEntity>): Promise<number> {
+    return this.db.meterObjects.update(id, changes);
+  }
+
+  deleteMeterObject(id: string): Promise<void> {
+    return this.db.meterObjects.delete(id);
+  }
+
+  // Resources (Counters)
+  getMeterResources(): Promise<MeterResourceEntity[]> {
+    return this.db.meterResources.toArray();
+  }
+
+  addMeterResource(item: MeterResourceEntity): Promise<string> {
+    return this.db.meterResources.add(item);
+  }
+
+  updateMeterResource(id: string, changes: Partial<MeterResourceEntity>): Promise<number> {
+    return this.db.meterResources.update(id, changes);
+  }
+
+  deleteMeterResource(id: string): Promise<void> {
+    return this.db.meterResources.delete(id);
+  }
+
+  // Readings V2
+  getMeterReadingsV2(): Promise<MeterReadingRecord[]> {
+    return this.db.meterReadings.toArray();
+  }
+
+  addMeterReadingV2(item: MeterReadingRecord): Promise<string> {
+    return this.db.meterReadings.add(item);
+  }
+
+  updateMeterReadingV2(id: string, changes: Partial<MeterReadingRecord>): Promise<number> {
+    return this.db.meterReadings.update(id, changes);
+  }
+
+  deleteMeterReadingV2(id: string): Promise<void> {
+    return this.db.meterReadings.delete(id);
+  }
+
+  // Tariffs
+  getTariffs(): Promise<TariffEntity[]> {
+    return this.db.tariffs.toArray();
+  }
+
+  addTariff(item: TariffEntity): Promise<string> {
+    return this.db.tariffs.add(item);
+  }
+
+  updateTariff(id: string, changes: Partial<TariffEntity>): Promise<number> {
+    return this.db.tariffs.update(id, changes);
+  }
+
+  deleteTariff(id: string): Promise<void> {
+    return this.db.tariffs.delete(id);
   }
 
   // Categories

@@ -1,122 +1,177 @@
 .meters-details {
-  display: grid;
-  gap: 2rem;
-}
+  padding-bottom: 80px;
 
-.meters-details__header {
-  display: grid;
-  gap: 0.75rem;
-}
+  &__header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 
-.meters-details__header p,
-.meters-details__meta {
-  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
+    .back-btn {
+      color: var(--finpocket-muted);
+    }
 
-.meters-details__type {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.75rem;
-  align-items: center;
-}
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--finpocket-text);
+    }
+  }
 
-.meters-details__type mat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  font-size: 26px;
-  background: linear-gradient(140deg, color-mix(in srgb, var(--finpocket-primary) 75%, transparent), color-mix(in srgb, var(--finpocket-accent) 70%, transparent));
-  color: var(--finpocket-text, #f6f2ff);
-}
+  &__content {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
 
-.meters-details__type span {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
+  /* Summary Card */
+  .detail-summary-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 
-.meters-details__type strong {
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      left: -50px;
+      width: 100px;
+      height: 100px;
+      background: var(--finpocket-primary-color);
+      filter: blur(80px);
+      opacity: 0.3;
+    }
 
-.meters-details__type small {
-  font-size: 0.8rem;
-  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
-}
+    .icon-wrapper {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
-.meters-details__card {
-  padding: 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid var(--finpocket-border, rgba(255, 255, 255, 0.08));
-  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 90%, transparent 10%);
-  box-shadow: var(--finpocket-card-shadow, 0 12px 30px rgba(0, 0, 0, 0.45));
-  display: grid;
-  gap: 1rem;
-}
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: var(--finpocket-text);
+      }
+    }
 
-.meters-details__card h3 {
-  margin: 0;
-}
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+    }
 
-.meters-details__card ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
+    .object-name {
+      color: var(--finpocket-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
 
-.meters-details__card table {
-  width: 100%;
-  border-collapse: collapse;
-}
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: 100%;
 
-.meters-details__card th,
-.meters-details__card td {
-  padding: 0.75rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--finpocket-border, rgba(255, 255, 255, 0.08)) 65%, transparent);
-  text-align: left;
-  vertical-align: top;
-}
+      .stat-item {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 12px;
+        border-radius: 12px;
 
-.meters-details__card td div {
-  font-size: 0.9rem;
-}
+        .label {
+          display: block;
+          font-size: 11px;
+          color: var(--finpocket-muted);
+          margin-bottom: 4px;
+        }
 
-.meters-details__tariff-date,
-.meters-details__tariff-description {
-  margin-left: 0.5rem;
-  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
-  font-size: 0.85rem;
-}
+        .value {
+          font-size: 14px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
 
-.meters-details__tariff-description {
-  display: inline-block;
-}
+  /* History List */
+  .history-section {
+    h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--finpocket-text);
+    }
+  }
 
-.meters-details__empty {
-  margin: 0;
-  padding: 1rem;
-  border-radius: 1rem;
-  background: color-mix(in srgb, var(--finpocket-card-bg, rgba(17, 17, 17, 0.9)) 88%, transparent 12%);
-  border: 1px dashed var(--finpocket-border, rgba(255, 255, 255, 0.14));
-  color: var(--finpocket-subtle, rgba(246, 242, 255, 0.72));
-}
+  .history-card {
+    background: rgba(30, 30, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.meters-details__service {
-  background: color-mix(in srgb, var(--finpocket-primary, #9c27b0) 14%, transparent);
-  border-style: dashed;
-}
+    .history-date {
+      display: flex;
+      flex-direction: column;
 
-.meters-details__service-note {
-  margin: 0;
-  color: var(--finpocket-muted, rgba(246, 242, 255, 0.48));
-  font-size: 0.9rem;
-  line-height: 1.5;
+      .day {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .year {
+        font-size: 12px;
+        color: var(--finpocket-muted);
+      }
+    }
+
+    .history-values {
+      text-align: right;
+
+      .main-value {
+        font-size: 16px;
+        color: var(--finpocket-text);
+        font-family: 'Monaco', monospace;
+      }
+
+      .sub-value {
+        display: block;
+        font-size: 12px;
+        color: var(--finpocket-muted);
+        margin-top: 2px;
+      }
+    }
+
+    .history-cost {
+      margin-left: 16px;
+      font-weight: 600;
+      color: #ff5252;
+      font-size: 15px;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--finpocket-muted);
+  }
 }

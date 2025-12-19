@@ -1,112 +1,80 @@
-<section class="meters-details" *ngIf="summary as data; else noResource">
+<div class="meters-details">
   <header class="meters-details__header">
-    <div class="meters-details__type">
-      <mat-icon>{{ typeIcon(data.resource.type) }}</mat-icon>
-      <span>
-        <strong>{{ typeLabel(data.resource.type) }}</strong>
-        <small>{{ typeDescription(data.resource.type) }}</small>
-      </span>
-    </div>
-    <h2>{{ data.resource.name }}</h2>
-    <p>Объект: {{ data.object.name }} · Учёт: {{ pricingLabel(data.resource) }}</p>
-    <div class="meters-details__meta">
-      <span *ngIf="!isService(data.resource)">Единица: {{ data.resource.unit }}</span>
-      <span *ngIf="isService(data.resource)">
-        Сумма:
-        <ng-container *ngIf="data.resource.fixedAmount !== undefined; else noServiceAmount">
-          {{ formatCurrency(data.resource.fixedAmount, data.resource.fixedCurrency) }}
-        </ng-container>
-        <ng-template #noServiceAmount>—</ng-template>
-      </span>
-      <span>Зоны: {{ zoneSummaryText() }}</span>
-    </div>
+    <button mat-icon-button class="back-btn" routerLink="../../list">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Детали счётчика</h2>
   </header>
 
-  <section class="meters-details__card meters-details__service" *ngIf="isService(data.resource)">
-    <h3>Фиксированная услуга</h3>
-    <p>
-      Ежемесячный платёж:
-      <ng-container *ngIf="data.resource.fixedAmount !== undefined; else noServiceAmountInline">
-        <strong>{{ formatCurrency(data.resource.fixedAmount, data.resource.fixedCurrency) }}</strong>
-      </ng-container>
-    </p>
-    <p class="meters-details__service-note">
-      Показания для услуги не требуются. Обновляйте сумму в разделе управления ресурсами.
-    </p>
-  </section>
+  <div class="meters-details__content">
+    @if (summary) {
+    <!-- Summary Card -->
+    <div class="detail-summary-card">
+      <div class="icon-wrapper">
+        <mat-icon>{{ typeIcon(summary.resource.type) }}</mat-icon>
+      </div>
+      <h1>{{ summary.resource.name }}</h1>
+      <span class="object-name">{{ summary.object.name }}</span>
 
-  <section class="meters-details__card" *ngIf="data.currentTariffs.length">
-    <h3>Актуальные тарифы</h3>
-    <ul>
-      <li *ngFor="let tariff of data.currentTariffs">
-        <strong>{{ data.resource.zones.length > 1 || tariff.zoneId ? zoneName(tariff.zoneId) : 'Общий тариф' }}</strong>
-        — {{ formatCurrency(tariff.price, tariff.currency) }}
-        <span class="meters-details__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
-      </li>
-    </ul>
-  </section>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="label">Тип</span>
+          <span class="value">{{ typeLabel(summary.resource.type) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">Тариф</span>
+          <span class="value">{{ zoneName() }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">Зон учёта</span>
+          <span class="value">{{ zoneSummaryText() }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">Модель</span>
+          <span class="value">{{ pricingLabel(summary.resource) }}</span>
+        </div>
+      </div>
+    </div>
 
-  <section class="meters-details__card" *ngIf="!isService(data.resource) && readings.length; else noReadings">
-    <h3>Последние показания</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>Показания</th>
-          <th>Прошлый учёт</th>
-          <th>Расход</th>
-          <th>Стоимость</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let reading of readings; trackBy: trackReading">
-          <td>{{ reading.submittedAt | date: 'd MMMM yyyy' }}</td>
-          <td>
-            <div *ngFor="let item of reading.values">{{ item.label }}: {{ item.value | number: '1.2-2' }} {{ data.resource.unit }}</div>
-          </td>
-          <td>
-            <ng-container *ngIf="reading.previousAt; else noPreviousDate">{{ reading.previousAt | date: 'd MMMM yyyy' }}</ng-container>
-          </td>
-          <td>
-            <div *ngFor="let item of reading.consumption">
-              {{ item.label }}: {{ item.value | number: '1.2-2' }} {{ data.resource.unit }}
-            </div>
-          </td>
-          <td>
-            <ng-container *ngIf="reading.cost !== undefined && reading.currency">
-              {{ formatCurrency(reading.cost, reading.currency) }}
-            </ng-container>
-            <ng-container *ngIf="reading.cost === undefined || !reading.currency">—</ng-container>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+    <!-- History -->
+    <section class="history-section">
+      <h3>История показаний</h3>
 
-  <section class="meters-details__card" *ngIf="tariffHistory.length">
-    <h3>История тарифов</h3>
-    <ul>
-      <li *ngFor="let tariff of tariffHistory">
-        <strong>{{ zoneName(tariff.zoneId) }}</strong>
-        — {{ formatCurrency(tariff.price, tariff.currency) }}
-        <span class="meters-details__tariff-date">с {{ tariff.effectiveFrom | date: 'd MMMM yyyy' }}</span>
-        <span *ngIf="tariff.description" class="meters-details__tariff-description">{{ tariff.description }}</span>
-      </li>
-    </ul>
-  </section>
-</section>
+      @if (readings.length) {
+      @for (reading of readings; track trackReading($index, reading)) {
+      <div class="history-card" mat-ripple [routerLink]="['../../', reading.id, 'edit']">
+        <div class="history-date">
+          <span class="day">{{ reading.submittedAt | date: 'd MMM' }}</span>
+          <span class="year">{{ reading.submittedAt | date: 'yyyy' }}</span>
+        </div>
 
-<ng-template #noResource>
-  <p class="meters-details__empty">Выберите ресурс в списке, чтобы увидеть подробную аналитику потребления.</p>
-</ng-template>
+        <div class="history-values">
+          @for (val of reading.values; track val.label) {
+          <div>
+            <span class="main-value">{{ val.value }}</span>
+            <span class="sub-value">{{ val.label }}</span>
+          </div>
+          }
+        </div>
 
-<ng-template #noServiceAmountInline>
-  <span class="meters-details__service-note">—</span>
-</ng-template>
+        @if (reading.cost !== undefined) {
+        <div class="history-cost">
+          {{ formatCurrency(reading.cost, reading.currency) }}
+        </div>
+        }
+      </div>
+      }
+      } @else {
+      <div class="empty-state">
+        <p>Нет истории показаний</p>
+      </div>
+      }
+    </section>
 
-<ng-template #noReadings>
-  <p class="meters-details__empty" *ngIf="!isService(summary?.resource)">Для этого ресурса ещё нет показаний.</p>
-  <p class="meters-details__empty" *ngIf="isService(summary?.resource)">Для услуг показания не требуются.</p>
-</ng-template>
-
-<ng-template #noPreviousDate>—</ng-template>
+    } @else {
+    <div class="empty-state">
+      <p>Загрузка данных...</p>
+    </div>
+    }
+  </div>
+</div>
