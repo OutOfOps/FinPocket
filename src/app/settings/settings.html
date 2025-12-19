@@ -58,10 +58,15 @@
               <span class="account-name">{{ acc.name }}</span>
               <span class="account-detail" *ngIf="acc.type === 'bank'">{{ acc.bankName }}</span>
               <span class="account-detail" *ngIf="acc.type === 'metal'">{{ acc.metalName }}</span>
-              <span class="account-balance">{{ acc.initialBalance | number:'1.2-2' }} {{ acc.currencyCode }}</span>
+              <span class="account-balance">{{ acc.initialBalance | number:'1.2-10' }} {{ acc.type === 'metal' ? 'г ' +
+                acc.currencyCode : acc.currencyCode }}</span>
             </div>
 
             <div class="account-actions">
+              <button mat-icon-button *ngIf="acc.type === 'metal'" (click)="loadRateFor(acc.currencyCode)"
+                title="Обновить курс">
+                <mat-icon class="sync-icon">sync</mat-icon>
+              </button>
               <button mat-icon-button (click)="startAccountEdit(acc)">
                 <mat-icon>edit</mat-icon>
               </button>
@@ -130,8 +135,9 @@
             class="neo-input">
 
           <ng-container *ngIf="newAccount.type === 'metal'">
-            <select [(ngModel)]="newAccount.metalName" class="neo-input">
-              <option value="" disabled selected>Выберите металл...</option>
+            <select [ngModel]="newAccount.metalName"
+              (ngModelChange)="newAccount.metalName=$event; onMetalSelect($event, 'new')" class="neo-input"
+              placeholder="Выберите металл">
               <option *ngFor="let m of nbuMetals" [value]="m.txt">
                 {{ m.txt }} ({{ m.code }})
               </option>
@@ -141,7 +147,9 @@
 
         <div class="form-row">
           <input type="number" [(ngModel)]="newAccount.initialBalance" placeholder="Нач. баланс" class="neo-input">
-          <select [(ngModel)]="newAccount.currencyCode" class="neo-input small-select" *ngIf="currencies() as list">
+
+          <select [(ngModel)]="newAccount.currencyCode" class="neo-input small-select"
+            *ngIf="newAccount.type !== 'metal' && currencies() as list">
             <option *ngFor="let c of list" [value]="c.code">{{ c.code }}</option>
           </select>
         </div>

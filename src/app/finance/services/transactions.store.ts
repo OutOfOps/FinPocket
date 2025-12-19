@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { TransactionEntity } from '../../core/services/finpocket-db.service';
 import { CurrencyService } from '../../core/services/currency.service';
+import { OperationAccountsService } from './operation-accounts.service';
 
 export interface FinanceListItem {
   id: number;
@@ -47,8 +48,8 @@ export class TransactionsStore {
           (transaction.type === 'income'
             ? 'Доход'
             : transaction.type === 'expense'
-            ? 'Расход'
-            : 'Перевод'),
+              ? 'Расход'
+              : 'Перевод'),
         category: transaction.category,
         account: transaction.account,
         amount: this.applySign(transaction),
@@ -58,6 +59,8 @@ export class TransactionsStore {
         convertedAmount: this.toDefaultSigned(transaction),
       }))
   );
+
+  private readonly accountsService = inject(OperationAccountsService);
 
   readonly totalIncome = computed(() =>
     this.transactionsSignal()
@@ -71,7 +74,16 @@ export class TransactionsStore {
       .reduce((sum, transaction) => sum + this.convertToDefault(transaction), 0)
   );
 
-  readonly balance = computed(() => this.totalIncome() - this.totalExpenses());
+  // Balance = (Income - Expenses) + (Sum of Initial Balances of All Accounts)
+  readonly accountsInitialBalance = computed(() =>
+    this.accountsService.accounts().reduce((sum: number, acc) =>
+      sum + this.currencyService.convertToDefault(acc.initialBalance, acc.currencyCode), 0
+    )
+  );
+
+  readonly balance = computed(() =>
+    (this.totalIncome() - this.totalExpenses()) + this.accountsInitialBalance()
+  );
 
   readonly currentMonthTotals = computed(() => this.calculateMonthlyTotals(0));
   readonly previousMonthTotals = computed(() => this.calculateMonthlyTotals(1));

@@ -146,6 +146,44 @@ export class Settings {
     }
   }
 
+  protected onMetalSelect(metalName: string, target: 'new' | 'edit'): void {
+    const metalItem = this.nbuMetals.find(m => m.txt === metalName);
+    if (!metalItem) return;
+
+    if (target === 'new') {
+      this.newAccount.currencyCode = metalItem.code;
+    } else {
+      this.editingAccount.currencyCode = metalItem.code;
+    }
+
+    // Also ensure this "Metal Currency" exists in our system so we can track rate?
+    // Actually, if it's not in currencies, we can't calculate total balance.
+    // So we should silently add it if missing? 
+    // User said "currency for metal is not needed", but for calculation we need it.
+    // Let's assume user accepts it being added as a currency if they add a metal account.
+    // Or we just rely on NBU lookup at runtime? But TransactionsStore uses CurrencyService.
+
+    // Check if exists, if not add it
+    const exists = this.currencies().some(c => c.code === metalItem.code);
+    if (!exists) {
+      // We need its rate to add it.
+      const rateData = this.nbuCurrencies.get(metalItem.code);
+      const baseCode = this.currencyService.getDefaultCurrencyCode();
+      const baseData = this.nbuCurrencies.get(baseCode);
+
+      let rate = 1;
+      if (rateData && baseData && baseData.rate > 0) {
+        rate = rateData.rate / baseData.rate;
+      }
+
+      this.currencyService.addCurrency({
+        code: metalItem.code,
+        name: metalItem.txt,
+        rateToBase: rate
+      });
+    }
+  }
+
   protected readonly accounts = this.accountsService.accounts;
 
   protected newAccount: NewAccount = {
