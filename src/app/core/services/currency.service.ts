@@ -184,6 +184,19 @@ export class CurrencyService {
   resetToDefaults(): void {
     this.currenciesSignal.set([]);
     this.defaultCurrencySignal.set('');
+
+    // Add default UAH
+    this.addCurrency({
+      code: 'UAH',
+      name: 'Українська гривня',
+      rateToBase: 1
+    });
+
+    // Set as default
+    const uah = this.currenciesSignal().find(c => c.code === 'UAH');
+    if (uah) {
+      this.setDefaultCurrency(uah.id);
+    }
   }
 
   format(amount: number, currencyCode?: string, fractionDigits = 2): string {

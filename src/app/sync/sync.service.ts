@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   FinPocketDB,
   BackupEntity,
@@ -12,10 +12,17 @@ import {
 } from '../core/services/finpocket-db.service';
 import { CloudProvider } from './cloud-provider';
 import { SyncQueue } from './sync.queue';
+import { CurrencyService, Currency } from '../core/services/currency.service';
+import { OperationAccountsService, OperationAccount } from '../finance/services/operation-accounts.service';
+import { ThemeService, FinpocketTheme } from '../core/services/theme.service';
 
 export interface BackupData {
   version: string;
   timestamp: string;
+  theme?: FinpocketTheme;
+  defaultCurrencyId?: string;
+  currencies?: Currency[];
+  operationAccounts?: OperationAccount[];
   data: {
     transactions: TransactionEntity[];
     accounts: AccountEntity[];
@@ -39,10 +46,11 @@ const PASSPHRASE_PBKDF2_ITERATIONS = 250000;
 
 @Injectable({ providedIn: 'root' })
 export class SyncService {
-  constructor(
-    private readonly db: FinPocketDB,
-    private readonly syncQueue: SyncQueue
-  ) { }
+  private readonly db = inject(FinPocketDB);
+  private readonly syncQueue = inject(SyncQueue);
+  private readonly currencyService = inject(CurrencyService);
+  private readonly accountsService = inject(OperationAccountsService);
+  private readonly themeService = inject(ThemeService);
 
   /**
    * Exports all data as an encrypted backup.
@@ -50,10 +58,17 @@ export class SyncService {
    * @returns Encrypted backup as a Blob
    */
   async exportBackup(masterPassphrase: string): Promise<Blob> {
+    const currencySnapshot = this.currencyService.getSnapshot();
+    const accountsSnapshot = this.accountsService.getSnapshot();
+
     // Gather all data
     const data: BackupData = {
-      version: '1.0',
+      version: '1.1', // Bumped version
       timestamp: new Date().toISOString(),
+      theme: this.themeService.theme(),
+      defaultCurrencyId: currencySnapshot.defaultCurrencyId,
+      currencies: currencySnapshot.currencies,
+      operationAccounts: accountsSnapshot.accounts,
       data: {
         transactions: await this.db.transactions.toArray(),
         accounts: await this.db.accounts.toArray(),
@@ -93,6 +108,24 @@ export class SyncService {
 
     const plaintext = await this.decryptData(encrypted, masterPassphrase);
     const data: BackupData = JSON.parse(plaintext);
+
+    // Restore Settings (currencies, accounts, theme)
+    if (data.currencies) {
+      this.currencyService.restoreSnapshot({
+        currencies: data.currencies,
+        defaultCurrencyId: data.defaultCurrencyId || 'UAH'
+      });
+    }
+
+    if (data.operationAccounts) {
+      this.accountsService.restoreSnapshot({
+        accounts: data.operationAccounts
+      });
+    }
+
+    if (data.theme) {
+      this.themeService.setTheme(data.theme);
+    }
 
     // Clear existing data
     await this.db.transaction('rw', this.db.tables, async () => {
