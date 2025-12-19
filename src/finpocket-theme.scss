@@ -61,6 +61,10 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
     // Default Accent (Purple)
     --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
     --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
+    --finpocket-card-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    --finpocket-surface-elevated: #1a1a1a;
+    --finpocket-ghost-surface: rgba(255, 255, 255, 0.08);
+    --finpocket-ghost-strong: rgba(255, 255, 255, 0.14);
 
     // Glass & Charts (Dark)
     --finpocket-glass-bg: rgba(30, 30, 30, 0.6);
@@ -83,6 +87,10 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
 
     --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
     --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
+    --finpocket-card-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    --finpocket-surface-elevated: #ffffff;
+    --finpocket-ghost-surface: rgba(0, 0, 0, 0.04);
+    --finpocket-ghost-strong: rgba(0, 0, 0, 0.08);
 
     // Glass & Charts (Light)
     --finpocket-glass-bg: rgba(255, 255, 255, 0.9);

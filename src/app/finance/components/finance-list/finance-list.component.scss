@@ -38,8 +38,9 @@
 
 .action-btn {
   color: var(--finpocket-text);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--finpocket-ghost-strong, rgba(255, 255, 255, 0.08));
   backdrop-filter: blur(4px);
+  border: 1px solid var(--finpocket-border-color);
   width: 40px;
   height: 40px;
   line-height: 40px;
@@ -139,8 +140,8 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background-color: rgba(255, 255, 255, 0.08);
-  /* Fallback */
+  background-color: var(--finpocket-ghost-surface, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--finpocket-border-color);
   display: flex;
   align-items: center;
   justify-content: center;
