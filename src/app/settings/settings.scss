@@ -486,3 +486,30 @@
   width: 100%;
   justify-content: center;
 }
+
+/* Custom Checkbox */
+.setting-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--finpocket-text);
+  cursor: pointer;
+  user-select: none;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--finpocket-primary);
+    cursor: pointer;
+  }
+}
+
+.ignored-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--finpocket-muted);
+  opacity: 0.6;
+  margin-left: 8px;
+}

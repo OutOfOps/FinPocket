@@ -209,7 +209,8 @@ export class Settings {
     name: '',
     type: 'cash',
     currencyCode: 'UAH',
-    initialBalance: 0
+    initialBalance: 0,
+    includeInTotal: true
   };
 
   protected editingAccountId: string | null = null;
@@ -217,7 +218,8 @@ export class Settings {
     name: '',
     type: 'cash',
     currencyCode: 'UAH',
-    initialBalance: 0
+    initialBalance: 0,
+    includeInTotal: true
   };
 
   protected canAddAccount(): boolean {
@@ -239,7 +241,8 @@ export class Settings {
       name: '',
       type: 'cash',
       currencyCode: this.currencyService.getDefaultCurrencyCode(),
-      initialBalance: 0
+      initialBalance: 0,
+      includeInTotal: true
     };
   }
 
@@ -271,7 +274,8 @@ export class Settings {
       currencyCode: account.currencyCode,
       initialBalance: account.initialBalance,
       bankName: account.bankName,
-      metalName: account.metalName
+      metalName: account.metalName,
+      includeInTotal: account.includeInTotal !== false // Ensure not undefined
     };
   }
 
@@ -281,7 +285,8 @@ export class Settings {
       name: '',
       type: 'cash',
       currencyCode: 'UAH',
-      initialBalance: 0
+      initialBalance: 0,
+      includeInTotal: true
     };
   }
 

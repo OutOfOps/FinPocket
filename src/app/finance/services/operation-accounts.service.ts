@@ -10,6 +10,7 @@ export interface OperationAccount {
   initialBalance: number;
   bankName?: string; // Optional for bank accounts
   metalName?: string; // Optional for metal
+  includeInTotal?: boolean; // Default true if undefined
 }
 
 export interface OperationAccountsSnapshot {
@@ -23,6 +24,7 @@ export interface NewAccount {
   initialBalance: number;
   bankName?: string;
   metalName?: string;
+  includeInTotal?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,7 +51,8 @@ export class OperationAccountsService {
       currencyCode: maybe.currencyCode || 'UAH',
       initialBalance: Number(maybe.initialBalance) || 0,
       bankName: maybe.bankName,
-      metalName: maybe.metalName
+      metalName: maybe.metalName,
+      includeInTotal: maybe.includeInTotal !== false // Default to true
     };
   }
   private readonly storageKey = 'finpocket-operation-accounts';
@@ -82,7 +85,8 @@ export class OperationAccountsService {
         currencyCode: newAccount.currencyCode,
         initialBalance: newAccount.initialBalance ?? 0,
         bankName: newAccount.bankName?.trim(),
-        metalName: newAccount.metalName?.trim()
+        metalName: newAccount.metalName?.trim(),
+        includeInTotal: newAccount.includeInTotal !== false
       },
     ]);
   }
@@ -96,7 +100,10 @@ export class OperationAccountsService {
           ...updates,
           name: updates.name?.trim() ?? account.name,
           bankName: updates.bankName?.trim() ?? account.bankName,
-          metalName: updates.metalName?.trim() ?? account.metalName
+          metalName: updates.metalName?.trim() ?? account.metalName,
+          includeInTotal: updates.includeInTotal !== undefined
+            ? updates.includeInTotal
+            : account.includeInTotal
         };
       })
     );
@@ -119,7 +126,8 @@ export class OperationAccountsService {
       // Ensure defaults for older versions
       type: (a as any).type || 'cash',
       currencyCode: (a as any).currencyCode || 'UAH',
-      initialBalance: (a as any).initialBalance || 0
+      initialBalance: (a as any).initialBalance || 0,
+      includeInTotal: (a as any).includeInTotal !== false
     }));
     this.accountsSignal.set(sanitized);
   }
@@ -143,7 +151,8 @@ export class OperationAccountsService {
         currencyCode: acc.currencyCode || 'UAH',
         initialBalance: acc.initialBalance || 0,
         bankName: acc.bankName,
-        metalName: acc.metalName
+        metalName: acc.metalName,
+        includeInTotal: acc.includeInTotal !== false
       })).filter(a => !!a.id && !!a.name);
 
       if (migrated.length === 0) return this.getDefaults();

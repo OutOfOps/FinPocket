@@ -60,13 +60,11 @@
               <span class="account-detail" *ngIf="acc.type === 'metal'">{{ acc.metalName }}</span>
               <span class="account-balance">{{ acc.initialBalance | number:'1.2-10' }} {{ acc.type === 'metal' ? 'г ' +
                 acc.currencyCode : acc.currencyCode }}</span>
+              <mat-icon *ngIf="acc.includeInTotal === false" class="ignored-icon"
+                title="Не учитывается в общем балансе">visibility_off</mat-icon>
             </div>
 
             <div class="account-actions">
-              <button mat-icon-button *ngIf="acc.type === 'metal'" (click)="loadRateFor(acc.currencyCode)"
-                title="Обновить курс">
-                <mat-icon class="sync-icon">sync</mat-icon>
-              </button>
               <button mat-icon-button (click)="startAccountEdit(acc)">
                 <mat-icon>edit</mat-icon>
               </button>
@@ -110,6 +108,12 @@
                 <option *ngFor="let c of currencies()" [value]="c.code">{{ c.code }}</option>
               </select>
             </div>
+            <div class="edit-row">
+              <label class="setting-checkbox">
+                <input type="checkbox" [(ngModel)]="editingAccount.includeInTotal">
+                Учитывать в общем балансе
+              </label>
+            </div>
             <div class="edit-actions">
               <button mat-button (click)="cancelAccountEdit()">Отмена</button>
               <button mat-raised-button color="primary" (click)="saveAccountEdit()">Сохранить</button>
@@ -152,6 +156,13 @@
             *ngIf="newAccount.type !== 'metal' && currencies() as list">
             <option *ngFor="let c of list" [value]="c.code">{{ c.code }}</option>
           </select>
+        </div>
+
+        <div class="form-row">
+          <label class="setting-checkbox">
+            <input type="checkbox" [(ngModel)]="newAccount.includeInTotal">
+            Учитывать в общем балансе
+          </label>
         </div>
 
         <button mat-stroked-button color="primary" class="add-btn" (click)="addAccount()" [disabled]="!canAddAccount()">

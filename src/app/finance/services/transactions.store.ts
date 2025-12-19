@@ -76,9 +76,11 @@ export class TransactionsStore {
 
   // Balance = (Income - Expenses) + (Sum of Initial Balances of All Accounts)
   readonly accountsInitialBalance = computed(() =>
-    this.accountsService.accounts().reduce((sum: number, acc) =>
-      sum + this.currencyService.convertToDefault(acc.initialBalance, acc.currencyCode), 0
-    )
+    this.accountsService.accounts()
+      .filter(acc => acc.includeInTotal !== false)
+      .reduce((sum: number, acc) =>
+        sum + this.currencyService.convertToDefault(acc.initialBalance, acc.currencyCode), 0
+      )
   );
 
   readonly balance = computed(() =>
