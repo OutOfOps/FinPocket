@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Currency, CurrencyService } from '../core/services/currency.service';
@@ -8,6 +8,7 @@ import { ResetDataDialogComponent } from './components/reset-data-dialog/reset-d
 import { DataTransferService } from './services/data-transfer.service';
 import { BackupService } from '../core/services/backup.service';
 import { SyncSettingsService } from '../sync/services/sync-settings.service';
+import { OperationAccountsService, NewAccount, OperationAccount, AccountType } from '../finance/services/operation-accounts.service';
 
 @Component({
   selector: 'app-settings',
@@ -18,6 +19,7 @@ import { SyncSettingsService } from '../sync/services/sync-settings.service';
 export class Settings {
   private readonly themeService = inject(ThemeService);
   private readonly currencyService = inject(CurrencyService);
+  private readonly accountsService = inject(OperationAccountsService);
   private readonly dataResetService = inject(DataResetService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -135,6 +137,90 @@ export class Settings {
       this.newCurrency.rate = parseFloat(relRate.toFixed(4));
     } else {
       this.newCurrency.rate = 1;
+    }
+  }
+
+  protected readonly accounts = this.accountsService.accounts;
+
+  protected newAccount: NewAccount = {
+    name: '',
+    type: 'cash',
+    currencyCode: 'UAH',
+    initialBalance: 0
+  };
+
+  protected editingAccountId: string | null = null;
+  protected editingAccount: NewAccount = {
+    name: '',
+    type: 'cash',
+    currencyCode: 'UAH',
+    initialBalance: 0
+  };
+
+  protected canAddAccount(): boolean {
+    return !!this.newAccount.name.trim() && !!this.newAccount.currencyCode;
+  }
+
+  protected addAccount(): void {
+    if (!this.canAddAccount()) return;
+
+    // If currency not selected, default to base
+    if (!this.newAccount.currencyCode) {
+      this.newAccount.currencyCode = this.currencyService.getDefaultCurrencyCode();
+    }
+
+    this.accountsService.addAccount(this.newAccount);
+
+    // Reset form
+    this.newAccount = {
+      name: '',
+      type: 'cash',
+      currencyCode: this.currencyService.getDefaultCurrencyCode(),
+      initialBalance: 0
+    };
+  }
+
+  protected removeAccount(id: string): void {
+    this.accountsService.removeAccount(id);
+    if (this.editingAccountId === id) {
+      this.cancelAccountEdit();
+    }
+  }
+
+  protected startAccountEdit(account: OperationAccount): void {
+    this.editingAccountId = account.id;
+    this.editingAccount = {
+      name: account.name,
+      type: account.type,
+      currencyCode: account.currencyCode,
+      initialBalance: account.initialBalance,
+      bankName: account.bankName,
+      metalName: account.metalName
+    };
+  }
+
+  protected cancelAccountEdit(): void {
+    this.editingAccountId = null;
+    this.editingAccount = {
+      name: '',
+      type: 'cash',
+      currencyCode: 'UAH',
+      initialBalance: 0
+    };
+  }
+
+  protected saveAccountEdit(): void {
+    if (!this.editingAccountId || !this.editingAccount.name.trim()) return;
+
+    this.accountsService.updateAccount(this.editingAccountId, this.editingAccount);
+    this.cancelAccountEdit();
+  }
+
+  protected getAccountIcon(type: AccountType): string {
+    switch (type) {
+      case 'bank': return 'account_balance';
+      case 'metal': return 'diamond';
+      default: return 'payments'; // cash
     }
   }
 

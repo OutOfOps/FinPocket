@@ -39,6 +39,102 @@
       </div>
     </section>
 
+    <!-- Accounts Section -->
+    <section class="settings-section">
+      <div class="section-header">
+        <h3 class="section-title">Счета</h3>
+      </div>
+
+      <div class="accounts-list">
+        <div class="account-item" *ngFor="let acc of accounts()" [class.editing]="editingAccountId === acc.id">
+
+          <!-- View Mode -->
+          <ng-container *ngIf="editingAccountId !== acc.id">
+            <div class="account-icon-wrapper" [class.metal]="acc.type === 'metal'">
+              <mat-icon>{{ getAccountIcon(acc.type) }}</mat-icon>
+            </div>
+
+            <div class="account-info">
+              <span class="account-name">{{ acc.name }}</span>
+              <span class="account-detail" *ngIf="acc.type === 'bank'">{{ acc.bankName }}</span>
+              <span class="account-detail" *ngIf="acc.type === 'metal'">{{ acc.metalName }}</span>
+              <span class="account-balance">{{ acc.initialBalance | number:'1.2-2' }} {{ acc.currencyCode }}</span>
+            </div>
+
+            <div class="account-actions">
+              <button mat-icon-button (click)="startAccountEdit(acc)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="removeAccount(acc.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- Edit Mode -->
+          <div class="account-edit-form" *ngIf="editingAccountId === acc.id">
+            <div class="edit-row">
+              <input [(ngModel)]="editingAccount.name" placeholder="Название" class="neo-input small">
+              <select [(ngModel)]="editingAccount.type" class="neo-input small">
+                <option value="cash">Наличные</option>
+                <option value="bank">Банк</option>
+                <option value="metal">Металлол/Драг.</option>
+              </select>
+            </div>
+            <div class="edit-row">
+              <input *ngIf="editingAccount.type === 'bank'" [(ngModel)]="editingAccount.bankName"
+                placeholder="Название банка" class="neo-input">
+              <input *ngIf="editingAccount.type === 'metal'" [(ngModel)]="editingAccount.metalName"
+                placeholder="Название металла" class="neo-input">
+            </div>
+            <div class="edit-row">
+              <input type="number" [(ngModel)]="editingAccount.initialBalance" placeholder="Баланс"
+                class="neo-input small">
+              <select [(ngModel)]="editingAccount.currencyCode" class="neo-input small">
+                <option *ngFor="let c of currencies()" [value]="c.code">{{ c.code }}</option>
+              </select>
+            </div>
+            <div class="edit-actions">
+              <button mat-button (click)="cancelAccountEdit()">Отмена</button>
+              <button mat-raised-button color="primary" (click)="saveAccountEdit()">Сохранить</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Add Account Form -->
+      <div class="add-account-form">
+        <div class="form-row">
+          <input [(ngModel)]="newAccount.name" placeholder="Новый счет" class="neo-input">
+          <select [(ngModel)]="newAccount.type" class="neo-input small-select">
+            <option value="cash">Наличные</option>
+            <option value="bank">Банк</option>
+            <option value="metal">Метал.</option>
+          </select>
+        </div>
+
+        <div class="form-row" *ngIf="newAccount.type === 'bank' || newAccount.type === 'metal'">
+          <input *ngIf="newAccount.type === 'bank'" [(ngModel)]="newAccount.bankName" placeholder="Название банка"
+            class="neo-input">
+          <input *ngIf="newAccount.type === 'metal'" [(ngModel)]="newAccount.metalName" placeholder="Название металла"
+            class="neo-input">
+        </div>
+
+        <div class="form-row">
+          <input type="number" [(ngModel)]="newAccount.initialBalance" placeholder="Нач. баланс" class="neo-input">
+          <select [(ngModel)]="newAccount.currencyCode" class="neo-input small-select" *ngIf="currencies() as list">
+            <option *ngFor="let c of list" [value]="c.code">{{ c.code }}</option>
+          </select>
+        </div>
+
+        <button mat-stroked-button color="primary" class="add-btn" (click)="addAccount()" [disabled]="!canAddAccount()">
+          <mat-icon>add</mat-icon> Добавить счет
+        </button>
+      </div>
+
+    </section>
+
     <!-- Currencies Section -->
     <section class="settings-section">
       <div class="section-header">
