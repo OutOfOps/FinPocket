@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ThemeService } from './core/services/theme.service';
 import { trigger, transition, style, query, animate, group } from '@angular/animations';
@@ -56,6 +56,16 @@ export class App implements OnInit {
 
   protected readonly appVersion = inject(APP_VERSION);
   protected readonly appStatus = 'FinPocket';
+
+  private deferredPrompt: any;
+  protected showInstallBtn = false;
+
+  @HostListener('window:beforeinstallprompt', ['$event'])
+  onBeforeInstallPrompt(e: Event): void {
+    e.preventDefault();
+    this.deferredPrompt = e;
+    this.showInstallBtn = true;
+  }
 
   protected readonly navItems: NavigationItem[] = [
     {
@@ -140,6 +150,16 @@ export class App implements OnInit {
           panelClass: 'currency-dialog-panel'
         });
       });
+  }
+
+  protected async installApp(): Promise<void> {
+    if (!this.deferredPrompt) return;
+    this.deferredPrompt.prompt();
+    const { outcome } = await this.deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      this.showInstallBtn = false;
+    }
+    this.deferredPrompt = null;
   }
 
   private async ensureGoogleDriveToken(): Promise<void> {

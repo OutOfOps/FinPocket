@@ -16,6 +16,12 @@
           <mat-icon class="icon-gradient">currency_exchange</mat-icon>
         </button>
 
+        <!-- Install Button -->
+        <button *ngIf="showInstallBtn" mat-icon-button (click)="installApp()" matTooltip="Установить приложение"
+          style="margin-right: -4px">
+          <mat-icon class="icon-gradient">download_for_offline</mat-icon>
+        </button>
+
         <!-- Sync Button -->
         <button mat-icon-button routerLink="/sync" matTooltip="Синхронизация">
           <mat-icon class="icon-gradient">cloud_sync</mat-icon>
