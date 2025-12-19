@@ -91,9 +91,20 @@ export class CurrencyRatesDialogComponent {
         if (baseData && baseData.rate > 0) {
             // data.rate is Rate in UAH
             // baseData.rate is Rate in UAH
-            // Rate(C) in Base = data.rate / baseData.rate
-            const rateInBase = data.rate / baseData.rate;
-            this.newCurrencyRate = parseFloat(rateInBase.toFixed(4));
+
+            let targetRate = data.rate;
+            if (['XAU', 'XAG', 'XPT', 'XPD'].includes(code)) {
+                targetRate = targetRate / 31.1034807;
+            }
+
+            let baseRate = baseData.rate;
+            if (['XAU', 'XAG', 'XPT', 'XPD'].includes(baseCode)) {
+                baseRate = baseRate / 31.1034807;
+            }
+
+            // Rate(C) in Base = targetRate / baseRate
+            const rateInBase = targetRate / baseRate;
+            this.newCurrencyRate = parseFloat(rateInBase.toFixed(6));
         }
     }
 
