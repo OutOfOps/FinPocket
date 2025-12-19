@@ -43,9 +43,6 @@
     <section class="settings-section">
       <div class="section-header">
         <h3 class="section-title">Валюты</h3>
-        <button mat-icon-button (click)="loadNbuRates()" [disabled]="isLoadingRates" title="Загрузить курсы НБУ">
-          <mat-icon [class.spin]="isLoadingRates">sync</mat-icon>
-        </button>
       </div>
 
       <div class="currencies-list">
@@ -64,6 +61,10 @@
 
             <!-- Editable Rate for Non-Base -->
             <ng-container *ngIf="currency.id !== defaultCurrency()">
+              <button mat-icon-button (click)="loadRateFor(currency.id)" title="Обновить курс (НБУ)">
+                <mat-icon class="sync-icon">sync</mat-icon>
+              </button>
+
               <div class="rate-editor">
                 <input type="number" [ngModel]="getRelativeRate(currency)" (change)="updateRate(currency, $event)"
                   step="0.0001" class="rate-input">
@@ -83,8 +84,15 @@
 
       <!-- Add Currency Form -->
       <form class="add-currency-form" (ngSubmit)="addCurrency()">
-        <input type="text" [(ngModel)]="newCurrency.code" name="code" placeholder="Код (USD)" required maxlength="3"
-          class="neo-input small">
+        <!-- Custom Select for available NBU codes -->
+        <div class="nbu-select-wrapper">
+          <select [ngModel]="newCurrency.code" (ngModelChange)="onNbuCodeSelect($event)" name="nbuSelect"
+            class="neo-input small">
+            <option value="" disabled selected>Код</option>
+            <option *ngFor="let item of nbuList" [value]="item.code">{{ item.code }}</option>
+          </select>
+        </div>
+
         <input type="text" [(ngModel)]="newCurrency.name" name="name" placeholder="Название" required
           class="neo-input medium">
         <input type="number" [(ngModel)]="newCurrency.rate" name="rate" placeholder="Курс" required step="0.01"

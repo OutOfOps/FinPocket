@@ -97,6 +97,56 @@ export class Settings {
     });
   }
 
+  protected nbuCurrencies = new Map<string, { rate: number; txt: string }>();
+  protected nbuList: Array<{ code: string; txt: string }> = [];
+
+  constructor() {
+    this.currencyService.ensureHryvniaExists();
+    // Pre-fetch NBU list for the dropdown
+    this.loadNbuList();
+  }
+
+  protected async loadNbuList(): Promise<void> {
+    try {
+      this.nbuCurrencies = await this.currencyService.getNbuData();
+      this.nbuList = Array.from(this.nbuCurrencies.entries())
+        .map(([code, data]) => ({ code, txt: data.txt }))
+        .sort((a, b) => a.code.localeCompare(b.code));
+    } catch {
+      // Ignore
+    }
+  }
+
+  // When user selects a code from dropdown, fill name and estimated rate
+  protected onNbuCodeSelect(code: string): void {
+    const data = this.nbuCurrencies.get(code);
+    if (!data) return;
+
+    this.newCurrency.code = code;
+    this.newCurrency.name = data.txt;
+
+    // Estimate rate relative to current base
+    // Need base rate in UAH
+    const baseCode = this.currencyService.getDefaultCurrencyCode();
+    const baseData = this.nbuCurrencies.get(baseCode);
+
+    if (baseData && baseData.rate > 0) {
+      const relRate = data.rate / baseData.rate;
+      this.newCurrency.rate = parseFloat(relRate.toFixed(4));
+    } else {
+      this.newCurrency.rate = 1;
+    }
+  }
+
+  protected async loadRateFor(currencyId: string): Promise<void> {
+    const success = await this.currencyService.syncCurrencyRate(currencyId);
+    if (success) {
+      this.snackBar.open('Курс обновлен', undefined, { duration: 1500 });
+    } else {
+      this.snackBar.open('Не удалось обновить курс', 'OK', { duration: 3000 });
+    }
+  }
+
   protected addCurrency(): void {
     if (!this.canAddCurrency()) {
       return;

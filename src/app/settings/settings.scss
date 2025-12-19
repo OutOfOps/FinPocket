@@ -319,6 +319,16 @@
       flex: 1;
     }
   }
+
+  .nbu-select-wrapper {
+    position: relative;
+    width: 80px;
+
+    select {
+      width: 100%;
+      height: 38px;
+    }
+  }
 }
 
 /* Inputs */
