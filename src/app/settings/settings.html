@@ -72,25 +72,36 @@
           </ng-container>
 
           <!-- Edit Mode -->
+          <!-- Edit Mode -->
           <div class="account-edit-form" *ngIf="editingAccountId === acc.id">
             <div class="edit-row">
               <input [(ngModel)]="editingAccount.name" placeholder="Название" class="neo-input small">
               <select [(ngModel)]="editingAccount.type" class="neo-input small">
                 <option value="cash">Наличные</option>
                 <option value="bank">Банк</option>
-                <option value="metal">Металлол/Драг.</option>
+                <option value="metal">Метал/Драг.</option>
               </select>
             </div>
             <div class="edit-row">
               <input *ngIf="editingAccount.type === 'bank'" [(ngModel)]="editingAccount.bankName"
                 placeholder="Название банка" class="neo-input">
-              <input *ngIf="editingAccount.type === 'metal'" [(ngModel)]="editingAccount.metalName"
-                placeholder="Название металла" class="neo-input">
+
+              <ng-container *ngIf="editingAccount.type === 'metal'">
+                <!-- Metal Name as Select from NBU -->
+                <select [(ngModel)]="editingAccount.metalName" class="neo-input" placeholder="Выберите металл">
+                  <option value="" disabled selected>Выберите металл...</option>
+                  <option *ngFor="let m of nbuMetals" [value]="m.txt">
+                    {{ m.txt }} ({{ m.code }})
+                  </option>
+                </select>
+              </ng-container>
             </div>
             <div class="edit-row">
               <input type="number" [(ngModel)]="editingAccount.initialBalance" placeholder="Баланс"
                 class="neo-input small">
               <select [(ngModel)]="editingAccount.currencyCode" class="neo-input small">
+                <!-- If Metal, user can pick Currency OR Metal Code? Usually standard currency for value or XAU for weight. -->
+                <!-- Let's keep standard behavior: All currencies available. -->
                 <option *ngFor="let c of currencies()" [value]="c.code">{{ c.code }}</option>
               </select>
             </div>
@@ -117,8 +128,15 @@
         <div class="form-row" *ngIf="newAccount.type === 'bank' || newAccount.type === 'metal'">
           <input *ngIf="newAccount.type === 'bank'" [(ngModel)]="newAccount.bankName" placeholder="Название банка"
             class="neo-input">
-          <input *ngIf="newAccount.type === 'metal'" [(ngModel)]="newAccount.metalName" placeholder="Название металла"
-            class="neo-input">
+
+          <ng-container *ngIf="newAccount.type === 'metal'">
+            <select [(ngModel)]="newAccount.metalName" class="neo-input">
+              <option value="" disabled selected>Выберите металл...</option>
+              <option *ngFor="let m of nbuMetals" [value]="m.txt">
+                {{ m.txt }} ({{ m.code }})
+              </option>
+            </select>
+          </ng-container>
         </div>
 
         <div class="form-row">

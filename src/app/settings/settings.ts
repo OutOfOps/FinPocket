@@ -114,10 +114,16 @@ export class Settings {
       this.nbuList = Array.from(this.nbuCurrencies.entries())
         .map(([code, data]) => ({ code, txt: data.txt }))
         .sort((a, b) => a.code.localeCompare(b.code));
+
+      this.nbuMetals = this.nbuList.filter(item =>
+        ['XAU', 'XAG', 'XPT', 'XPD'].includes(item.code)
+      );
     } catch {
       // Ignore
     }
   }
+
+  protected nbuMetals: Array<{ code: string; txt: string }> = [];
 
   // When user selects a code from dropdown, fill name and estimated rate
   protected onNbuCodeSelect(code: string): void {
