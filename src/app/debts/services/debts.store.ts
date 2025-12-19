@@ -40,16 +40,32 @@ export class DebtsStore {
   private readonly currencyService = inject(CurrencyService);
 
   private readonly debtsSignal = signal<DebtEntity[]>([]);
+  private readonly transactionsSignal = signal<DebtTransactionEntity[]>([]);
 
   readonly debts = computed(() => this.debtsSignal());
+  readonly transactions = computed(() => this.transactionsSignal());
 
-  readonly listItems = computed<DebtListItem[]>(() =>
-    [...this.debtsSignal()]
+  readonly listItems = computed<DebtListItem[]>(() => {
+    const txMap = new Map<number, DebtTransactionEntity[]>();
+    this.transactionsSignal().forEach(tx => {
+      const list = txMap.get(tx.debtId) || [];
+      list.push(tx);
+      txMap.set(tx.debtId, list);
+    });
+
+    return [...this.debtsSignal()]
       .sort((a, b) => this.sortByDueDate(a.dueDate, b.dueDate))
       .map((debt) => {
+        const debtTxs = txMap.get(debt.id!) || [];
+        let currentAmount = debt.amount;
+        debtTxs.forEach(tx => {
+          if (tx.type === 'payment') currentAmount -= tx.amount;
+          else if (tx.type === 'charge') currentAmount += tx.amount;
+        });
+
         const normalizedCurrency = this.currencyService.normalizeCode(debt.currency);
         const convertedAmount = this.currencyService.convertToDefault(
-          Math.abs(debt.amount),
+          Math.abs(currentAmount),
           normalizedCurrency
         );
         const kind = debt.kind ?? 'loan';
@@ -69,15 +85,15 @@ export class DebtsStore {
           kindLabel,
           status: debt.status,
           statusLabel,
-          amount: debt.amount,
+          amount: currentAmount,
           currency: normalizedCurrency,
           convertedAmount,
           dueDate: debt.dueDate,
           participants: debt.participants ?? [],
           note: debt.note,
         } satisfies DebtListItem;
-      })
-  );
+      });
+  });
 
   readonly totals = computed(() => {
     const defaultCurrency = this.currencyService.getDefaultCurrencyCode();
@@ -104,8 +120,12 @@ export class DebtsStore {
   }
 
   async refresh(): Promise<void> {
-    const debts = await this.storage.getDebts();
+    const [debts, transactions] = await Promise.all([
+      this.storage.getDebts(),
+      this.storage.getAllDebtTransactions(),
+    ]);
     this.debtsSignal.set(debts);
+    this.transactionsSignal.set(transactions);
   }
 
   async addDebt(debt: Omit<DebtEntity, 'id'>): Promise<void> {
@@ -123,6 +143,7 @@ export class DebtsStore {
   async removeDebt(id: number): Promise<void> {
     await this.storage.deleteDebt(id);
     this.debtsSignal.update((current) => current.filter((debt) => debt.id !== id));
+    this.transactionsSignal.update((current) => current.filter((tx) => tx.debtId !== id));
   }
 
   getDebt(id: number): DebtEntity | undefined {
@@ -130,17 +151,19 @@ export class DebtsStore {
   }
 
   async getDebtTransactions(debtId: number): Promise<DebtTransactionEntity[]> {
-    return this.storage.getDebtTransactions(debtId);
+    return this.transactionsSignal().filter((tx) => tx.debtId === debtId);
   }
 
   async addDebtTransaction(
     debtId: number,
     transaction: Omit<DebtTransactionEntity, 'id' | 'debtId'>
   ): Promise<void> {
-    await this.storage.addDebtTransaction({
+    const fullTx: DebtTransactionEntity = {
       ...transaction,
       debtId,
-    });
+    };
+    const id = await this.storage.addDebtTransaction(fullTx);
+    this.transactionsSignal.update((current) => [{ ...fullTx, id }, ...current]);
   }
 
   async updateDebtTransaction(
@@ -148,10 +171,14 @@ export class DebtsStore {
     changes: Partial<DebtTransactionEntity>
   ): Promise<void> {
     await this.storage.updateDebtTransaction(id, changes);
+    this.transactionsSignal.update((current) =>
+      current.map((tx) => (tx.id === id ? { ...tx, ...changes } : tx))
+    );
   }
 
   async removeDebtTransaction(id: number): Promise<void> {
     await this.storage.deleteDebtTransaction(id);
+    this.transactionsSignal.update((current) => current.filter((tx) => tx.id !== id));
   }
 
   kindLabel(kind: DebtKind): string {

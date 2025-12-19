@@ -12,7 +12,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
-  constructor(private readonly db: FinPocketDB) {}
+  constructor(private readonly db: FinPocketDB) { }
 
   // Transactions
   getTransactions(): Promise<TransactionEntity[]> {
@@ -86,6 +86,10 @@ export class StorageService {
       .where('debtId')
       .equals(debtId)
       .sortBy('createdAt');
+  }
+
+  getAllDebtTransactions(): Promise<DebtTransactionEntity[]> {
+    return this.db.debtTransactions.toArray();
   }
 
   addDebtTransaction(transaction: DebtTransactionEntity): Promise<number> {

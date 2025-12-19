@@ -1,8 +1,8 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { DebtsStore, DebtKind, DebtStatus } from '../../services/debts.store';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-debts-edit',
@@ -15,73 +15,79 @@ export class DebtsEditComponent {
   private readonly currencyService = inject(CurrencyService);
   private readonly debtsStore = inject(DebtsStore);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   // Form State
-  readonly direction = signal<'borrowed' | 'lent'>('borrowed'); // borrowed = I owe, lent = Owed to me
-  readonly amountString = signal('0');
+  readonly debtId = signal<number | null>(null);
+  readonly direction = signal<'borrowed' | 'lent'>('borrowed');
+  readonly amount = signal<number>(0);
   readonly contactName = signal('');
   readonly note = signal('');
   readonly dueDate = signal(new Date().toISOString().substring(0, 10));
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
-  // Logic to map direction to DebtKind
-  // borrowed -> loan (primary)
-  // lent -> lend (primary)
+  constructor() {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      const id = parseInt(idParam, 10);
+      if (!isNaN(id)) {
+        this.debtId.set(id);
+        const debt = this.debtsStore.getDebt(id);
+        if (debt) {
+          this.direction.set(debt.direction === 'owed' ? 'borrowed' : 'lent');
+          this.amount.set(debt.amount);
+          this.contactName.set(debt.contact);
+          this.note.set(debt.note || '');
+          this.dueDate.set(debt.dueDate ? new Date(debt.dueDate).toISOString().substring(0, 10) : new Date().toISOString().substring(0, 10));
+        }
+      }
+    }
+  }
 
   setType(dir: 'borrowed' | 'lent'): void {
     this.direction.set(dir);
   }
 
-  // Calculator Logic
-  appendDigit(digit: string): void {
-    const current = this.amountString();
-    if (current === '0' && digit !== '.') {
-      this.amountString.set(digit);
-    } else {
-      if (digit === '.' && current.includes('.')) return;
-      if (current.replace('.', '').length >= 9) return;
-      this.amountString.set(current + digit);
-    }
-  }
-
-  backspace(): void {
-    const current = this.amountString();
-    if (current.length === 1) {
-      this.amountString.set('0');
-    } else {
-      this.amountString.set(current.slice(0, -1));
-    }
-  }
-
-  clear(): void {
-    this.amountString.set('0');
+  cancel(): void {
+    this.router.navigate(['/debts']);
   }
 
   get canSubmit(): boolean {
-    return parseFloat(this.amountString()) > 0 && !!this.contactName().trim();
+    return this.amount() > 0 && !!this.contactName().trim();
   }
 
   async submit(): Promise<void> {
-    const amountVal = parseFloat(this.amountString());
+    const amountVal = this.amount();
     if (amountVal <= 0 || !this.contactName().trim()) return;
 
     const dir = this.direction();
     const kind: DebtKind = dir === 'borrowed' ? 'loan' : 'lend';
-    const dbDirection = dir === 'borrowed' ? 'owed' : 'lent';
+    const dbDirection: 'owed' | 'lent' = dir === 'borrowed' ? 'owed' : 'lent';
 
-    await this.debtsStore.addDebt({
+    const debtData = {
       contact: this.contactName().trim(),
       kind: kind,
       direction: dbDirection,
       amount: amountVal,
       currency: this.currencyService.getDefaultCurrencyCode(),
-      dueDate: new Date(this.dueDate()).toISOString(),
-      status: 'active',
+      dueDate: this.dueDate() ? new Date(this.dueDate()).toISOString() : undefined,
+      status: 'active' as DebtStatus,
       participants: ['Вы', this.contactName().trim()],
       note: this.note().trim() || undefined,
       createdAt: new Date().toISOString(),
-    });
+    };
+
+    const id = this.debtId();
+    if (id !== null) {
+      await this.debtsStore.updateDebt(id, debtData);
+    } else {
+      await this.debtsStore.addDebt(debtData);
+    }
 
     this.router.navigate(['/debts']);
   }

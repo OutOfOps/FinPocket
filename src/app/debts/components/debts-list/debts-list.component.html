@@ -1,58 +1,70 @@
 <div class="debts-view">
   <!-- Header with Summary -->
   <header class="debts-header">
-    <div class="debts-summary-card">
-      <div class="summary-item owed">
-        <span class="label">Мне должны</span>
-        <span class="amount">{{ currencyService.format(totals().lent, totals().defaultCurrency, 0) }}</span>
+    <h1>Долги</h1>
+    <div class="debts-summary-neo">
+      <div class="summary-card lent">
+        <div class="card-icon"><mat-icon>trending_up</mat-icon></div>
+        <div class="card-content">
+          <span class="label">Мне должны</span>
+          <span class="amount">{{ currencyService.format(totals().lent, totals().defaultCurrency, 0) }}</span>
+        </div>
       </div>
-      <div class="divider"></div>
-      <div class="summary-item debt">
-        <span class="label">Я должен</span>
-        <span class="amount">{{ currencyService.format(totals().owed, totals().defaultCurrency, 0) }}</span>
+      <div class="summary-card owed">
+        <div class="card-icon"><mat-icon>trending_down</mat-icon></div>
+        <div class="card-content">
+          <span class="label">Я должен</span>
+          <span class="amount">{{ currencyService.format(totals().owed, totals().defaultCurrency, 0) }}</span>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Contact List -->
   <div class="debts-list-container">
-    <h3 class="list-title">Контакты</h3>
+    <div class="list-actions">
+      <h3 class="list-title">Мои долги</h3>
+      <button class="add-debt-fab" [routerLink]="['/debts', 'create']" mat-ripple>
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
 
-    <ng-container *ngIf="debts().length; else emptyState">
-      <div class="debt-contact-item" *ngFor="let debt of debts(); trackBy: trackDebt" [routerLink]="['/debts', debt.id]"
-        mat-ripple>
+    @if (debts().length) {
+    @for (debt of debts(); track debt.id) {
+    <div class="debt-neo-card" [routerLink]="['/debts', debt.id]" mat-ripple>
 
-        <!-- Avatar -->
+      <div class="debt-card-left">
         <div class="contact-avatar" [style.background-color]="getAvatarColor(debt.name)">
           {{ getInitials(debt.name) }}
         </div>
-
-        <!-- Info -->
-        <div class="contact-info">
-          <div class="contact-name-row">
-            <span class="contact-name">{{ debt.name }}</span>
-            <span class="contact-amount" [class.positive]="debt.kind === 'deposit' || debt.kind === 'lend'"
-              [class.negative]="debt.kind === 'credit' || debt.kind === 'loan'">
-              {{ currencyService.format(debt.convertedAmount, defaultCurrencyCode(), 0) }}
-            </span>
-          </div>
-          <div class="contact-meta-row">
-            <span class="contact-kind">{{ debt.kindLabel }}</span>
-            <span class="dot" *ngIf="debt.dueDate">·</span>
-            <span class="contact-date" *ngIf="debt.dueDate" [class.overdue]="debt.status === 'overdue'">
-              {{ debt.dueDate | date:'d MMM' }}
-            </span>
-          </div>
+        <div class="debt-main-info">
+          <span class="contact-name">{{ debt.name }}</span>
+          <span class="debt-kind">{{ debt.kindLabel }}</span>
         </div>
       </div>
-    </ng-container>
 
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <mat-icon>people_outline</mat-icon>
-        <p>Список пуст</p>
-        <span class="hint">Добавьте, кому вы заняли или кто занял вам</span>
+      <div class="debt-card-right">
+        <span class="debt-amount" [class.positive]="debt.kind === 'deposit' || debt.kind === 'lend'"
+          [class.negative]="debt.kind === 'credit' || debt.kind === 'loan'">
+          {{ currencyService.format(debt.amount, debt.currency, 0) }}
+        </span>
+        <div class="debt-status-row">
+          <span class="status-dot" [class]="debt.status"></span>
+          @if (debt.dueDate) {
+          <span class="debt-date" [class.overdue]="debt.status === 'overdue'">
+            {{ debt.dueDate | date:'d MMM' }}
+          </span>
+          }
+        </div>
       </div>
-    </ng-template>
+    </div>
+    }
+    } @else {
+    <div class="empty-state neo-card">
+      <mat-icon>people_outline</mat-icon>
+      <p>Список пуст</p>
+      <span class="hint">Добавьте, кому вы заняли или кто занял вам</span>
+    </div>
+    }
   </div>
 </div>

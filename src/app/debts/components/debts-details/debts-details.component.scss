@@ -1,154 +1,469 @@
-.debts-details {
-  display: grid;
-  gap: 1.5rem;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.debts-details header {
-  margin-bottom: 1rem;
-}
-
-.debts-details header h2 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.75rem;
-}
-
-.debts-details header p {
-  margin: 0;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-mat-card-title {
-  display: flex !important;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem !important;
-}
-
-.debts-details__info {
-  display: grid;
-  gap: 1rem;
-  margin: 0;
-}
-
-.debts-details__info > div {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 1rem;
-}
-
-.debts-details__info dt {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.debts-details__info dd {
-  margin: 0;
-  font-weight: 600;
-}
-
-.debts-details__form {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.debts-details__form mat-form-field {
-  width: 100%;
-}
-
-.debts-details__participants {
-  grid-column: 1 / -1;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.debts-details__participants label {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.debts-details__participant {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.debts-details__participant mat-form-field {
-  flex: 1;
-}
-
-.debts-details__payment-form {
-  display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.debts-details__payment-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.debts-details__timeline {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 1rem;
-}
-
-.debts-details__timeline li {
-  display: grid;
-  grid-template-columns: 150px 1fr 150px;
-  gap: 1rem;
-  align-items: start;
-  padding: 0.75rem;
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-.debts-details__timeline-date {
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.debts-details__timeline-content {
+.debts-details-view {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  height: 100%;
+  padding-bottom: 40px;
 }
 
-.debts-details__timeline-action {
-  font-weight: 500;
-}
-
-.debts-details__timeline-note {
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
-  font-style: italic;
-}
-
-.debts-details__timeline-amount {
-  text-align: right;
-  font-size: 1.125rem;
-}
-
-.debts-details__credit {
-  color: #008f5a;
-}
-
-.debts-details__debit {
-  color: #d32f2f;
-}
-
-.debts-details__empty {
-  text-align: center;
-  padding: 2rem;
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.debts-details__loading {
+.details-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 400px;
+  padding: 16px;
+  gap: 16px;
+  background-color: var(--finpocket-bg-app);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .header-titles {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--finpocket-text);
+    }
+  }
+
+  .back-btn {
+    color: var(--finpocket-text);
+  }
+
+  .delete-btn {
+    color: #f44336;
+  }
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+
+  &.active {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196f3;
+  }
+
+  &.paid {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+
+  &.overdue {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+  }
+}
+
+.details-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Neo Card Style */
+.neo-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 20px;
+}
+
+/* Hero Balance Card */
+.hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.05), transparent);
+    z-index: 0;
+  }
+
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--finpocket-muted);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .balance-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    position: relative;
+
+    .currency {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--finpocket-muted);
+    }
+
+    .amount {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+  }
+
+  .hero-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    position: relative;
+
+    .original-label {
+      color: var(--finpocket-muted);
+    }
+
+    .original-amount {
+      font-weight: 600;
+      color: var(--finpocket-text);
+    }
+  }
+
+  &.negative {
+    border-color: rgba(244, 67, 54, 0.2);
+
+    .amount {
+      color: #f44336;
+    }
+  }
+
+  &.positive {
+    border-color: rgba(76, 175, 80, 0.2);
+
+    .amount {
+      color: #4caf50;
+    }
+  }
+}
+
+/* Management Actions */
+.management-section {
+  display: flex;
+  gap: 12px;
+
+  .action-btn {
+    flex: 1;
+    height: 52px;
+    border-radius: 16px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &.primary {
+      background: var(--finpocket-primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(98, 0, 238, 0.3);
+    }
+
+    &.secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--finpocket-text);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Forms */
+.form-container {
+  .form-title {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--finpocket-text);
+  }
+}
+
+.neo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--finpocket-muted);
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+
+  .flex-1 {
+    flex: 1;
+  }
+}
+
+.neo-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--finpocket-text);
+  font-size: 15px;
+  outline: none;
+  font-family: inherit;
+
+  &:focus {
+    border-color: var(--finpocket-primary);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &.textarea {
+    min-height: 80px;
+    resize: none;
+  }
+
+  &.large {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: right;
+    padding: 16px;
+  }
+}
+
+.payment-type-toggle {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 10px;
+
+  button {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--finpocket-muted);
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--finpocket-text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.amount-input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .currency {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--finpocket-muted);
+  }
+
+  .neo-input {
+    flex: 1;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+
+  .btn {
+    flex: 1;
+    height: 48px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.cancel {
+      background: none;
+      color: var(--finpocket-muted);
+    }
+
+    &.save {
+      background: var(--finpocket-primary);
+      color: #fff;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+/* Timeline */
+.timeline-section {
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--finpocket-primary);
+    margin: 0 0 16px 4px;
+    letter-spacing: 0.5px;
+  }
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  align-items: center;
+}
+
+.timeline-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.repayment {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+
+  &.charge {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.timeline-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .action-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--finpocket-text);
+  }
+
+  .entry-amount {
+    font-weight: 700;
+    font-size: 15px;
+
+    &.positive {
+      color: #f44336;
+    }
+
+    // In timeline: charge = + debt = bad
+    &.negative {
+      color: #4caf50;
+    }
+
+    // Payment = - debt = good
+  }
+}
+
+.timeline-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--finpocket-muted);
+
+  .entry-note {
+    font-style: italic;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--finpocket-muted);
 }

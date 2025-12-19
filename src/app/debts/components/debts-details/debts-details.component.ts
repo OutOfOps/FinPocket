@@ -4,6 +4,8 @@ import { SharedModule } from '../../../shared/shared-module';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { DebtsStore, DebtKind, DebtStatus } from '../../services/debts.store';
 import { DebtEntity, DebtTransactionEntity } from '../../../core/services/finpocket-db.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface TimelineEntry {
   id?: number;
@@ -24,10 +26,11 @@ export class DebtsDetailsComponent {
   readonly currencyService = inject(CurrencyService);
   readonly debtsStore = inject(DebtsStore);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
-  
+
   readonly debtId = signal<number | undefined>(undefined);
   readonly debt = signal<DebtEntity | undefined>(undefined);
   readonly transactions = signal<DebtTransactionEntity[]>([]);
@@ -80,7 +83,7 @@ export class DebtsDetailsComponent {
   readonly timeline = computed<TimelineEntry[]>(() => {
     const debt = this.debt();
     const transactions = this.transactions();
-    
+
     if (!debt) return [];
 
     const entries: TimelineEntry[] = [
@@ -101,7 +104,7 @@ export class DebtsDetailsComponent {
       });
     });
 
-    return entries.sort((a, b) => 
+    return entries.sort((a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
   });
@@ -109,11 +112,11 @@ export class DebtsDetailsComponent {
   readonly remainingBalance = computed(() => {
     const debt = this.debt();
     const transactions = this.transactions();
-    
+
     if (!debt) return 0;
 
     let balance = debt.amount;
-    
+
     transactions.forEach((tx) => {
       if (tx.type === 'payment') {
         balance -= tx.amount;
@@ -144,14 +147,14 @@ export class DebtsDetailsComponent {
 
     this.debtId.set(id);
     const debt = this.debtsStore.getDebt(id);
-    
+
     if (!debt) {
       void this.router.navigate(['/debts/list']);
       return;
     }
 
     this.debt.set(debt);
-    
+
     const transactions = await this.debtsStore.getDebtTransactions(id);
     this.transactions.set(transactions);
   }
@@ -170,7 +173,7 @@ export class DebtsDetailsComponent {
       participants: [...debt.participants],
       note: debt.note || '',
     });
-    
+
     this.isEditing.set(true);
   }
 
@@ -181,7 +184,7 @@ export class DebtsDetailsComponent {
   async saveEdit(): Promise<void> {
     const debtId = this.debtId();
     const form = this.editForm();
-    
+
     if (!debtId || !form.contact.trim() || form.amount <= 0) {
       return;
     }
@@ -205,6 +208,27 @@ export class DebtsDetailsComponent {
     await this.loadDebt();
   }
 
+  async removeDebt(): Promise<void> {
+    const debtId = this.debtId();
+    if (!debtId) return;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Удаление долга',
+        message: 'Вы уверены, что хотите удалить этот долг? Все связанные выплаты также будут удалены.',
+        isDestructive: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(async (result: boolean) => {
+      if (result) {
+        await this.debtsStore.removeDebt(debtId);
+        this.router.navigate(['/debts']);
+      }
+    });
+  }
+
   startAddPayment(): void {
     this.paymentForm.set({
       type: 'payment',
@@ -221,7 +245,7 @@ export class DebtsDetailsComponent {
   async savePayment(): Promise<void> {
     const debtId = this.debtId();
     const form = this.paymentForm();
-    
+
     if (!debtId || form.amount <= 0) {
       return;
     }

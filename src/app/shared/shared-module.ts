@@ -20,6 +20,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SharedListComponent } from './components/shared-list/shared-list.component';
 import { SharedEditComponent } from './components/shared-edit/shared-edit.component';
 import { SharedDetailsComponent } from './components/shared-details/shared-details.component';
@@ -42,7 +43,8 @@ const MATERIAL_MODULES = [
   MatDialogModule,
   MatBottomSheetModule,
   MatTooltipModule,
-  MatRippleModule
+  MatRippleModule,
+  MatProgressSpinnerModule
 ];
 
 import { CurrencyRatesDialogComponent } from './components/currency-rates-dialog/currency-rates-dialog.component';
