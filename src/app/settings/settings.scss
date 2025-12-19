@@ -49,7 +49,8 @@
 
 /* Setting Item */
 .setting-item {
-  background-color: #1a1a1a;
+  background-color: var(--finpocket-glass-bg);
+  border: 1px solid var(--finpocket-glass-border);
   border-radius: 16px;
   padding: 16px;
   display: flex;
@@ -82,7 +83,7 @@
 
 /* Theme Toggle */
 .theme-toggle-wrapper {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--finpocket-input-bg);
   border-radius: 24px;
   padding: 4px;
   display: flex;
@@ -198,8 +199,8 @@
 }
 
 .rate-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--finpocket-input-bg);
+  border: 1px solid var(--finpocket-glass-border);
   border-radius: 6px;
   color: var(--finpocket-text);
   font-size: 14px;
@@ -265,9 +266,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  background-color: rgba(30, 30, 30, 0.6);
+  background-color: var(--finpocket-glass-bg);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--finpocket-glass-border);
 }
 
 .currency-info {
@@ -333,8 +334,8 @@
 
 /* Inputs */
 .neo-input {
-  background-color: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: var(--finpocket-input-bg);
+  border: 1px solid var(--finpocket-glass-border);
   border-radius: 12px;
   padding: 12px 16px;
   color: var(--finpocket-text);
@@ -362,8 +363,8 @@
 }
 
 .account-item {
-  background-color: rgba(30, 30, 30, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: var(--finpocket-glass-bg);
+  border: 1px solid var(--finpocket-glass-border);
   border-radius: 12px;
   padding: 12px;
   display: flex;
@@ -372,8 +373,9 @@
   transition: all 0.2s;
 
   &.editing {
-    background-color: rgba(30, 30, 30, 0.9);
+    background-color: var(--finpocket-bg-surface-2);
     border-color: var(--finpocket-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -381,7 +383,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--finpocket-input-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -448,10 +450,10 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: rgba(30, 30, 30, 0.3);
+  background-color: var(--finpocket-glass-bg);
   padding: 16px;
   border-radius: 16px;
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border: 1px dashed var(--finpocket-glass-border);
 
   .form-row {
     display: flex;
