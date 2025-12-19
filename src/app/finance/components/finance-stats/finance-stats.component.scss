@@ -74,11 +74,69 @@
 ::ng-deep {
     .ngx-charts {
         text {
-            fill: var(--finpocket-muted) !important;
+            fill: rgba(255, 255, 255, 0.7) !important;
+            font-size: 11px !important;
+            font-family: inherit !important;
         }
 
         .gridline-path {
-            stroke: rgba(255, 255, 255, 0.05) !important;
+            stroke: rgba(255, 255, 255, 0.03) !important;
+            stroke-dasharray: 4, 4;
+        }
+
+        /* Tooltip Glass Effect */
+        .chart-legend .legend-label {
+            color: rgba(255, 255, 255, 0.8) !important;
+
+            &:hover {
+                color: #fff !important;
+                background: rgba(255, 255, 255, 0.05) !important;
+            }
+        }
+
+        .advanced-pie-legend {
+            .total-label {
+                color: rgba(255, 255, 255, 0.5) !important;
+            }
+
+            .total-value {
+                color: #fff !important;
+                font-weight: 700 !important;
+            }
+
+            .legend-items-container .legend-items .legend-item {
+                .item-label {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+
+                .item-value {
+                    color: #fff !important;
+                    font-weight: 600 !important;
+                }
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.05) !important;
+                    border-radius: 8px;
+                }
+            }
+        }
+    }
+
+    .ngx-charts-tooltip-content {
+        background: rgba(20, 20, 30, 0.85) !important;
+        backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        color: #fff !important;
+
+        .tooltip-label {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .tooltip-val {
+            color: #fff !important;
+            font-weight: 600 !important;
         }
     }
 }

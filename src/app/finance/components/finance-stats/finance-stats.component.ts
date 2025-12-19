@@ -25,8 +25,14 @@ export class FinanceStatsComponent {
         selectable: true,
         group: ScaleType.Ordinal,
         domain: [
-            '#6200ee', '#03dac6', '#ff0266', '#ffde03',
-            '#018786', '#b00020', '#3700b3', '#00bfa5'
+            '#8B5CF6', // Violet
+            '#3B82F6', // Blue
+            '#06B6D4', // Cyan
+            '#10B981', // Emerald
+            '#EC4899', // Pink
+            '#F59E0B', // Amber
+            '#6366F1', // Indigo
+            '#F43F5E'  // Rose
         ]
     };
 
@@ -34,6 +40,6 @@ export class FinanceStatsComponent {
         name: 'history',
         selectable: true,
         group: ScaleType.Ordinal,
-        domain: ['#03dac6', '#ff0266'] // Green for Income, Red/Pink for Expense
+        domain: ['#10B981', '#F43F5E'] // Emerald (Income), Rose (Expense)
     };
 }
