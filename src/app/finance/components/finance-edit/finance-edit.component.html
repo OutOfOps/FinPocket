@@ -13,7 +13,9 @@
   <div class="amount-wrapper">
     <div class="currency-selector">
       <select [ngModel]="selectedCurrency()" (ngModelChange)="selectedCurrency.set($event)">
-        <option *ngFor="let curr of currencies()" [value]="curr.code">{{ curr.code }}</option>
+        @for (curr of currencies(); track curr.code) {
+        <option [value]="curr.code">{{ curr.code }}</option>
+        }
       </select>
       <mat-icon>expand_more</mat-icon>
     </div>
@@ -23,13 +25,16 @@
   </div>
 
   <!-- Transfer Config (If Transfer) -->
-  <div class="transfer-config" *ngIf="type() === 'transfer'">
+  @if (type() === 'transfer') {
+  <div class="transfer-config">
     <div class="account-selector">
       <label>Откуда</label>
       <div class="selector-box">
         <mat-icon>account_balance_wallet</mat-icon>
         <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)">
-          <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
+          @for (acc of accounts(); track acc.id) {
+          <option [value]="acc.name">{{ acc.name }}</option>
+          }
         </select>
       </div>
     </div>
@@ -43,48 +48,54 @@
       <div class="selector-box">
         <mat-icon>savings</mat-icon>
         <select [ngModel]="accountTo()" (ngModelChange)="accountTo.set($event)">
-          <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
+          @for (acc of accounts(); track acc.id) {
+          <option [value]="acc.name">{{ acc.name }}</option>
+          }
         </select>
       </div>
     </div>
   </div>
+  }
 
   <!-- Standard Config (If Not Transfer) -->
-  <ng-container *ngIf="type() !== 'transfer'">
-    <!-- Category Grid -->
-    <div class="category-grid-container">
-      <div class="category-grid">
-        <div class="category-item" *ngFor="let cat of categories" [class.selected]="selectedCategory() === cat"
-          (click)="selectCategory(cat)" mat-ripple>
-          <div class="category-icon" [ngClass]="cat">
-            <mat-icon>{{ getCategoryIcon(cat) }}</mat-icon>
-          </div>
-          <span class="category-name">{{ cat }}</span>
+  @if (type() !== 'transfer') {
+  <!-- Category Grid -->
+  <div class="category-grid-container">
+    <div class="category-grid">
+      @for (cat of categories; track cat) {
+      <div class="category-item" [class.selected]="selectedCategory() === cat" (click)="selectCategory(cat)" mat-ripple>
+        <div class="category-icon" [ngClass]="cat">
+          <mat-icon>{{ cat | categoryIcon }}</mat-icon>
         </div>
+        <span class="category-name">{{ cat }}</span>
       </div>
+      }
+    </div>
+  </div>
+
+  <!-- Inputs Row (Date, Account, Note) -->
+  <div class="inputs-row">
+    <div class="input-chip">
+      <mat-icon>calendar_today</mat-icon>
+      <input type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" class="date-input">
     </div>
 
-    <!-- Inputs Row (Date, Account, Note) -->
-    <div class="inputs-row">
-      <div class="input-chip">
-        <mat-icon>calendar_today</mat-icon>
-        <input type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" class="date-input">
-      </div>
-
-      <div class="input-chip">
-        <mat-icon>account_balance_wallet</mat-icon>
-        <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)" class="account-select">
-          <option *ngFor="let acc of accounts()" [value]="acc.name">{{ acc.name }}</option>
-        </select>
-      </div>
-
-      <div class="input-chip full-width-mobile" title="Комментарий">
-        <mat-icon>edit_note</mat-icon>
-        <input type="text" placeholder="Комментарий..." [ngModel]="note()" (ngModelChange)="note.set($event)"
-          class="note-input">
-      </div>
+    <div class="input-chip">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)" class="account-select">
+        @for (acc of accounts(); track acc.id) {
+        <option [value]="acc.name">{{ acc.name }}</option>
+        }
+      </select>
     </div>
-  </ng-container>
+
+    <div class="input-chip full-width-mobile" title="Комментарий">
+      <mat-icon>edit_note</mat-icon>
+      <input type="text" placeholder="Комментарий..." [ngModel]="note()" (ngModelChange)="note.set($event)"
+        class="note-input">
+    </div>
+  </div>
+  }
 
   <div class="spacer"></div>
 

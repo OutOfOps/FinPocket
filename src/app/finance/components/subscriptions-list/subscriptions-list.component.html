@@ -20,9 +20,10 @@
 
     <!-- List -->
     <div class="subs-list">
-        <div class="sub-item neo-card" *ngFor="let s of subscriptions()" mat-ripple [routerLink]="[s.id, 'edit']">
+        @for (s of subscriptions(); track s.id) {
+        <div class="sub-item neo-card" mat-ripple [routerLink]="[s.id, 'edit']">
             <div class="sub-icon" [ngClass]="s.category">
-                <mat-icon>{{ getCategoryIcon(s.category) }}</mat-icon>
+                <mat-icon>{{ s.category | categoryIcon }}</mat-icon>
             </div>
 
             <div class="sub-info">
@@ -53,12 +54,15 @@
                 </button>
             </mat-menu>
         </div>
+        }
 
         <!-- Empty State -->
-        <div class="empty-state" *ngIf="subscriptions().length === 0">
+        @if (subscriptions().length === 0) {
+        <div class="empty-state">
             <mat-icon>event_repeat</mat-icon>
             <p>Нет регулярных платежей</p>
             <button mat-stroked-button routerLink="create">Добавить</button>
         </div>
+        }
     </div>
 </div>

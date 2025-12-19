@@ -6,8 +6,10 @@
     </div>
   </header>
 
-  <div class="stats-grid" *ngIf="hasTransactions(); else emptyState">
-    <div class="chart-card" *ngFor="let chart of charts()">
+  @if (hasTransactions()) {
+  <div class="stats-grid">
+    @for (chart of charts(); track chart.title) {
+    <div class="chart-card">
       <div class="card-header">
         <span class="card-title">{{ chart.title }}</span>
         <mat-icon [class.up]="chart.trend === 'up'" [class.down]="chart.trend === 'down'" class="trend-icon">
@@ -24,13 +26,13 @@
         </span>
       </div>
     </div>
+    }
   </div>
-
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <mat-icon>bar_chart</mat-icon>
-      <p>Нет данных</p>
-      <span class="hint">Статистика появится после добавления операций</span>
-    </div>
-  </ng-template>
+  } @else {
+  <div class="empty-state">
+    <mat-icon>bar_chart</mat-icon>
+    <p>Нет данных</p>
+    <span class="hint">Статистика появится после добавления операций</span>
+  </div>
+  }
 </div>

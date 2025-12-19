@@ -27,15 +27,6 @@ export class SubscriptionsListComponent {
         this.accountsService.ensureDefaults(); // Ensure accounts loaded
     }
 
-    getCategoryIcon(category: string): string {
-        const map: Record<string, string> = {
-            'Education': 'school',
-            'Digital': 'cloud',
-            'Utility': 'flash_on',
-            'Other': 'receipt_long'
-        };
-        return map[category] || 'local_offer';
-    }
 
     async processPayment(sub: SubscriptionEntity): Promise<void> {
         const accounts = this.accountsService.accounts();

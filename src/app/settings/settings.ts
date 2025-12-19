@@ -297,13 +297,6 @@ export class Settings {
     this.cancelAccountEdit();
   }
 
-  protected getAccountIcon(type: AccountType): string {
-    switch (type) {
-      case 'bank': return 'account_balance';
-      case 'metal': return 'diamond';
-      default: return 'payments'; // cash
-    }
-  }
 
   protected async loadRateFor(currencyId: string): Promise<void> {
     const success = await this.currencyService.syncCurrencyRate(currencyId);
@@ -392,9 +385,6 @@ export class Settings {
     this.currencyService.setDefaultCurrency(currencyId);
   }
 
-  protected trackCurrency(_: number, currency: Currency): string {
-    return currency.id;
-  }
 
   protected openResetDataDialog(): void {
     if (this.isResetting) {

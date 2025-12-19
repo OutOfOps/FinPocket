@@ -46,37 +46,43 @@
       </div>
 
       <div class="accounts-list">
-        <div class="account-item" *ngFor="let acc of accounts()" [class.editing]="editingAccountId === acc.id">
+        @for (acc of accounts(); track acc.id) {
+        <div class="account-item" [class.editing]="editingAccountId === acc.id">
 
           <!-- View Mode -->
-          <ng-container *ngIf="editingAccountId !== acc.id">
-            <div class="account-icon-wrapper" [class.metal]="acc.type === 'metal'">
-              <mat-icon>{{ getAccountIcon(acc.type) }}</mat-icon>
-            </div>
+          @if (editingAccountId !== acc.id) {
+          <div class="account-icon-wrapper" [class.metal]="acc.type === 'metal'">
+            <mat-icon>{{ acc.type | accountIcon }}</mat-icon>
+          </div>
 
-            <div class="account-info">
-              <span class="account-name">{{ acc.name }}</span>
-              <span class="account-detail" *ngIf="acc.type === 'bank'">{{ acc.bankName }}</span>
-              <span class="account-detail" *ngIf="acc.type === 'metal'">{{ acc.metalName }}</span>
-              <span class="account-balance">{{ acc.initialBalance | number:'1.2-10' }} {{ acc.type === 'metal' ? 'г ' +
-                acc.currencyCode : acc.currencyCode }}</span>
-              <mat-icon *ngIf="acc.includeInTotal === false" class="ignored-icon"
-                title="Не учитывается в общем балансе">visibility_off</mat-icon>
-            </div>
+          <div class="account-info">
+            <span class="account-name">{{ acc.name }}</span>
+            @if (acc.type === 'bank') {
+            <span class="account-detail">{{ acc.bankName }}</span>
+            }
+            @if (acc.type === 'metal') {
+            <span class="account-detail">{{ acc.metalName }}</span>
+            }
+            <span class="account-balance">{{ acc.initialBalance | number:'1.2-10' }} {{ acc.type === 'metal' ? 'г ' +
+              acc.currencyCode : acc.currencyCode }}</span>
+            @if (acc.includeInTotal === false) {
+            <mat-icon class="ignored-icon" title="Не учитывается в общем балансе">visibility_off</mat-icon>
+            }
+          </div>
 
-            <div class="account-actions">
-              <button mat-icon-button (click)="startAccountEdit(acc)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="removeAccount(acc.id)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </ng-container>
+          <div class="account-actions">
+            <button mat-icon-button (click)="startAccountEdit(acc)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="removeAccount(acc.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          }
 
           <!-- Edit Mode -->
-          <!-- Edit Mode -->
-          <div class="account-edit-form" *ngIf="editingAccountId === acc.id">
+          @if (editingAccountId === acc.id) {
+          <div class="account-edit-form">
             <div class="edit-row">
               <input [(ngModel)]="editingAccount.name" placeholder="Название" class="neo-input small">
               <select [(ngModel)]="editingAccount.type" class="neo-input small">
@@ -86,26 +92,29 @@
               </select>
             </div>
             <div class="edit-row">
-              <input *ngIf="editingAccount.type === 'bank'" [(ngModel)]="editingAccount.bankName"
-                placeholder="Название банка" class="neo-input">
+              @if (editingAccount.type === 'bank') {
+              <input [(ngModel)]="editingAccount.bankName" placeholder="Название банка" class="neo-input">
+              }
 
-              <ng-container *ngIf="editingAccount.type === 'metal'">
-                <!-- Metal Name as Select from NBU -->
-                <select [(ngModel)]="editingAccount.metalName" class="neo-input" placeholder="Выберите металл">
-                  <option value="" disabled selected>Выберите металл...</option>
-                  <option *ngFor="let m of nbuMetals" [value]="m.txt">
-                    {{ m.txt }} ({{ m.code }})
-                  </option>
-                </select>
-              </ng-container>
+              @if (editingAccount.type === 'metal') {
+              <!-- Metal Name as Select from NBU -->
+              <select [(ngModel)]="editingAccount.metalName" class="neo-input" placeholder="Выберите металл">
+                <option value="" disabled selected>Выберите металл...</option>
+                @for (m of nbuMetals; track m.txt) {
+                <option [value]="m.txt">
+                  {{ m.txt }} ({{ m.code }})
+                </option>
+                }
+              </select>
+              }
             </div>
             <div class="edit-row">
               <input type="number" [(ngModel)]="editingAccount.initialBalance" placeholder="Баланс"
                 class="neo-input small">
               <select [(ngModel)]="editingAccount.currencyCode" class="neo-input small">
-                <!-- If Metal, user can pick Currency OR Metal Code? Usually standard currency for value or XAU for weight. -->
-                <!-- Let's keep standard behavior: All currencies available. -->
-                <option *ngFor="let c of currencies()" [value]="c.code">{{ c.code }}</option>
+                @for (c of currencies(); track c.code) {
+                <option [value]="c.code">{{ c.code }}</option>
+                }
               </select>
             </div>
             <div class="edit-row">
@@ -119,8 +128,10 @@
               <button mat-raised-button color="primary" (click)="saveAccountEdit()">Сохранить</button>
             </div>
           </div>
+          }
 
         </div>
+        }
       </div>
 
       <!-- Add Account Form -->
@@ -134,28 +145,36 @@
           </select>
         </div>
 
-        <div class="form-row" *ngIf="newAccount.type === 'bank' || newAccount.type === 'metal'">
-          <input *ngIf="newAccount.type === 'bank'" [(ngModel)]="newAccount.bankName" placeholder="Название банка"
-            class="neo-input">
+        @if (newAccount.type === 'bank' || newAccount.type === 'metal') {
+        <div class="form-row">
+          @if (newAccount.type === 'bank') {
+          <input [(ngModel)]="newAccount.bankName" placeholder="Название банка" class="neo-input">
+          }
 
-          <ng-container *ngIf="newAccount.type === 'metal'">
-            <select [ngModel]="newAccount.metalName"
-              (ngModelChange)="newAccount.metalName=$event; onMetalSelect($event, 'new')" class="neo-input"
-              placeholder="Выберите металл">
-              <option *ngFor="let m of nbuMetals" [value]="m.txt">
-                {{ m.txt }} ({{ m.code }})
-              </option>
-            </select>
-          </ng-container>
+          @if (newAccount.type === 'metal') {
+          <select [ngModel]="newAccount.metalName"
+            (ngModelChange)="newAccount.metalName=$event; onMetalSelect($event, 'new')" class="neo-input"
+            placeholder="Выберите металл">
+            @for (m of nbuMetals; track m.txt) {
+            <option [value]="m.txt">
+              {{ m.txt }} ({{ m.code }})
+            </option>
+            }
+          </select>
+          }
         </div>
+        }
 
         <div class="form-row">
           <input type="number" [(ngModel)]="newAccount.initialBalance" placeholder="Нач. баланс" class="neo-input">
 
-          <select [(ngModel)]="newAccount.currencyCode" class="neo-input small-select"
-            *ngIf="newAccount.type !== 'metal' && currencies() as list">
-            <option *ngFor="let c of list" [value]="c.code">{{ c.code }}</option>
+          @if (newAccount.type !== 'metal') {
+          <select [(ngModel)]="newAccount.currencyCode" class="neo-input small-select">
+            @for (c of currencies(); track c.code) {
+            <option [value]="c.code">{{ c.code }}</option>
+            }
           </select>
+          }
         </div>
 
         <div class="form-row">
@@ -179,7 +198,8 @@
       </div>
 
       <div class="currencies-list">
-        <div class="currency-item" *ngFor="let currency of currencies(); trackBy: trackCurrency">
+        @for (currency of currencies(); track currency.id) {
+        <div class="currency-item">
           <div class="currency-info">
             <span class="currency-code">{{ currency.code }}</span>
             <span class="currency-name">{{ currency.name }}</span>
@@ -187,13 +207,16 @@
 
           <div class="currency-actions">
             <!-- Base Currency Indicator -->
-            <div *ngIf="currency.id === defaultCurrency()" class="base-badge">
+            @if (currency.id === defaultCurrency()) {
+            <div class="base-badge">
               <mat-icon>star</mat-icon>
               <span>Базовая</span>
             </div>
+            }
 
             <!-- Editable Rate for Non-Base -->
-            <ng-container *ngIf="currency.id !== defaultCurrency()">
+            @if (currency.id !== defaultCurrency()) {
+            <ng-container>
               <button mat-icon-button (click)="loadRateFor(currency.id)" title="Обновить курс (НБУ)">
                 <mat-icon class="sync-icon">sync</mat-icon>
               </button>
@@ -211,8 +234,10 @@
                 <mat-icon>delete</mat-icon>
               </button>
             </ng-container>
+            }
           </div>
         </div>
+        }
       </div>
 
       <!-- Add Currency Form -->
@@ -222,7 +247,9 @@
           <select [ngModel]="newCurrency.code" (ngModelChange)="onNbuCodeSelect($event)" name="nbuSelect"
             class="neo-input small">
             <option value="" disabled selected>Код</option>
-            <option *ngFor="let item of nbuList" [value]="item.code">{{ item.code }}</option>
+            @for (item of nbuList; track item.code) {
+            <option [value]="item.code">{{ item.code }}</option>
+            }
           </select>
         </div>
 

@@ -30,55 +30,57 @@
   <!-- Filter Chips (Horizontal Scroll) -->
   <div class="finance-filters">
     <mat-chip-listbox aria-label="Фильтры">
-      <mat-chip-option *ngFor="let filter of filters" [selected]="filter === 'Все операции'">
+      @for (filter of filters; track filter) {
+      <mat-chip-option [selected]="filter === 'Все операции'">
         {{ filter }}
       </mat-chip-option>
+      }
     </mat-chip-listbox>
   </div>
 
   <!-- Transaction List -->
   <div class="finance-list-container">
-    <ng-container *ngIf="transactions().length; else emptyState">
-      <div class="transaction-item" *ngFor="let t of transactions()" mat-ripple>
-        <div class="transaction-icon" [ngClass]="t.category">
-          <mat-icon>{{ getCategoryIcon(t.category) }}</mat-icon>
-        </div>
+    @if (transactions().length) {
+    @for (t of transactions(); track t.id) {
+    <div class="transaction-item" mat-ripple>
+      <div class="transaction-icon" [ngClass]="t.category">
+        <mat-icon>{{ t.category | categoryIcon }}</mat-icon>
+      </div>
 
-        <div class="transaction-content">
-          <div class="transaction-main">
-            <span class="transaction-category">{{ t.category }}</span>
-            <span class="transaction-amount" [class.positive]="t.amount > 0" [class.negative]="t.amount < 0">
-              {{ t.amount > 0 ? '+' : '' }}{{ currencyService.format(t.convertedAmount, defaultCurrencyCode()) }}
-            </span>
-          </div>
-          <div class="transaction-meta">
-            <span>{{ t.description }}</span>
-            <span class="dot">·</span>
-            <span>{{ t.occurredAt | date:'d MMM' }}</span>
-          </div>
+      <div class="transaction-content">
+        <div class="transaction-main">
+          <span class="transaction-category">{{ t.category }}</span>
+          <span class="transaction-amount" [class.positive]="t.amount > 0" [class.negative]="t.amount < 0">
+            {{ t.amount > 0 ? '+' : '' }}{{ currencyService.format(t.convertedAmount, defaultCurrencyCode()) }}
+          </span>
         </div>
+        <div class="transaction-meta">
+          <span>{{ t.description }}</span>
+          <span class="dot">·</span>
+          <span>{{ t.occurredAt | date:'d MMM' }}</span>
+        </div>
+      </div>
 
-        <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
-          <mat-icon>more_vert</mat-icon>
+      <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item [routerLink]="['../', t.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+          <span>Изменить</span>
         </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item [routerLink]="['../', t.id, 'edit']">
-            <mat-icon>edit</mat-icon>
-            <span>Изменить</span>
-          </button>
-          <button mat-menu-item (click)="deleteTransaction(t.id)">
-            <mat-icon>delete</mat-icon>
-            <span>Удалить</span>
-          </button>
-        </mat-menu>
-      </div>
-    </ng-container>
-
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <mat-icon>account_balance_wallet</mat-icon>
-        <p>Нет операций</p>
-      </div>
-    </ng-template>
+        <button mat-menu-item (click)="deleteTransaction(t.id)">
+          <mat-icon>delete</mat-icon>
+          <span>Удалить</span>
+        </button>
+      </mat-menu>
+    </div>
+    }
+    } @else {
+    <div class="empty-state">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <p>Нет операций</p>
+    </div>
+    }
   </div>
 </div>
