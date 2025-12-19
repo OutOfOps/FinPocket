@@ -7,8 +7,17 @@
   "start_url": "./",
   "background_color": "#111015",
   "theme_color": "#9c27b0",
-  "categories": ["finance", "productivity"],
+  "categories": [
+    "finance",
+    "productivity"
+  ],
   "icons": [
+    {
+      "src": "app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "icons/icon-72x72.png",
       "sizes": "72x72",
