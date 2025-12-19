@@ -139,7 +139,18 @@ export class Settings {
     const baseData = this.nbuCurrencies.get(baseCode);
 
     if (baseData && baseData.rate > 0) {
-      const relRate = data.rate / baseData.rate;
+      // Adjust if metal
+      let targetRate = data.rate;
+      if (['XAU', 'XAG', 'XPT', 'XPD'].includes(code)) {
+        targetRate = targetRate / 31.1034807;
+      }
+
+      let baseRate = baseData.rate;
+      if (['XAU', 'XAG', 'XPT', 'XPD'].includes(baseCode)) {
+        baseRate = baseRate / 31.1034807;
+      }
+
+      const relRate = targetRate / baseRate;
       this.newCurrency.rate = parseFloat(relRate.toFixed(4));
     } else {
       this.newCurrency.rate = 1;
@@ -173,7 +184,14 @@ export class Settings {
 
       let rate = 1;
       if (rateData && baseData && baseData.rate > 0) {
-        rate = rateData.rate / baseData.rate;
+        let targetRate = rateData.rate / 31.1034807; // Metal always per gram
+
+        let baseRate = baseData.rate;
+        if (['XAU', 'XAG', 'XPT', 'XPD'].includes(baseCode)) {
+          baseRate = baseRate / 31.1034807;
+        }
+
+        rate = targetRate / baseRate;
       }
 
       this.currencyService.addCurrency({

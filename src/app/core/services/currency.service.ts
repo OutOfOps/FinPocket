@@ -386,8 +386,8 @@ export class CurrencyService {
   }
 
   /**
-   * Fetches raw NBU data.
-   */
+  * Fetches raw NBU data.
+  */
   async getNbuData(): Promise<Map<string, { rate: number; txt: string }>> {
     const response = await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');
     if (!response.ok) throw new Error('API Error');
@@ -398,6 +398,21 @@ export class CurrencyService {
     map.set('UAH', { rate: 1, txt: 'Українська гривня' });
 
     return map;
+  }
+
+  // Helper to adjust rate if it is a metal (Convert Oz t to Grams if needed)
+  // XAU, XAG, XPT, XPD often quoted by NBU as price for 10 oz or 1 oz?
+  // Checking NBU docs: "Exchange rates of gold, silver, platinum, palladium ... per 1 Oz t" (usually).
+  // 1 Troy Ounce = 31.1034807 grams.
+  // We want Rate Per Gram.
+  private adjustNbuRate(code: string, rawRate: number): number {
+    const metals = ['XAU', 'XAG', 'XPT', 'XPD'];
+    if (metals.includes(code)) {
+      // Assuming NBU returns rate for 1 Troy Ounce (which is standard for XAU code in banking APIs)
+      // Convert to per gram
+      return rawRate / 31.1034807;
+    }
+    return rawRate;
   }
 
   /**
@@ -414,13 +429,17 @@ export class CurrencyService {
         return false;
       }
 
+      const baseRate = this.adjustNbuRate(currentDefaultCode, baseInfo.rate);
+
       const currency = this.currenciesSignal().find(c => c.id === currencyId);
       if (!currency) return false;
 
       // Calculate Relative Rate
       const targetInfo = nbuMap.get(currency.code);
       if (targetInfo) {
-        const newRate = targetInfo.rate / baseInfo.rate;
+        const targetRate = this.adjustNbuRate(currency.code, targetInfo.rate);
+        const newRate = targetRate / baseRate;
+
         this.updateCurrency(currency.id, { rateToBase: newRate });
         return true;
       }
@@ -439,11 +458,8 @@ export class CurrencyService {
       this.addCurrency({
         code: 'UAH',
         name: 'Українська гривня',
-        rateToBase: 1 // Initially 1, will clarify later if base is different
+        rateToBase: 1
       });
-      // After adding, we might want to sync rates correct?
-      // But if we just added it, its rate relative to base depends. 
-      // Safe to just add for now.
     }
   }
 
@@ -456,6 +472,8 @@ export class CurrencyService {
 
       if (!baseInfo) return;
 
+      const baseRate = this.adjustNbuRate(currentDefaultCode, baseInfo.rate);
+
       this.currenciesSignal().forEach(c => {
         if (c.id === this.defaultCurrencySignal()) {
           this.updateCurrency(c.id, { rateToBase: 1 });
@@ -464,7 +482,8 @@ export class CurrencyService {
 
         const info = nbuMap.get(c.code);
         if (info) {
-          this.updateCurrency(c.id, { rateToBase: info.rate / baseInfo.rate });
+          const targetRate = this.adjustNbuRate(c.code, info.rate);
+          this.updateCurrency(c.id, { rateToBase: targetRate / baseRate });
         }
       });
 
