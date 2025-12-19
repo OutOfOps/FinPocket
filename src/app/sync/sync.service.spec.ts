@@ -1,10 +1,42 @@
+import { TestBed } from '@angular/core/testing';
 import { SyncService } from './sync.service';
+import { FinPocketDB } from '../core/services/finpocket-db.service';
+import { SyncQueue } from './sync.queue';
+import { CurrencyService } from '../core/services/currency.service';
+import { OperationAccountsService } from '../finance/services/operation-accounts.service';
+import { ThemeService } from '../core/services/theme.service';
 
 describe('SyncService encryption helpers', () => {
   let service: SyncService;
 
   beforeEach(() => {
-    service = new SyncService({} as any, { append: async () => undefined } as any);
+    TestBed.configureTestingModule({
+      providers: [
+        SyncService,
+        { provide: FinPocketDB, useValue: {} },
+        { provide: SyncQueue, useValue: {} },
+        {
+          provide: CurrencyService,
+          useValue: {
+            getSnapshot: () => ({ currencies: [], defaultCurrencyId: 'UAH' }),
+            restoreSnapshot: () => undefined
+          }
+        },
+        {
+          provide: OperationAccountsService,
+          useValue: {
+            getSnapshot: () => ({ accounts: [] }),
+            restoreSnapshot: () => undefined
+          }
+        },
+        {
+          provide: ThemeService,
+          useValue: { theme: () => 'light', setTheme: () => undefined }
+        }
+      ]
+    });
+
+    service = TestBed.inject(SyncService);
   });
 
   it('should encrypt and decrypt JSON payloads with derived key', async () => {

@@ -6,12 +6,12 @@
         <h2>Аналитика</h2>
     </header>
 
-    <div class="charts-container">
+    <div class="charts-container" #chartsContainer>
 
         <!-- Expenses by Category -->
         <div class="chart-card">
             <h3>Расходы по категориям</h3>
-            <ngx-charts-advanced-pie-chart [view]="[window.innerWidth - 72, 300]" [scheme]="colorScheme"
+            <ngx-charts-advanced-pie-chart [view]="chartView()" [scheme]="colorScheme"
                 [results]="expensesByCategory()" [gradient]="true">
             </ngx-charts-advanced-pie-chart>
         </div>
@@ -19,7 +19,7 @@
         <!-- Monthly History -->
         <div class="chart-card">
             <h3>Доходы и Расходы</h3>
-            <ngx-charts-bar-vertical-2d [view]="[window.innerWidth - 72, 300]" [scheme]="historyScheme"
+            <ngx-charts-bar-vertical-2d [view]="chartView()" [scheme]="historyScheme"
                 [results]="history()" [gradient]="true" [xAxis]="true" [yAxis]="true" [showGridLines]="false"
                 [barPadding]="8" [groupPadding]="16">
             </ngx-charts-bar-vertical-2d>
