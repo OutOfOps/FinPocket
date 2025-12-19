@@ -10,12 +10,10 @@ import {
   TariffHistoryEntry,
 } from '../../models/resource';
 import { ResourceType } from '../../models/resource-type';
-import {
-  AddTariffPayload,
-  MetersStoreService,
-  UpsertResourcePayload,
-} from '../../services/meters-store.service';
+import { AddTariffPayload, MetersStoreService, UpsertResourcePayload } from '../../services/meters-store.service';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface ResourceFormModel {
   id?: string;
@@ -61,6 +59,7 @@ export class MetersResourcesComponent {
   private readonly store = inject(MetersStoreService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly currencyService = inject(CurrencyService);
+  private readonly dialog = inject(MatDialog);
 
   readonly typeOptions = this.store.typeOptions;
   readonly zoneTemplates = [
@@ -218,13 +217,26 @@ export class MetersResourcesComponent {
   }
 
   deleteResource(resource: ResourceEntity): void {
-    if (this.selectedResourceId === resource.id) {
-      this.selectedResourceId = undefined;
-      this.tariffForm = this.createDefaultTariffForm();
-      this.tariffHistory = [];
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Удаление ресурса',
+        message: 'Вы уверены, что хотите удалить этот ресурс? Все показания и тарифы будут потеряны.',
+        isDestructive: true
+      }
+    });
 
-    this.store.deleteResource(resource.id);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (this.selectedResourceId === resource.id) {
+          this.selectedResourceId = undefined;
+          this.tariffForm = this.createDefaultTariffForm();
+          this.tariffHistory = [];
+        }
+
+        this.store.deleteResource(resource.id);
+      }
+    });
   }
 
   saveTariff(): void {
@@ -250,8 +262,21 @@ export class MetersResourcesComponent {
   }
 
   removeTariff(tariff: TariffHistoryEntry): void {
-    this.store.removeTariff(tariff.id);
-    this.refreshTariffHistory();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Удаление тарифа',
+        message: 'Удалить эту запись тарифа?',
+        isDestructive: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.store.removeTariff(tariff.id);
+        this.refreshTariffHistory();
+      }
+    });
   }
 
   typeLabel(type: ResourceType): string {

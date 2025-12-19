@@ -5,6 +5,8 @@ import { formatBytes } from '../../../shared/utils/format-bytes';
 import { SyncService } from '../../sync.service';
 import { SyncProviderRegistryService } from '../../services/sync-provider-registry.service';
 import { AuthState, CloudProvider } from '../../cloud-provider';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 const MAX_ERROR_HISTORY = 5;
 
@@ -63,6 +65,7 @@ export class SyncAccountComponent {
   private readonly registry = inject(SyncProviderRegistryService);
   private readonly syncService = inject(SyncService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   constructor() {
     void this.reloadProviders();
@@ -178,24 +181,40 @@ export class SyncAccountComponent {
   }
 
   async deleteBackup(state: ProviderState, backup: ProviderBackupEntry): Promise<void> {
-    const provider = this.registry.getProvider(state.id);
-    if (!provider) {
-      this.pushError(state.id, 'Провайдер не настроен.');
-      return;
-    }
 
-    this.markStatus(state.id, 'syncing');
+    // Open Confirm Dialog
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Удаление бэкапа',
+        message: `Вы уверены, что хотите удалить резервную копию "${backup.name}"? Это действие необратимо.`,
+        isDestructive: true
+      }
+    });
 
-    try {
-      await provider.deleteBackup(backup.id);
-      this.showMessage(`Резервная копия ${backup.name} удалена.`);
-    } catch (error) {
-      const message = this.describeError(error);
-      this.pushError(state.id, `Не удалось удалить копию: ${message}`);
-      this.showMessage(message, true);
-    } finally {
-      await this.refreshProvider(state.id, provider);
-    }
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (!result) return;
+
+      // Original logic
+      const provider = this.registry.getProvider(state.id);
+      if (!provider) {
+        this.pushError(state.id, 'Провайдер не настроен.');
+        return;
+      }
+
+      this.markStatus(state.id, 'syncing');
+
+      try {
+        await provider.deleteBackup(backup.id);
+        this.showMessage(`Резервная копия ${backup.name} удалена.`);
+      } catch (error) {
+        const message = this.describeError(error);
+        this.pushError(state.id, `Не удалось удалить копию: ${message}`);
+        this.showMessage(message, true);
+      } finally {
+        await this.refreshProvider(state.id, provider);
+      }
+    });
   }
 
   private async performSync(
@@ -315,13 +334,13 @@ export class SyncAccountComponent {
       items.map((item) =>
         item.id === providerId
           ? {
-              ...item,
-              status: 'error',
-              recentErrors: [`${timestamp} — ${message}`, ...item.recentErrors].slice(
-                0,
-                MAX_ERROR_HISTORY
-              ),
-            }
+            ...item,
+            status: 'error',
+            recentErrors: [`${timestamp} — ${message}`, ...item.recentErrors].slice(
+              0,
+              MAX_ERROR_HISTORY
+            ),
+          }
           : item
       )
     );

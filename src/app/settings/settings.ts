@@ -9,6 +9,7 @@ import { DataTransferService } from './services/data-transfer.service';
 import { BackupService } from '../core/services/backup.service';
 import { SyncSettingsService } from '../sync/services/sync-settings.service';
 import { OperationAccountsService, NewAccount, OperationAccount, AccountType } from '../finance/services/operation-accounts.service';
+import { ConfirmDialogComponent } from '../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-settings',
@@ -243,10 +244,23 @@ export class Settings {
   }
 
   protected removeAccount(id: string): void {
-    this.accountsService.removeAccount(id);
-    if (this.editingAccountId === id) {
-      this.cancelAccountEdit();
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Удаление счета',
+        message: 'Вы уверены, что хотите удалить этот счет? Операция необратима.',
+        isDestructive: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.accountsService.removeAccount(id);
+        if (this.editingAccountId === id) {
+          this.cancelAccountEdit();
+        }
+      }
+    });
   }
 
   protected startAccountEdit(account: OperationAccount): void {
@@ -350,11 +364,23 @@ export class Settings {
       return;
     }
 
-    this.currencyService.removeCurrency(currencyId);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Удаление валюты',
+        message: 'Вы уверены? Это может повлиять на отображение исторических данных, если они были в этой валюте.',
+        isDestructive: true
+      }
+    });
 
-    if (this.editingCurrencyId === currencyId) {
-      this.cancelCurrencyEdit();
-    }
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.currencyService.removeCurrency(currencyId);
+        if (this.editingCurrencyId === currencyId) {
+          this.cancelCurrencyEdit();
+        }
+      }
+    });
   }
 
   protected setDefaultCurrency(currencyId: string): void {

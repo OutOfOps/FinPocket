@@ -46,6 +46,7 @@ const MATERIAL_MODULES = [
 ];
 
 import { CurrencyRatesDialogComponent } from './components/currency-rates-dialog/currency-rates-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 const SHARED_STANDALONE = [
   SharedListComponent,
@@ -54,8 +55,8 @@ const SHARED_STANDALONE = [
 ];
 
 @NgModule({
-  declarations: [CurrencyRatesDialogComponent],
+  declarations: [CurrencyRatesDialogComponent, ConfirmDialogComponent],
   imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE],
-  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CurrencyRatesDialogComponent],
+  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CurrencyRatesDialogComponent, ConfirmDialogComponent],
 })
 export class SharedModule { }
