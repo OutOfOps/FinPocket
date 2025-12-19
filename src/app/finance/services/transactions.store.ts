@@ -106,6 +106,32 @@ export class TransactionsStore {
       .sort((a, b) => b.amount - a.amount);
   });
 
+  readonly expensesByCategorySignal = computed(() => {
+    return this.currentMonthExpensesByCategory().map((item) => ({
+      name: item.category,
+      value: item.amount,
+    }));
+  });
+
+  readonly monthlyHistorySignal = computed(() => {
+    const history = [];
+    for (let i = 5; i >= 0; i--) {
+      const totals = this.calculateMonthlyTotals(i);
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const name = date.toLocaleDateString('ru-RU', { month: 'short' });
+
+      history.push({
+        name,
+        series: [
+          { name: 'Доход', value: totals.income },
+          { name: 'Расход', value: totals.expenses },
+        ],
+      });
+    }
+    return history;
+  });
+
   constructor() {
     void this.refresh();
   }

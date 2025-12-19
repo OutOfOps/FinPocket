@@ -27,6 +27,17 @@
   /* Add subtle shadow on scroll? (Logic for that usually requires JS or strict structure) */
 }
 
+.stats-btn {
+  position: absolute;
+  top: 16px;
+  right: 0;
+  color: var(--finpocket-text);
+  background: rgba(255, 255, 255, 0.05);
+  /* Subtle glass bg */
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
 .finance-balance-label {
   font-size: 13px;
   text-transform: uppercase;
@@ -164,6 +175,10 @@
 .transaction-main {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  /* Changed from default to allow better positioning */
+  position: relative;
+  /* Context for absolute button if needed, or flex */
   align-items: center;
 }
 

@@ -1,0 +1,29 @@
+<div class="stats-view">
+    <header class="stats-header">
+        <button mat-icon-button routerLink="../list">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2>Аналитика</h2>
+    </header>
+
+    <div class="charts-container">
+
+        <!-- Expenses by Category -->
+        <div class="chart-card">
+            <h3>Расходы по категориям</h3>
+            <ngx-charts-advanced-pie-chart [view]="[window.innerWidth - 72, 300]" [scheme]="colorScheme"
+                [results]="expensesByCategory()" [gradient]="true">
+            </ngx-charts-advanced-pie-chart>
+        </div>
+
+        <!-- Monthly History -->
+        <div class="chart-card">
+            <h3>Доходы и Расходы</h3>
+            <ngx-charts-bar-vertical-2d [view]="[window.innerWidth - 72, 300]" [scheme]="historyScheme"
+                [results]="history()" [gradient]="true" [xAxis]="true" [yAxis]="true" [showGridLines]="false"
+                [barPadding]="8" [groupPadding]="16">
+            </ngx-charts-bar-vertical-2d>
+        </div>
+
+    </div>
+</div>

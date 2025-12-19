@@ -1,0 +1,84 @@
+.stats-view {
+    padding-bottom: 80px;
+}
+
+.stats-header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    button {
+        color: var(--finpocket-muted);
+    }
+}
+
+.charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 16px;
+}
+
+.chart-card {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h3 {
+        margin: 0 0 16px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--finpocket-text);
+        align-self: flex-start;
+    }
+}
+
+.total-summary {
+    margin-top: -20px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+    width: 100%;
+
+    .label {
+        font-size: 12px;
+        color: var(--finpocket-muted);
+    }
+
+    .value {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--finpocket-text);
+    }
+}
+
+/* NGX Charts Overrides if needed for dark mode compatibility */
+::ng-deep {
+    .ngx-charts {
+        text {
+            fill: var(--finpocket-muted) !important;
+        }
+
+        .gridline-path {
+            stroke: rgba(255, 255, 255, 0.05) !important;
+        }
+    }
+}
