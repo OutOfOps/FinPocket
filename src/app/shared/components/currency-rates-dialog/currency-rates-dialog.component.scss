@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--finpocket-border-color);
 
     .dialog-title {
         margin: 0;
@@ -44,8 +44,8 @@
     }
 
     .currency-chip {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--finpocket-ghost-surface, rgba(255, 255, 255, 0.05));
+        border: 1px solid var(--finpocket-border-color);
         color: var(--finpocket-text);
         padding: 6px 12px;
         border-radius: 20px;
@@ -56,8 +56,8 @@
         transition: all 0.2s;
 
         &.active {
-            background: var(--finpocket-primary);
-            border-color: var(--finpocket-primary);
+            background: var(--finpocket-primary-color, #6200ee);
+            border-color: var(--finpocket-primary-color, #6200ee);
             color: #fff;
         }
     }
@@ -76,9 +76,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background-color: rgba(30, 30, 30, 0.4);
+    background-color: var(--finpocket-surface-elevated, var(--finpocket-bg-surface));
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--finpocket-border-color);
+    box-shadow: var(--finpocket-card-shadow, 0 14px 30px rgba(15, 23, 42, 0.12));
 
     .code-col {
         display: flex;
@@ -133,8 +134,8 @@
 
         .neo-select {
             width: 100%;
-            background-color: #1a1a1a;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--finpocket-surface-elevated, var(--finpocket-bg-surface));
+            border: 1px solid var(--finpocket-border-color);
             color: var(--finpocket-text);
             padding: 10px 12px;
             border-radius: 8px;

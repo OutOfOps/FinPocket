@@ -1,6 +1,6 @@
 {
   "name": "fin-pocket",
-  "version": "0.0.58",
+  "version": "0.0.213",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

@@ -41,12 +41,14 @@
 }
 
 .chart-card {
-  background-color: #1a1a1a;
+  background-color: var(--finpocket-surface-elevated, var(--finpocket-bg-surface));
+  border: 1px solid var(--finpocket-border-color);
   border-radius: 16px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: var(--finpocket-card-shadow, 0 14px 30px rgba(15, 23, 42, 0.12));
 }
 
 .card-header {
