@@ -37,8 +37,8 @@
 
     input,
     select {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--finpocket-glass-border);
+        border: 1px solid var(--finpocket-glass-border);
         border-radius: 12px;
         padding: 16px;
         color: var(--finpocket-text);
@@ -46,8 +46,8 @@
         outline: none;
 
         &:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--finpocket-primary, #6200ee);
+            background: var(--finpocket-glass-bg);
+            border-color: var(--finpocket-primary-color);
         }
     }
 }
@@ -69,7 +69,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--finpocket-glass-border);
     padding: 8px 16px;
     border-radius: 12px;
 

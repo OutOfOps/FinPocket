@@ -12,7 +12,7 @@
         margin: 0;
         font-size: 20px;
         font-weight: 700;
-        background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+        background: linear-gradient(135deg, var(--finpocket-text) 0%, var(--finpocket-muted) 100%);
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -24,10 +24,10 @@
 }
 
 .neo-card {
-    background: rgba(30, 30, 30, 0.6);
+    background: var(--finpocket-glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--finpocket-glass-border);
     border-radius: 20px;
     margin-bottom: 12px;
 }
@@ -36,7 +36,9 @@
     margin: 0 16px 24px 16px;
     padding: 24px;
     text-align: center;
-    background: linear-gradient(135deg, rgba(62, 50, 168, 0.4) 0%, rgba(30, 30, 30, 0.6) 100%);
+    background: linear-gradient(135deg, rgba(var(--finpocket-primary-rgb), 0.2) 0%, var(--finpocket-glass-bg) 100%);
+    /* Fallback if RGB var not avail, use glass bg */
+    background: var(--finpocket-glass-bg);
 
     .label {
         font-size: 14px;

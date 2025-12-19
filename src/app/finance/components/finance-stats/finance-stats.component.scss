@@ -12,7 +12,7 @@
         margin: 0;
         font-size: 20px;
         font-weight: 700;
-        background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+        background: linear-gradient(135deg, var(--finpocket-text) 0%, var(--finpocket-muted) 100%);
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -31,10 +31,10 @@
 }
 
 .chart-card {
-    background: rgba(30, 30, 30, 0.6);
+    background: var(--finpocket-glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--finpocket-glass-border);
     border-radius: 24px;
     padding: 20px;
     overflow: hidden;
@@ -70,52 +70,52 @@
     }
 }
 
-/* NGX Charts Overrides if needed for dark mode compatibility */
+/* NGX Charts Overrides */
 ::ng-deep {
     .ngx-charts {
         text {
-            fill: rgba(255, 255, 255, 0.7) !important;
+            fill: var(--finpocket-chart-text-color) !important;
             font-size: 11px !important;
             font-family: inherit !important;
         }
 
         .gridline-path {
-            stroke: rgba(255, 255, 255, 0.03) !important;
+            stroke: var(--finpocket-chart-grid-color) !important;
             stroke-dasharray: 4, 4;
         }
 
         /* Tooltip Glass Effect */
         .chart-legend .legend-label {
-            color: rgba(255, 255, 255, 0.8) !important;
+            color: var(--finpocket-chart-text-color) !important;
 
             &:hover {
-                color: #fff !important;
-                background: rgba(255, 255, 255, 0.05) !important;
+                color: var(--finpocket-text) !important;
+                background: var(--finpocket-glass-border) !important;
             }
         }
 
         .advanced-pie-legend {
             .total-label {
-                color: rgba(255, 255, 255, 0.5) !important;
+                color: var(--finpocket-muted) !important;
             }
 
             .total-value {
-                color: #fff !important;
+                color: var(--finpocket-text) !important;
                 font-weight: 700 !important;
             }
 
             .legend-items-container .legend-items .legend-item {
                 .item-label {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                    color: var(--finpocket-chart-text-color) !important;
                 }
 
                 .item-value {
-                    color: #fff !important;
+                    color: var(--finpocket-text) !important;
                     font-weight: 600 !important;
                 }
 
                 &:hover {
-                    background: rgba(255, 255, 255, 0.05) !important;
+                    background: var(--finpocket-glass-border) !important;
                     border-radius: 8px;
                 }
             }
@@ -123,19 +123,19 @@
     }
 
     .ngx-charts-tooltip-content {
-        background: rgba(20, 20, 30, 0.85) !important;
+        background: var(--finpocket-chart-tooltip-bg) !important;
         backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid var(--finpocket-glass-border) !important;
         border-radius: 12px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-        color: #fff !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+        color: var(--finpocket-chart-tooltip-text) !important;
 
         .tooltip-label {
-            color: rgba(255, 255, 255, 0.6) !important;
+            color: var(--finpocket-muted) !important;
         }
 
         .tooltip-val {
-            color: #fff !important;
+            color: var(--finpocket-chart-tooltip-text) !important;
             font-weight: 600 !important;
         }
     }

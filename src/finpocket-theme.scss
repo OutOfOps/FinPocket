@@ -61,6 +61,14 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
     // Default Accent (Purple)
     --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
     --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
+
+    // Glass & Charts (Dark)
+    --finpocket-glass-bg: rgba(30, 30, 30, 0.6);
+    --finpocket-glass-border: rgba(255, 255, 255, 0.08);
+    --finpocket-chart-text-color: rgba(255, 255, 255, 0.7);
+    --finpocket-chart-grid-color: rgba(255, 255, 255, 0.05);
+    --finpocket-chart-tooltip-bg: rgba(20, 20, 30, 0.85);
+    --finpocket-chart-tooltip-text: #ffffff;
   }
 
   .finpocket-light-theme {
@@ -74,6 +82,14 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
 
     --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
     --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
+
+    // Glass & Charts (Light)
+    --finpocket-glass-bg: rgba(255, 255, 255, 0.7);
+    --finpocket-glass-border: rgba(0, 0, 0, 0.08);
+    --finpocket-chart-text-color: rgba(0, 0, 0, 0.7);
+    --finpocket-chart-grid-color: rgba(0, 0, 0, 0.05);
+    --finpocket-chart-tooltip-bg: rgba(255, 255, 255, 0.9);
+    --finpocket-chart-tooltip-text: #000000;
   }
 
   // Color Variants (Overrides)
