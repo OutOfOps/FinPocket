@@ -41,7 +41,12 @@
 
     <!-- Currencies Section -->
     <section class="settings-section">
-      <h3 class="section-title">Валюты</h3>
+      <div class="section-header">
+        <h3 class="section-title">Валюты</h3>
+        <button mat-icon-button (click)="loadNbuRates()" [disabled]="isLoadingRates" title="Загрузить курсы НБУ">
+          <mat-icon [class.spin]="isLoadingRates">sync</mat-icon>
+        </button>
+      </div>
 
       <div class="currencies-list">
         <div class="currency-item" *ngFor="let currency of currencies(); trackBy: trackCurrency">
@@ -51,28 +56,37 @@
           </div>
 
           <div class="currency-actions">
-            <span class="currency-rate" *ngIf="currency.id !== defaultCurrency()">
-              {{ getRelativeRate(currency) | number:'1.2-4' }}
-            </span>
+            <!-- Base Currency Indicator -->
+            <div *ngIf="currency.id === defaultCurrency()" class="base-badge">
+              <mat-icon>star</mat-icon>
+              <span>Базовая</span>
+            </div>
 
-            <button mat-icon-button *ngIf="currency.id !== defaultCurrency()" (click)="setDefaultCurrency(currency.id)"
-              title="Сделать основной">
-              <mat-icon>star_border</mat-icon>
-            </button>
-            <mat-icon *ngIf="currency.id === defaultCurrency()" class="default-icon">star</mat-icon>
+            <!-- Editable Rate for Non-Base -->
+            <ng-container *ngIf="currency.id !== defaultCurrency()">
+              <div class="rate-editor">
+                <input type="number" [ngModel]="getRelativeRate(currency)" (change)="updateRate(currency, $event)"
+                  step="0.0001" class="rate-input">
+              </div>
 
-            <button mat-icon-button color="warn" *ngIf="currency.id !== defaultCurrency()"
-              (click)="removeCurrency(currency.id)">
-              <mat-icon>delete</mat-icon>
-            </button>
+              <button mat-icon-button (click)="setDefaultCurrency(currency.id)" title="Сделать основной">
+                <mat-icon>star_border</mat-icon>
+              </button>
+
+              <button mat-icon-button color="warn" (click)="removeCurrency(currency.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </ng-container>
           </div>
         </div>
       </div>
 
-      <!-- Add Currency Form (Simplified) -->
+      <!-- Add Currency Form -->
       <form class="add-currency-form" (ngSubmit)="addCurrency()">
         <input type="text" [(ngModel)]="newCurrency.code" name="code" placeholder="Код (USD)" required maxlength="3"
           class="neo-input small">
+        <input type="text" [(ngModel)]="newCurrency.name" name="name" placeholder="Название" required
+          class="neo-input medium">
         <input type="number" [(ngModel)]="newCurrency.rate" name="rate" placeholder="Курс" required step="0.01"
           class="neo-input small">
         <button mat-icon-button type="submit" [disabled]="!canAddCurrency()" color="primary">

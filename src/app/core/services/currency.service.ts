@@ -108,11 +108,11 @@ export class CurrencyService {
       currencies.map((currency) =>
         currency.id === id
           ? {
-              ...currency,
-              ...(name !== undefined ? { name } : {}),
-              ...(code !== undefined ? { code } : {}),
-              ...(rate !== undefined ? { rateToBase: rate } : {}),
-            }
+            ...currency,
+            ...(name !== undefined ? { name } : {}),
+            ...(code !== undefined ? { code } : {}),
+            ...(rate !== undefined ? { rateToBase: rate } : {}),
+          }
           : currency
       )
     );
@@ -207,8 +207,8 @@ export class CurrencyService {
   restoreSnapshot(snapshot: CurrencySnapshot): void {
     const sanitized = Array.isArray(snapshot.currencies)
       ? snapshot.currencies
-          .map((item) => this.sanitizeCurrency(item))
-          .filter((currency): currency is Currency => currency !== null)
+        .map((item) => this.sanitizeCurrency(item))
+        .filter((currency): currency is Currency => currency !== null)
       : [];
 
     const finalCurrencies = sanitized;
@@ -370,6 +370,49 @@ export class CurrencyService {
     candidate = `currency-${normalized}-${uniqueSuffix}`;
 
     return candidate;
+  }
+
+  async fetchNbuRates(): Promise<void> {
+    try {
+      const response = await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');
+      if (!response.ok) throw new Error('API Error');
+
+      const data = await response.json() as Array<{ cc: string; rate: number }>;
+      const nbuMap = new Map<string, number>(data.map(i => [i.cc, i.rate]));
+      nbuMap.set('UAH', 1); // Base for NBU
+
+      const currentDefaultCode = this.getDefaultCurrencyCode();
+      const baseToUah = nbuMap.get(currentDefaultCode);
+
+      if (!baseToUah) {
+        console.warn('Base currency not found in NBU rates');
+        return;
+      }
+
+      // Update all existing currencies
+      const allCurrencies = this.currenciesSignal();
+      allCurrencies.forEach(c => {
+        // If code matches default, rate is 1. 
+        if (c.id === this.defaultCurrencySignal()) {
+          this.updateCurrency(c.id, { rateToBase: 1 });
+          return;
+        }
+
+        const currencyToUah = nbuMap.get(c.code);
+        if (currencyToUah) {
+          // Cross rate calculation
+          // Example: Base USD (41.5), Target EUR (43.5)
+          // 1 EUR = ? USD
+          // 1 EUR = 43.5 UAH / 41.5 UAH/USD = 1.048 USD
+          const newRate = currencyToUah / baseToUah;
+          this.updateCurrency(c.id, { rateToBase: newRate });
+        }
+      });
+
+    } catch (e) {
+      console.error('Failed to fetch NBU rates', e);
+      throw e;
+    }
   }
 
   private safeWindow(): (Window & typeof globalThis) | null {

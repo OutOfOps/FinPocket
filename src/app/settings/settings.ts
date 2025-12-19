@@ -55,6 +55,7 @@ export class Settings {
   protected isResetting = false;
   protected isExportingData = false;
   protected isImportingData = false;
+  protected isLoadingRates = false;
 
   protected setTheme(theme: FinpocketTheme | string): void {
     if (theme === 'dark' || theme === 'light') {
@@ -70,6 +71,30 @@ export class Settings {
 
   protected toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  protected async loadNbuRates(): Promise<void> {
+    if (this.isLoadingRates) return;
+    this.isLoadingRates = true;
+    try {
+      await this.currencyService.fetchNbuRates();
+      this.snackBar.open('Курсы валют обновлены (НБУ)', undefined, { duration: 3000 });
+    } catch (e) {
+      this.snackBar.open('Не удалось загрузить курсы', 'OK', { duration: 3000 });
+    } finally {
+      this.isLoadingRates = false;
+    }
+  }
+
+  protected updateRate(currency: Currency, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const newRelativeRate = parseFloat(input.value);
+
+    if (!newRelativeRate || newRelativeRate <= 0) return;
+
+    this.currencyService.updateCurrency(currency.id, {
+      rateToBase: this.resolveRateForStorage(newRelativeRate)
+    });
   }
 
   protected addCurrency(): void {
