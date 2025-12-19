@@ -123,6 +123,20 @@ export class TransactionsStore {
     ]);
   }
 
+  async updateTransaction(id: number, changes: Partial<TransactionEntity>): Promise<void> {
+    await this.storage.updateTransaction(id, changes);
+    this.transactionsSignal.update((transactions) =>
+      transactions.map((t) => (t.id === id ? { ...t, ...changes } : t))
+    );
+  }
+
+  async deleteTransaction(id: number): Promise<void> {
+    await this.storage.deleteTransaction(id);
+    this.transactionsSignal.update((transactions) =>
+      transactions.filter((t) => t.id !== id)
+    );
+  }
+
   trend(current: number, previous: number): 'up' | 'down' | 'stable' {
     if (previous === 0 && current === 0) {
       return 'stable';

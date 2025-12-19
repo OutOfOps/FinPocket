@@ -44,7 +44,6 @@ const MATERIAL_MODULES = [
   MatDialogModule,
   MatBottomSheetModule,
   MatTooltipModule,
-  MatTooltipModule,
   MatRippleModule,
   MatProgressSpinnerModule,
   MatMenuModule

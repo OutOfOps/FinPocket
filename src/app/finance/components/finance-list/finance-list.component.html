@@ -48,6 +48,20 @@
             <span>{{ t.occurredAt | date:'d MMM' }}</span>
           </div>
         </div>
+
+        <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item [routerLink]="['../', t.id, 'edit']">
+            <mat-icon>edit</mat-icon>
+            <span>Изменить</span>
+          </button>
+          <button mat-menu-item (click)="deleteTransaction(t.id)">
+            <mat-icon>delete</mat-icon>
+            <span>Удалить</span>
+          </button>
+        </mat-menu>
       </div>
     </ng-container>
 

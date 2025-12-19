@@ -42,4 +42,10 @@ export class FinanceListComponent {
     };
     return map[category] || 'category';
   }
+
+  deleteTransaction(id: number): void {
+    if (confirm('Удалить эту операцию?')) {
+      this.transactionsStore.deleteTransaction(id);
+    }
+  }
 }
