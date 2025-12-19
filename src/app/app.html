@@ -11,6 +11,11 @@
       </div>
 
       <div class="header-actions">
+        <!-- Currency Rates Button -->
+        <button mat-icon-button (click)="openCurrencyRates()" matTooltip="Курсы валют" style="margin-right: -8px">
+          <mat-icon class="icon-gradient">currency_exchange</mat-icon>
+        </button>
+
         <!-- Sync Button -->
         <button mat-icon-button routerLink="/sync" matTooltip="Синхронизация">
           <mat-icon class="icon-gradient">cloud_sync</mat-icon>

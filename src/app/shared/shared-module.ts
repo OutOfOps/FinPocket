@@ -45,10 +45,17 @@ const MATERIAL_MODULES = [
   MatRippleModule
 ];
 
-const SHARED_COMPONENTS = [SharedListComponent, SharedEditComponent, SharedDetailsComponent];
+import { CurrencyRatesDialogComponent } from './components/currency-rates-dialog/currency-rates-dialog.component';
+
+const SHARED_STANDALONE = [
+  SharedListComponent,
+  SharedEditComponent,
+  SharedDetailsComponent
+];
 
 @NgModule({
-  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_COMPONENTS],
-  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_COMPONENTS],
+  declarations: [CurrencyRatesDialogComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE],
+  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CurrencyRatesDialogComponent],
 })
 export class SharedModule { }

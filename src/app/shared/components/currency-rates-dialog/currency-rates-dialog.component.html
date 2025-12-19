@@ -1,0 +1,59 @@
+<div class="dialog-header">
+    <h2 class="dialog-title">Курсы валют</h2>
+    <div class="header-actions">
+        <button mat-icon-button (click)="syncAllRates()" [disabled]="isLoadingNbu" title="Обновить все (НБУ)">
+            <mat-icon [class.spin]="isLoadingNbu">sync</mat-icon>
+        </button>
+        <button mat-icon-button (click)="dialogRef.close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+</div>
+
+<div class="dialog-content">
+
+    <!-- Reference Select -->
+    <div class="reference-selector">
+        <span class="label">Показать цены в:</span>
+        <div class="chip-scroller">
+            <button *ngFor="let c of currencies()" class="currency-chip" [class.active]="referenceCurrencyId() === c.id"
+                (click)="setReference(c.id)">
+                {{ c.code }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Rates List -->
+    <div class="rates-list">
+        <div class="rate-item" *ngFor="let item of ratesList()">
+            <div class="code-col">
+                <span class="code">{{ item.code }}</span>
+                <span class="name">{{ item.name }}</span>
+            </div>
+
+            <div class="value-col">
+                <span class="value">{{ item.relativeRate | number:'1.2-4' }}</span>
+                <span class="ref-code" *ngIf="referenceCurrencyId() as refId">
+                    {{ currencies().find(c => c.id === refId)?.code }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Add -->
+    <div class="quick-add">
+        <h3>Добавить валюту/металл</h3>
+        <div class="add-row">
+            <div class="select-wrapper">
+                <select [(ngModel)]="newCurrencyCode" (ngModelChange)="onNbuCodeSelect($event)" class="neo-select">
+                    <option value="" disabled selected>Выберите код...</option>
+                    <option *ngFor="let nbu of nbuList" [value]="nbu.code">{{ nbu.code }} - {{ nbu.txt }}</option>
+                </select>
+            </div>
+            <button mat-mini-fab color="primary" (click)="addCurrency()" [disabled]="!newCurrencyCode">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+    </div>
+
+</div>

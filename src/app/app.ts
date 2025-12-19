@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { APP_VERSION } from './core/tokens/app-version.token';
 import { GoogleAuthService } from './services/google-auth.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { TemplateRef } from '@angular/core';
 
 type NavigationItem = {
@@ -50,6 +51,7 @@ export class App implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly googleAuth = inject(GoogleAuthService);
   protected readonly bottomSheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private tokenCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly appVersion = inject(APP_VERSION);
@@ -127,6 +129,17 @@ export class App implements OnInit {
 
   protected openQuickActions(tpl: TemplateRef<any>): void {
     this.bottomSheet.open(tpl, { panelClass: 'quick-actions-sheet-container' });
+  }
+
+  protected openCurrencyRates(): void {
+    import('./shared/components/currency-rates-dialog/currency-rates-dialog.component')
+      .then(m => {
+        this.dialog.open(m.CurrencyRatesDialogComponent, {
+          width: '500px',
+          maxWidth: '95vw',
+          panelClass: 'currency-dialog-panel'
+        });
+      });
   }
 
   private async ensureGoogleDriveToken(): Promise<void> {
