@@ -34,7 +34,7 @@
             <div class="value-col">
                 <span class="value">{{ item.relativeRate | number:'1.2-4' }}</span>
                 <span class="ref-code" *ngIf="referenceCurrencyId() as refId">
-                    {{ currencies().find(c => c.id === refId)?.code }}
+                    {{ getCurrencyCode(refId) }}
                 </span>
             </div>
         </div>

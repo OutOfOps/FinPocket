@@ -123,4 +123,8 @@ export class CurrencyRatesDialogComponent {
             this.isLoadingNbu = false;
         }
     }
+
+    protected getCurrencyCode(id: string): string {
+        return this.currencies().find(c => c.id === id)?.code || '';
+    }
 }
