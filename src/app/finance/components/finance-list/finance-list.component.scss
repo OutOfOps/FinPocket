@@ -27,15 +27,26 @@
   /* Add subtle shadow on scroll? (Logic for that usually requires JS or strict structure) */
 }
 
-.stats-btn {
+.header-actions {
   position: absolute;
   top: 16px;
-  right: 0;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.action-btn {
   color: var(--finpocket-text);
   background: rgba(255, 255, 255, 0.05);
-  /* Subtle glass bg */
   backdrop-filter: blur(4px);
-  z-index: 10;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+
+  mat-icon {
+    font-size: 20px;
+  }
 }
 
 .finance-balance-label {

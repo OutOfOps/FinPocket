@@ -98,6 +98,17 @@ export interface CategoryEntity {
   archived?: boolean;
 }
 
+export interface SubscriptionEntity {
+  id?: number;
+  name: string;
+  amount: number;
+  currency: string;
+  category: string;
+  active: boolean;
+  paymentDay?: number; // 1-31
+  note?: string;
+}
+
 export interface BackupEntity {
   id?: number;
   createdAt: string;
@@ -143,6 +154,7 @@ export class FinPocketDB extends Dexie {
   meterResources!: Table<MeterResourceEntity, string>;
   meterReadings!: Table<MeterReadingRecord, string>;
   tariffs!: Table<TariffEntity, string>;
+  subscriptions!: Table<SubscriptionEntity, number>;
 
   constructor() {
     super('FinPocketDB');
@@ -220,5 +232,12 @@ export class FinPocketDB extends Dexie {
     this.meterResources = this.table('meterResources');
     this.meterReadings = this.table('meterReadings');
     this.tariffs = this.table('tariffs');
+
+    // Version 6: Subscriptions
+    this.version(6).stores({
+      subscriptions: '++id, name, active, category',
+    });
+
+    this.subscriptions = this.table('subscriptions');
   }
 }

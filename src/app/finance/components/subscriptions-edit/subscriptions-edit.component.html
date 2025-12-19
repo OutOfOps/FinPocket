@@ -1,0 +1,56 @@
+<div class="edit-view">
+    <header class="edit-header">
+        <button mat-icon-button [routerLink]="isEditMode() ? '../../' : '../'">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2>{{ isEditMode() ? 'Изменить' : 'Новая подписка' }}</h2>
+    </header>
+
+    <div class="form-container">
+        <div class="input-group">
+            <label>Название</label>
+            <input type="text" [ngModel]="name()" (ngModelChange)="name.set($event)" placeholder="Netflix, Танцы..."
+                autofocus>
+        </div>
+
+        <div class="amount-row">
+            <div class="input-group">
+                <label>Сумма</label>
+                <input type="number" [ngModel]="amount()" (ngModelChange)="amount.set($event)" placeholder="0">
+            </div>
+
+            <div class="input-group currency">
+                <label>Валюта</label>
+                <select [ngModel]="currency()" (ngModelChange)="currency.set($event)">
+                    <option *ngFor="let c of currencies()" [value]="c.code">{{ c.code }}</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>День оплаты (еженедельно/ежемесячно)</label>
+            <div class="day-selector">
+                <mat-slider min="1" max="31" step="1" showTickMarks discrete>
+                    <input matSliderThumb [ngModel]="paymentDay()" (ngModelChange)="paymentDay.set($event)">
+                </mat-slider>
+                <span class="day-val">{{ paymentDay() }}</span>
+            </div>
+        </div>
+
+        <div class="category-selector">
+            <label>Категория</label>
+            <mat-chip-listbox [ngModel]="category()" (ngModelChange)="category.set($event)">
+                <mat-chip-option *ngFor="let cat of categories" [value]="cat" [selected]="category()===cat">
+                    {{ cat }}
+                </mat-chip-option>
+            </mat-chip-listbox>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button mat-fab extended color="primary" (click)="save()" [disabled]="!name() || !amount()">
+            <mat-icon>save</mat-icon>
+            <span>Сохранить</span>
+        </button>
+    </div>
+</div>

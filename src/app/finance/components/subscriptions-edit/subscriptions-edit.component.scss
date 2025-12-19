@@ -1,0 +1,97 @@
+.edit-view {
+    min-height: 100%;
+    padding-bottom: 80px;
+}
+
+.edit-header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+    }
+}
+
+.form-container {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+        font-size: 13px;
+        color: var(--finpocket-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    input,
+    select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        color: var(--finpocket-text);
+        font-size: 16px;
+        outline: none;
+
+        &:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--finpocket-primary, #6200ee);
+        }
+    }
+}
+
+.amount-row {
+    display: flex;
+    gap: 16px;
+
+    .input-group:first-child {
+        flex: 2;
+    }
+
+    .input-group.currency {
+        flex: 1;
+    }
+}
+
+.day-selector {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 12px;
+
+    mat-slider {
+        flex: 1;
+    }
+
+    .day-val {
+        font-size: 18px;
+        font-weight: 700;
+        width: 30px;
+        text-align: center;
+    }
+}
+
+.actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 24px;
+    display: flex;
+    justify-content: flex-end;
+    background: linear-gradient(to top, var(--finpocket-bg-app) 50%, transparent);
+}

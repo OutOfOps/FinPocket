@@ -1,0 +1,139 @@
+.subs-view {
+    padding-bottom: 80px;
+}
+
+.subs-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 16px;
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .spacer {
+        flex: 1;
+    }
+}
+
+.neo-card {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.total-card {
+    margin: 0 16px 24px 16px;
+    padding: 24px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(62, 50, 168, 0.4) 0%, rgba(30, 30, 30, 0.6) 100%);
+
+    .label {
+        font-size: 14px;
+        color: var(--finpocket-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .value {
+        font-size: 32px;
+        font-weight: 700;
+    }
+}
+
+.subs-list {
+    padding: 0 16px;
+}
+
+.sub-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    cursor: pointer;
+
+    .sub-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        margin-right: 16px;
+        color: var(--finpocket-text);
+
+        /* Categories matching main list logic if desired */
+        &.Education {
+            color: #AB47BC;
+            background: rgba(171, 71, 188, 0.15);
+        }
+
+        &.Digital {
+            color: #42A5F5;
+            background: rgba(66, 165, 245, 0.15);
+        }
+    }
+
+    .sub-info {
+        flex: 1;
+        overflow: hidden;
+
+        .sub-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sub-meta {
+            font-size: 13px;
+            color: var(--finpocket-muted);
+            display: flex;
+            align-items: center;
+
+            .dot {
+                margin: 0 4px;
+                font-weight: 900;
+            }
+        }
+    }
+
+    .sub-amount {
+        font-size: 16px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 0;
+    color: var(--finpocket-muted);
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0 0 24px 0;
+    }
+}

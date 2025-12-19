@@ -1,0 +1,64 @@
+<div class="subs-view">
+    <header class="subs-header">
+        <button mat-icon-button routerLink="/finance">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2>Подписки</h2>
+        <div class="spacer"></div>
+        <button mat-icon-button routerLink="create">
+            <mat-icon>add</mat-icon>
+        </button>
+    </header>
+
+    <!-- Total Card -->
+    <div class="total-card neo-card">
+        <div class="label">Ежемесячно</div>
+        <div class="value">
+            {{ currencyService.format(totalMonthly(), defaultCurrencyCode()) }}
+        </div>
+    </div>
+
+    <!-- List -->
+    <div class="subs-list">
+        <div class="sub-item neo-card" *ngFor="let s of subscriptions()" mat-ripple [routerLink]="[s.id, 'edit']">
+            <div class="sub-icon" [ngClass]="s.category">
+                <mat-icon>{{ getCategoryIcon(s.category) }}</mat-icon>
+            </div>
+
+            <div class="sub-info">
+                <div class="sub-name">{{ s.name }}</div>
+                <div class="sub-meta">
+                    <span>{{ s.paymentDay }} числа</span>
+                    <span class="dot">·</span>
+                    <span>{{ s.category }}</span>
+                </div>
+            </div>
+
+            <div class="sub-amount">
+                {{ currencyService.format(s.amount, s.currency) }}
+            </div>
+
+            <!-- Quick Action Menu -->
+            <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="processPayment(s)">
+                    <mat-icon>payment</mat-icon>
+                    <span>Оплатить сейчас</span>
+                </button>
+                <button mat-menu-item (click)="deleteSubscription(s.id!)">
+                    <mat-icon>delete</mat-icon>
+                    <span>Удалить</span>
+                </button>
+            </mat-menu>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="subscriptions().length === 0">
+            <mat-icon>event_repeat</mat-icon>
+            <p>Нет регулярных платежей</p>
+            <button mat-stroked-button routerLink="create">Добавить</button>
+        </div>
+    </div>
+</div>

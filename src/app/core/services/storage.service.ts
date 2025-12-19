@@ -12,6 +12,7 @@ import {
   MeterResourceEntity,
   MeterReadingRecord,
   TariffEntity,
+  SubscriptionEntity,
 } from './finpocket-db.service';
 
 @Injectable({ providedIn: 'root' })
@@ -227,6 +228,23 @@ export class StorageService {
 
   deleteCategory(id: number): Promise<void> {
     return this.db.categories.delete(id);
+  }
+
+  // Subscriptions
+  getSubscriptions(): Promise<SubscriptionEntity[]> {
+    return this.db.subscriptions.toArray();
+  }
+
+  addSubscription(subscription: SubscriptionEntity): Promise<number> {
+    return this.db.subscriptions.add(subscription);
+  }
+
+  updateSubscription(id: number, changes: Partial<SubscriptionEntity>): Promise<number> {
+    return this.db.subscriptions.update(id, changes);
+  }
+
+  deleteSubscription(id: number): Promise<void> {
+    return this.db.subscriptions.delete(id);
   }
 
   // Backups
