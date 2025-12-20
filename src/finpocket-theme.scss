@@ -87,6 +87,9 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
 
     --finpocket-primary-color: #{mat.m2-get-color-from-palette($palette-purple, 500)};
     --finpocket-accent-color: #{mat.m2-get-color-from-palette($palette-orange, 500)};
+    --finpocket-text: #0b0c15;
+    --finpocket-subtle: #4b5563;
+    --finpocket-muted: #6b7280;
     --finpocket-card-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
     --finpocket-surface-elevated: #ffffff;
     --finpocket-ghost-surface: rgba(0, 0, 0, 0.04);

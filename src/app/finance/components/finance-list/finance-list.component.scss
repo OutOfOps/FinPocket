@@ -101,16 +101,21 @@
 
 /* Filters */
 .finance-filters {
-  margin-bottom: 16px;
-  /* Horizontal scroll if needed */
+  margin-bottom: 24px;
   overflow-x: auto;
   white-space: nowrap;
   scrollbar-width: none;
-  /* Hide scrollbar */
-  padding-bottom: 4px;
+  padding: 0 16px;
+  -webkit-overflow-scrolling: touch;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  mat-chip-option {
+    --mdc-chip-label-text-color: var(--finpocket-text);
+    --mdc-chip-elevated-container-color: var(--finpocket-ghost-surface);
+    --mdc-chip-outline-color: var(--finpocket-border-color);
   }
 }
 
