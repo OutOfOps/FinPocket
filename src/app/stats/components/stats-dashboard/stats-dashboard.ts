@@ -33,7 +33,7 @@ export class StatsDashboard {
   private readonly metersStore = inject(MetersStore);
   private readonly currencyService = inject(CurrencyService);
 
-  readonly legendPosition = LegendPosition.Right;
+  readonly legendPosition = LegendPosition.Below;
 
   readonly selectedDataType = signal<DataType>('expenses');
   readonly selectedPeriod = signal<PeriodType>('month');
