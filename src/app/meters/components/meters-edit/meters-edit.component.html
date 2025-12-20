@@ -15,7 +15,7 @@
       <input type="text" [ngModel]="form.objectName" (ngModelChange)="handleObjectChange($event)" list="objects-list"
         placeholder="Например: Дом" [disabled]="isEditMode" />
       <datalist id="objects-list">
-        @for (object of objectOptions$ | async; track trackObject($index, object)) {
+        @for (object of objects; track trackObject($index, object)) {
         <option [value]="object.name"></option>
         }
       </datalist>

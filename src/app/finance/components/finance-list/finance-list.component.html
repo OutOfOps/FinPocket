@@ -29,9 +29,9 @@
 
   <!-- Filter Chips (Horizontal Scroll) -->
   <div class="finance-filters">
-    <mat-chip-listbox aria-label="Фильтры">
+    <mat-chip-listbox aria-label="Фильтры" [selectable]="true" (change)="activeFilter.set($event.value)">
       @for (filter of filters; track filter) {
-      <mat-chip-option [selected]="filter === 'Все операции'">
+      <mat-chip-option [selected]="filter === activeFilter()" [value]="filter">
         {{ filter }}
       </mat-chip-option>
       }
