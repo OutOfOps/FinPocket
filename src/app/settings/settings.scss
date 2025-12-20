@@ -103,9 +103,9 @@
   cursor: pointer;
 
   &.active {
-    background-color: var(--finpocket-bg-app);
+    background-color: var(--finpocket-bg-surface);
     color: var(--finpocket-primary);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--finpocket-card-shadow);
   }
 }
 
@@ -146,7 +146,7 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background-color: #333;
+    background-color: var(--finpocket-ghost-surface);
     overflow: hidden;
 
     img {
@@ -248,7 +248,7 @@
   }
 
   &.active {
-    border-color: #fff;
+    border-color: var(--finpocket-text);
     transform: scale(1.1);
   }
 }
@@ -375,7 +375,7 @@
   &.editing {
     background-color: var(--finpocket-bg-surface-2);
     border-color: var(--finpocket-primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--finpocket-card-shadow);
   }
 }
 

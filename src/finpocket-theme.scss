@@ -70,6 +70,7 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
 
     // OLED Colors
     --finpocket-bg-app: #000000;
+    --finpocket-bg-app-rgb: #{to-rgb-string(#000000)};
     --finpocket-bg-surface: #121212;
     --finpocket-bg-surface-2: #1e1e1e;
     --finpocket-border-color: #333333;
@@ -105,6 +106,7 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
     --finpocket-accent-rgb: #{to-rgb-string($accent-500)};
 
     --finpocket-bg-app: #eef1f6;
+    --finpocket-bg-app-rgb: #{to-rgb-string(#eef1f6)};
     --finpocket-bg-surface: #ffffff;
     --finpocket-bg-surface-2: #f7f9fc;
     --finpocket-border-color: #d6dbe3;
@@ -133,41 +135,68 @@ $finpocket-light-theme: mat.m2-define-light-theme((color: (primary: $default-pri
   // Usage: <body class="finpocket-dark-theme acc-blue">
 
   .acc-blue {
-    $theme: mat.m2-define-dark-theme((color: (primary: $palette-blue, accent: $palette-blue, warn: $palette-warn)));
-    @include mat.all-component-colors($theme);
     $primary-500: mat.m2-get-color-from-palette($palette-blue, 500);
     $accent-200: mat.m2-get-color-from-palette($palette-blue, A200);
+
     --finpocket-primary: #{$primary-500};
     --finpocket-primary-color: #{$primary-500};
     --finpocket-primary-rgb: #{to-rgb-string($primary-500)};
     --finpocket-accent: #{$accent-200};
     --finpocket-accent-color: #{$accent-200};
     --finpocket-accent-rgb: #{to-rgb-string($accent-200)};
+
+    .finpocket-dark-theme & {
+      $theme: mat.m2-define-dark-theme((color: (primary: $palette-blue, accent: $palette-blue, warn: $palette-warn)));
+      @include mat.all-component-colors($theme);
+    }
+
+    .finpocket-light-theme & {
+      $theme: mat.m2-define-light-theme((color: (primary: $palette-blue, accent: $palette-blue, warn: $palette-warn)));
+      @include mat.all-component-colors($theme);
+    }
   }
 
   .acc-green {
-    $theme: mat.m2-define-dark-theme((color: (primary: $palette-green, accent: $palette-green, warn: $palette-warn)));
-    @include mat.all-component-colors($theme);
     $primary-a400: mat.m2-get-color-from-palette($palette-green, A400);
     $accent-a200: mat.m2-get-color-from-palette($palette-green, A200);
+
     --finpocket-primary: #{$primary-a400};
     --finpocket-primary-color: #{$primary-a400};
     --finpocket-primary-rgb: #{to-rgb-string($primary-a400)};
     --finpocket-accent: #{$accent-a200};
     --finpocket-accent-color: #{$accent-a200};
     --finpocket-accent-rgb: #{to-rgb-string($accent-a200)};
+
+    .finpocket-dark-theme & {
+      $theme: mat.m2-define-dark-theme((color: (primary: $palette-green, accent: $palette-green, warn: $palette-warn)));
+      @include mat.all-component-colors($theme);
+    }
+
+    .finpocket-light-theme & {
+      $theme: mat.m2-define-light-theme((color: (primary: $palette-green, accent: $palette-green, warn: $palette-warn)));
+      @include mat.all-component-colors($theme);
+    }
   }
 
   .acc-orange {
-    $theme: mat.m2-define-dark-theme((color: (primary: $palette-orange, accent: $palette-orange, warn: $palette-warn)));
-    @include mat.all-component-colors($theme);
     $primary-500: mat.m2-get-color-from-palette($palette-orange, 500);
     $accent-a200: mat.m2-get-color-from-palette($palette-orange, A200);
+
     --finpocket-primary: #{$primary-500};
     --finpocket-primary-color: #{$primary-500};
     --finpocket-primary-rgb: #{to-rgb-string($primary-500)};
     --finpocket-accent: #{$accent-a200};
     --finpocket-accent-color: #{$accent-a200};
     --finpocket-accent-rgb: #{to-rgb-string($accent-a200)};
+
+    .finpocket-dark-theme & {
+      $theme: mat.m2-define-dark-theme((color: (primary: $palette-orange, accent: $palette-orange, warn: $palette-warn)));
+      @include mat.all-component-colors($theme);
+    }
+
+    .finpocket-light-theme & {
+      $theme: mat.m2-define-light-theme((color: (primary: $palette-orange, accent: $palette-orange, warn: $palette-warn)));
+      @include mat.all-component-colors($theme);
+    }
   }
 }

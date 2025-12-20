@@ -12,15 +12,14 @@
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--finpocket-muted);
 }
 
 .sync-account__status-dot {
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.26);
+  background-color: var(--finpocket-border-color);
   display: inline-block;
 }
 
@@ -29,13 +28,11 @@
 }
 
 .sync-account__status-dot--syncing {
-  background: repeating-linear-gradient(
-    45deg,
-    #1976d2,
-    #1976d2 4px,
-    #64b5f6 4px,
-    #64b5f6 8px
-  );
+  background: repeating-linear-gradient(45deg,
+      #1976d2,
+      #1976d2 4px,
+      #64b5f6 4px,
+      #64b5f6 8px);
 }
 
 .sync-account__status-dot--error {
@@ -43,7 +40,7 @@
 }
 
 .sync-account__status-dot--offline {
-  background-color: rgba(0, 0, 0, 0.26);
+  background-color: var(--finpocket-border-color);
 }
 
 .sync-account__status-label {
@@ -86,8 +83,7 @@
 }
 
 .sync-account__backup-meta {
-  font-size: 0.8125rem;
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--finpocket-muted);
 }
 
 .sync-account__backup-actions {
@@ -120,7 +116,7 @@
 
 .sync-account__state {
   margin: 1rem 0 0;
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--finpocket-muted);
 }
 
 .sync-account__state--error {

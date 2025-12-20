@@ -13,7 +13,7 @@
       margin: 0;
       font-size: 24px;
       font-weight: 700;
-      background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+      background: linear-gradient(135deg, var(--finpocket-text) 0%, var(--finpocket-muted) 100%);
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -28,9 +28,9 @@
 }
 
 .manage-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--finpocket-ghost-surface);
   color: var(--finpocket-text);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--finpocket-border-color);
   border-radius: 12px;
   min-width: 40px;
   padding: 0 12px;
@@ -59,10 +59,10 @@
 /* Meter Card */
 .meter-card {
   position: relative;
-  background: rgba(30, 30, 30, 0.6);
+  background: var(--finpocket-glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--finpocket-border-color);
   border-radius: 20px;
   padding: 16px;
   display: flex;
@@ -96,8 +96,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.2);
+  background: var(--finpocket-ghost-surface);
+  box-shadow: inset 0 0 12px rgba(var(--finpocket-bg-app-rgb), 0.2);
 
   mat-icon {
     font-size: 24px;
@@ -198,7 +198,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--finpocket-border-color);
 
   .date {
     font-size: 12px;

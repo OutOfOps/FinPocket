@@ -112,42 +112,7 @@
     display: none;
   }
 
-  mat-chip-listbox {
-    display: flex;
-    gap: 8px;
-  }
-
-  mat-chip-option {
-    --mdc-chip-label-text-color: var(--finpocket-text);
-    --mdc-chip-elevated-container-color: transparent;
-    --mdc-chip-outline-color: var(--finpocket-border-color);
-    --mdc-chip-outline-width: 1px;
-
-    // Unselected state
-    background-color: var(--finpocket-ghost-surface);
-    border: 1px solid var(--finpocket-border-color);
-    color: var(--finpocket-text);
-    border-radius: 20px;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: var(--finpocket-ghost-surface);
-      border-color: var(--finpocket-primary-color);
-    }
-
-    // Selected state
-    &.mdc-evolution-chip--selected {
-      background-color: var(--finpocket-primary-color);
-      border-color: var(--finpocket-primary-color);
-      color: white;
-      font-weight: 600;
-
-      &:hover {
-        background-color: var(--finpocket-primary-color);
-        opacity: 0.9;
-      }
-    }
-  }
+  /* mat-chip-listbox and mat-chip-option now styled globally in styles.scss */
 }
 
 /* List Container */
