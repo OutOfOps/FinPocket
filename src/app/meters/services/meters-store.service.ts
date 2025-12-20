@@ -1,6 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { ResourceType, ResourceTypeOption } from '../models/resource-type';
+import { compareDatesDesc } from '../../core/utils/date-utils';
 import { MeterReading, MeterReadingValue } from '../models/meter-reading';
 import {
   MeterObject,
@@ -9,7 +11,6 @@ import {
   ResourceZone,
   TariffHistoryEntry,
 } from '../models/resource';
-import { ResourceType, ResourceTypeOption } from '../models/resource-type';
 
 export interface UpsertReadingPayload
   extends Omit<MeterReading, 'id' | 'values' | 'objectId'> {
@@ -47,7 +48,7 @@ export interface MeterReadingListItem {
 }
 
 @Injectable({ providedIn: 'root' })
-export class MetersStoreService {
+export class MetersStore {
   private readonly typeOptionsInternal: ResourceTypeOption[] = [
     {
       type: 'water',
@@ -88,66 +89,62 @@ export class MetersStoreService {
 
   private readonly storage = inject(StorageService);
 
-  private readonly objectsSubject = new BehaviorSubject<MeterObject[]>([]);
+  private readonly objectsSignal = signal<MeterObject[]>([]);
+  private readonly resourcesSignal = signal<ResourceEntity[]>([]);
+  private readonly tariffsSignal = signal<TariffHistoryEntry[]>([]);
+  private readonly readingsSignal = signal<MeterReading[]>([]);
 
-  private readonly resourcesSubject = new BehaviorSubject<ResourceEntity[]>([]);
-
-  private readonly tariffsSubject = new BehaviorSubject<TariffHistoryEntry[]>([]);
-
-  private readonly readingsSubject = new BehaviorSubject<MeterReading[]>([]);
-
-  readonly objects$ = this.objectsSubject.asObservable();
-  readonly resources$ = this.resourcesSubject.asObservable();
-  readonly tariffs$ = this.tariffsSubject.asObservable();
-  readonly readings$ = this.readingsSubject.asObservable();
+  readonly objects = computed(() => this.objectsSignal());
+  readonly resources = computed(() => this.resourcesSignal());
+  readonly tariffs = computed(() => this.tariffsSignal());
+  readonly readings = computed(() => this.readingsSignal());
 
   readonly typeOptions = this.typeOptionsInternal;
 
-  readonly objectOptions$ = this.objects$.pipe(map((objects) => objects.map((object) => object.name)));
+  readonly objectOptions = computed(() => this.objectsSignal().map((o) => o.name));
 
-  readonly readingList$ = combineLatest([
-    this.readings$,
-    this.resources$,
-    this.objects$,
-    this.tariffs$,
-  ]).pipe(
-    map(([readings, resources, objects, tariffs]) =>
-      readings
-        .slice()
-        .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
-        .map((reading) => {
-          const resource = resources.find((item) => item.id === reading.resourceId);
-          const object = objects.find((item) => item.id === reading.objectId);
-          if (!resource || !object) {
-            throw new Error('Reading references unknown object or resource');
-          }
+  readonly readingList = computed<MeterReadingListItem[]>(() => {
+    const readings = this.readingsSignal();
+    const resources = this.resourcesSignal();
+    const objects = this.objectsSignal();
+    const tariffs = this.tariffsSignal();
 
-          const previous = this.getPreviousReading(resource.id, reading.id);
-          const consumption = this.calculateConsumption(reading, previous);
-          const { cost, currency } = this.calculateCost(resource, consumption, tariffs, reading.submittedAt);
+    return [...readings]
+      .sort((a, b) => compareDatesDesc(a.submittedAt, b.submittedAt))
+      .map((reading) => {
+        const resource = resources.find((item) => item.id === reading.resourceId);
+        const object = objects.find((item) => item.id === reading.objectId);
+        if (!resource || !object) {
+          // Fallback for UI robustness instead of error throwing
+          return null as unknown as MeterReadingListItem;
+        }
 
-          return {
-            id: reading.id,
-            objectName: object.name,
-            resourceId: resource.id,
-            resourceName: resource.name,
-            type: resource.type,
-            typeLabel: this.typeLabel(resource.type),
-            submittedAt: reading.submittedAt,
-            unit: resource.unit,
-            zones: resource.zones.map((zone) => ({
-              id: zone.id,
-              label: zone.name,
-              value: this.getZoneValue(reading.values, zone.id),
-              previous: previous ? this.getZoneValue(previous.values, zone.id) : null,
-              consumption: consumption.get(zone.id) ?? 0,
-            })),
-            cost,
-            currency,
-          } satisfies MeterReadingListItem;
-        })
-    )
-  );
+        const previous = this.getPreviousReading(resource.id, reading.id);
+        const consumption = this.calculateConsumption(reading, previous);
+        const { cost, currency } = this.calculateCost(resource, consumption, tariffs, reading.submittedAt);
+
+        return {
+          id: reading.id,
+          objectName: object.name,
+          resourceId: resource.id,
+          resourceName: resource.name,
+          type: resource.type,
+          typeLabel: this.typeLabel(resource.type),
+          submittedAt: reading.submittedAt,
+          unit: resource.unit,
+          zones: resource.zones.map((zone) => ({
+            id: zone.id,
+            label: zone.name,
+            value: this.getZoneValue(reading.values, zone.id),
+            previous: previous ? this.getZoneValue(previous.values, zone.id) : null,
+            consumption: consumption.get(zone.id) ?? 0,
+          })),
+          cost,
+          currency,
+        } satisfies MeterReadingListItem;
+      })
+      .filter((item) => item !== null);
+  });
 
   constructor() {
     this.refresh();
@@ -161,25 +158,22 @@ export class MetersStoreService {
       this.storage.getTariffs()
     ]);
 
-    this.objectsSubject.next(objects);
-
-    // Cast entities to internal types if needed (interfaces match mostly)
-    this.resourcesSubject.next(resources as any);
-    this.readingsSubject.next(readings as any);
-    this.tariffsSubject.next(tariffs as any);
+    this.objectsSignal.set(objects);
+    this.resourcesSignal.set(resources as any);
+    this.readingsSignal.set(readings as any);
+    this.tariffsSignal.set(tariffs as any);
   }
 
   getDefaultObjectId(): string | undefined {
-    return this.objectsSubject.value[0]?.id;
+    return this.objectsSignal()[0]?.id;
   }
 
   reset(): void {
-    // No-op or clear local state. Wiping DB is handled by DataResetService.
-    this.objectsSubject.next([]);
-    this.resourcesSubject.next([]);
-    this.tariffsSubject.next([]);
-    this.readingsSubject.next([]);
-    this.refresh();
+    this.objectsSignal.set([]);
+    this.resourcesSignal.set([]);
+    this.tariffsSignal.set([]);
+    this.readingsSignal.set([]);
+    void this.refresh();
   }
 
   typeLabel(type: ResourceType): string {
@@ -195,11 +189,11 @@ export class MetersStoreService {
   }
 
   getObjectById(id: string): MeterObject | undefined {
-    return this.objectsSubject.value.find((object) => object.id === id);
+    return this.objectsSignal().find((object) => object.id === id);
   }
 
   getObjectByName(name: string): MeterObject | undefined {
-    return this.objectsSubject.value.find((object) => object.name === name.trim());
+    return this.objectsSignal().find((object) => object.name === name.trim());
   }
 
   ensureObject(name: string): MeterObject {
@@ -218,27 +212,27 @@ export class MetersStoreService {
       name: trimmed,
     };
 
-    this.storage.addMeterObject(created);
-    this.objectsSubject.next([...this.objectsSubject.value, created]);
+    void this.storage.addMeterObject(created);
+    this.objectsSignal.update(current => [...current, created]);
     return created;
   }
 
   getResourcesForObject(objectId: string): ResourceEntity[] {
-    return this.resourcesSubject.value.filter((resource) => resource.objectId === objectId);
+    return this.resourcesSignal().filter((resource) => resource.objectId === objectId);
   }
 
   getResourceById(id: string): ResourceEntity | undefined {
-    return this.resourcesSubject.value.find((resource) => resource.id === id);
+    return this.resourcesSignal().find((resource) => resource.id === id);
   }
 
   getReadingById(id: string): MeterReading | undefined {
-    return this.readingsSubject.value.find((reading) => reading.id === id);
+    return this.readingsSignal().find((reading) => reading.id === id);
   }
 
   getReadingsForResource(resourceId: string): MeterReading[] {
-    return this.readingsSubject.value
+    return this.readingsSignal()
       .filter((reading) => reading.resourceId === resourceId)
-      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+      .sort((a, b) => compareDatesDesc(a.submittedAt, b.submittedAt));
   }
 
   getResourceSummary(id: string): ResourceSummary | undefined {
@@ -257,26 +251,26 @@ export class MetersStoreService {
   }
 
   getTariffHistory(resourceId: string): TariffHistoryEntry[] {
-    return this.tariffsSubject.value
+    return this.tariffsSignal()
       .filter((tariff) => tariff.resourceId === resourceId)
-      .sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom));
+      .sort((a, b) => compareDatesDesc(a.effectiveFrom, b.effectiveFrom));
   }
 
   getPreviousReading(resourceId: string, excludeId?: string): MeterReading | undefined {
-    return this.readingsSubject.value
+    return this.readingsSignal()
       .filter((reading) => reading.resourceId === resourceId && reading.id !== excludeId)
-      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))[0];
+      .sort((a, b) => compareDatesDesc(a.submittedAt, b.submittedAt))[0];
   }
 
   getPreviousReadingBefore(resourceId: string, submittedAt: string, excludeId?: string): MeterReading | undefined {
-    return this.readingsSubject.value
+    return this.readingsSignal()
       .filter(
         (reading) =>
           reading.resourceId === resourceId &&
           reading.id !== excludeId &&
           reading.submittedAt <= submittedAt
       )
-      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))[0];
+      .sort((a, b) => compareDatesDesc(a.submittedAt, b.submittedAt))[0];
   }
 
   estimatePeriodSummary(
@@ -305,21 +299,22 @@ export class MetersStoreService {
     };
 
     const consumption = this.calculateConsumption(current, previous);
-    const { cost, currency } = this.calculateCost(resource, consumption, this.tariffsSubject.value, submittedAt);
+    const { cost, currency } = this.calculateCost(resource, consumption, this.tariffsSignal(), submittedAt);
 
     return { previous, consumption, cost, currency };
   }
 
   upsertReading(payload: UpsertReadingPayload): MeterReading {
-    const readings = [...this.readingsSubject.value];
     const normalisedValues = payload.values.map((value) => ({
+      zone_id: (value as any).zone_id || value.zoneId, // Compatibility check
       zoneId: value.zoneId,
       value: Number(value.value ?? 0),
     }));
 
     if (payload.id) {
+      const readings = this.readingsSignal();
       const index = readings.findIndex((reading) => reading.id === payload.id);
-      if (Number.isInteger(index) && index >= 0 && index < readings.length) {
+      if (index !== -1) {
         const updated: MeterReading = {
           ...readings[index],
           objectId: payload.objectId,
@@ -328,9 +323,10 @@ export class MetersStoreService {
           values: normalisedValues,
         };
 
-        this.storage.updateMeterReadingV2(payload.id, updated);
-        readings[index] = updated;
-        this.readingsSubject.next(this.sortReadings(readings));
+        void this.storage.updateMeterReadingV2(payload.id, updated);
+        this.readingsSignal.update(current =>
+          current.map(r => r.id === payload.id ? updated : r)
+        );
         return updated;
       }
     }
@@ -343,20 +339,19 @@ export class MetersStoreService {
       values: normalisedValues,
     };
 
-    this.storage.addMeterReadingV2(created);
-    readings.push(created);
-    this.readingsSubject.next(this.sortReadings(readings));
+    void this.storage.addMeterReadingV2(created);
+    this.readingsSignal.update(current => [...current, created]);
     return created;
   }
 
   upsertResource(payload: UpsertResourcePayload): ResourceEntity {
     const targetObject = this.ensureObject(payload.objectName);
     const zones = payload.zones.length ? payload.zones : [{ id: 'total', name: 'Общий счётчик' }];
-    const resources = [...this.resourcesSubject.value];
 
     if (payload.id) {
+      const resources = this.resourcesSignal();
       const index = resources.findIndex((resource) => resource.id === payload.id);
-      if (Number.isInteger(index) && index >= 0 && index < resources.length) {
+      if (index !== -1) {
         const updated: ResourceEntity = {
           ...resources[index],
           objectId: targetObject.id,
@@ -369,9 +364,10 @@ export class MetersStoreService {
           fixedCurrency: payload.fixedCurrency,
         };
 
-        this.storage.updateMeterResource(payload.id, updated);
-        resources[index] = updated;
-        this.resourcesSubject.next(resources);
+        void this.storage.updateMeterResource(payload.id, updated);
+        this.resourcesSignal.update(current =>
+          current.map(r => r.id === payload.id ? updated : r)
+        );
         return updated;
       }
     }
@@ -388,25 +384,20 @@ export class MetersStoreService {
       fixedCurrency: payload.fixedCurrency,
     };
 
-    this.storage.addMeterResource(created);
-    resources.push(created);
-    this.resourcesSubject.next(resources);
+    void this.storage.addMeterResource(created);
+    this.resourcesSignal.update(current => [...current, created]);
     return created;
   }
 
   deleteResource(resourceId: string): void {
-    const resources = this.resourcesSubject.value.filter((resource) => resource.id !== resourceId);
-    this.storage.deleteMeterResource(resourceId);
-    this.resourcesSubject.next(resources);
+    void this.storage.deleteMeterResource(resourceId);
+    this.resourcesSignal.update(current => current.filter(r => r.id !== resourceId));
 
-    // Cascading delete for readings and tariffs?
-    // For now, let's just filter them out from state. Ideally purge from DB too.
-    const relatedReadings = this.readingsSubject.value.filter((reading) => reading.resourceId === resourceId);
-    relatedReadings.forEach(r => this.storage.deleteMeterReadingV2(r.id));
+    const relatedReadings = this.readingsSignal().filter((reading) => reading.resourceId === resourceId);
+    relatedReadings.forEach(r => void this.storage.deleteMeterReadingV2(r.id));
 
-    this.readingsSubject.next(this.readingsSubject.value.filter((reading) => reading.resourceId !== resourceId));
-    this.tariffsSubject.next(this.tariffsSubject.value.filter((tariff) => tariff.resourceId !== resourceId));
-    // TODO: delete tariffs from DB
+    this.readingsSignal.update(current => current.filter((reading) => reading.resourceId !== resourceId));
+    this.tariffsSignal.update(current => current.filter((tariff) => tariff.resourceId !== resourceId));
   }
 
   addTariff(payload: AddTariffPayload): TariffHistoryEntry {
@@ -415,14 +406,14 @@ export class MetersStoreService {
       id: this.generateId('TRF'),
     };
 
-    this.storage.addTariff(tariff);
-    this.tariffsSubject.next([...this.tariffsSubject.value, tariff]);
+    void this.storage.addTariff(tariff);
+    this.tariffsSignal.update(current => [...current, tariff]);
     return tariff;
   }
 
   removeTariff(tariffId: string): void {
-    this.storage.deleteTariff(tariffId);
-    this.tariffsSubject.next(this.tariffsSubject.value.filter((tariff) => tariff.id !== tariffId));
+    void this.storage.deleteTariff(tariffId);
+    this.tariffsSignal.update(current => current.filter(t => t.id !== tariffId));
   }
 
   getActiveTariffs(resourceId: string, atDate: string): TariffHistoryEntry[] {
@@ -431,12 +422,11 @@ export class MetersStoreService {
       return [];
     }
 
-    const relevant = this.tariffsSubject.value
+    const relevant = this.tariffsSignal()
       .filter((tariff) => tariff.resourceId === resourceId && tariff.effectiveFrom <= atDate)
-      .sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom));
+      .sort((a, b) => compareDatesDesc(a.effectiveFrom, b.effectiveFrom));
 
     const result: TariffHistoryEntry[] = [];
-
     const generalTariff = relevant.find((tariff) => !tariff.zoneId);
 
     if (generalTariff) {

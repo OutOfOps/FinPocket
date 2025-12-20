@@ -1,7 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { FinanceListItem, TransactionsStore } from '../../services/transactions.store';
-import { CurrencyService } from '../../../core/services/currency.service';
 
 @Component({
   selector: 'app-finance-list',
@@ -9,10 +8,10 @@ import { CurrencyService } from '../../../core/services/currency.service';
   imports: [SharedModule],
   templateUrl: './finance-list.component.html',
   styleUrls: ['./finance-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FinanceListComponent {
   private readonly transactionsStore = inject(TransactionsStore);
-  protected readonly currencyService = inject(CurrencyService);
 
   readonly filters = ['Все операции', 'Доходы', 'Расходы', 'По счетам'];
 

@@ -12,9 +12,8 @@
   </header>
 
   <div class="meters-list-container">
-    @if (readings$ | async; as readings) {
-    @if (readings.length) {
-    @for (reading of readings; track trackReading($index, reading)) {
+    @if (readings().length) {
+    @for (reading of readings(); track trackReading($index, reading)) {
     <div class="meter-card" [routerLink]="['../', reading.id, 'edit']" mat-ripple>
       <div class="meter-icon" [ngClass]="getTypeClass(reading.type)">
         <mat-icon>{{ getIcon(reading.type) }}</mat-icon>
@@ -41,8 +40,8 @@
 
         <div class="meter-footer">
           <span class="date">{{ reading.submittedAt | date: 'd MMMM' }}</span>
-          @if (formatCost(reading); as cost) {
-          <span class="cost">{{ cost }}</span>
+          @if (reading.cost !== undefined) {
+          <span class="cost">{{ reading.cost | currencyFormat: reading.currency }}</span>
           }
         </div>
       </div>
@@ -54,9 +53,6 @@
       <p>Нет показаний</p>
       <span class="hint">Внесите данные или добавьте счётчики в настройках</span>
     </div>
-    }
-    } @else {
-    <div class="loading-state">Загрузка...</div>
     }
   </div>
 

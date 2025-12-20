@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
 import { SharedModule } from '../../../shared/shared-module';
@@ -10,10 +10,12 @@ import {
   TariffHistoryEntry,
 } from '../../models/resource';
 import { ResourceType } from '../../models/resource-type';
-import { AddTariffPayload, MetersStoreService, UpsertResourcePayload } from '../../services/meters-store.service';
+import { AddTariffPayload, UpsertResourcePayload } from '../../services/meters-store.service';
+import { MetersStore } from '../../../meters/services/meters-store.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ActivatedRoute } from '@angular/router';
 
 interface ResourceFormModel {
   id?: string;
@@ -55,8 +57,9 @@ interface ResourceListView {
   templateUrl: './meters-resources.component.html',
   styleUrls: ['./meters-resources.component.scss'],
 })
-export class MetersResourcesComponent {
-  private readonly store = inject(MetersStoreService);
+export class MetersResourcesComponent implements OnInit {
+  private readonly store = inject(MetersStore);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly currencyService = inject(CurrencyService);
   private readonly dialog = inject(MatDialog);
@@ -73,11 +76,9 @@ export class MetersResourcesComponent {
     { value: 'fixed', label: 'Фиксированная сумма в месяц' },
   ];
 
-  readonly resources$ = combineLatest([this.store.resources$, this.store.objects$]).pipe(
-    map(([resources, objects]) => this.mapToResourceView(resources, objects))
-  );
+  readonly resources$ = computed(() => this.mapToResourceView(this.store.resources(), this.store.objects()));
 
-  readonly objectOptions$ = this.store.objects$;
+  readonly objectOptions$ = this.store.objects;
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
@@ -88,11 +89,13 @@ export class MetersResourcesComponent {
   tariffHistory: TariffHistoryEntry[] = [];
 
   constructor() {
-    this.store.tariffs$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.refreshTariffHistory();
-      });
+    // We can use effect() here if we want to react to changes, 
+    // but a simple refresh logic is already in the store.
+    // If we need to refresh tariff history when store signals change:
+  }
+
+  ngOnInit(): void {
+    // Any initialization logic that depends on signals or route params can go here
   }
 
   get selectedResource(): ResourceEntity | undefined {

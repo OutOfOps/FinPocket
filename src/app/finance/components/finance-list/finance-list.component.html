@@ -3,17 +3,17 @@
   <header class="finance-header">
     <div class="finance-balance-label">Общий баланс</div>
     <div class="finance-balance-amount">
-      {{ currencyService.format(balance(), defaultCurrencyCode()) }}
+      {{ balance() | currencyFormat: defaultCurrencyCode() }}
     </div>
 
     <div class="finance-stats-row">
       <div class="finance-stat income">
         <mat-icon>arrow_downward</mat-icon>
-        <span>{{ currencyService.format(income(), defaultCurrencyCode()) }}</span>
+        <span>{{ income() | currencyFormat: defaultCurrencyCode() }}</span>
       </div>
       <div class="finance-stat expense">
         <mat-icon>arrow_upward</mat-icon>
-        <span>{{ currencyService.format(expenses(), defaultCurrencyCode()) }}</span>
+        <span>{{ expenses() | currencyFormat: defaultCurrencyCode() }}</span>
       </div>
     </div>
 
@@ -51,7 +51,7 @@
         <div class="transaction-main">
           <span class="transaction-category">{{ t.category }}</span>
           <span class="transaction-amount" [class.positive]="t.amount > 0" [class.negative]="t.amount < 0">
-            {{ t.amount > 0 ? '+' : '' }}{{ currencyService.format(t.convertedAmount, defaultCurrencyCode()) }}
+            {{ t.amount > 0 ? '+' : '' }}{{ t.convertedAmount | currencyFormat: defaultCurrencyCode() }}
           </span>
         </div>
         <div class="transaction-meta">

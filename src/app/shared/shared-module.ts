@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CategoryIconPipe } from './pipes/category-icon.pipe';
 import { AccountIconPipe } from './pipes/account-icon.pipe';
+import { CurrencyFormatPipe } from './pipes/currency-format.pipe';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -64,7 +65,7 @@ const SHARED_STANDALONE = [
 
 @NgModule({
   declarations: [CurrencyRatesDialogComponent, ConfirmDialogComponent],
-  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CategoryIconPipe, AccountIconPipe],
-  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CurrencyRatesDialogComponent, ConfirmDialogComponent, CategoryIconPipe, AccountIconPipe],
+  imports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CategoryIconPipe, AccountIconPipe, CurrencyFormatPipe],
+  exports: [CommonModule, RouterModule, FormsModule, ...MATERIAL_MODULES, ...SHARED_STANDALONE, CurrencyRatesDialogComponent, ConfirmDialogComponent, CategoryIconPipe, AccountIconPipe, CurrencyFormatPipe],
 })
 export class SharedModule { }

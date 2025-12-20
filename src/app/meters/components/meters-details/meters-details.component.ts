@@ -1,10 +1,9 @@
-import { Component, DestroyRef, computed, inject } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { combineLatest } from 'rxjs';
 import { SharedModule } from '../../../shared/shared-module';
 import { ResourceEntity, ResourceSummary, TariffHistoryEntry } from '../../models/resource';
-import { MetersStoreService } from '../../services/meters-store.service';
+import { MetersStore } from '../../services/meters-store.service';
 import { MeterReadingValue } from '../../models/meter-reading';
 import { ResourceType } from '../../models/resource-type';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -28,7 +27,7 @@ interface ReadingSummary {
 })
 export class MetersDetailsComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly store = inject(MetersStoreService);
+  private readonly store = inject(MetersStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly currencyService = inject(CurrencyService);
 
@@ -39,14 +38,9 @@ export class MetersDetailsComponent {
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
   constructor() {
-    combineLatest([
-      this.route.paramMap,
-      this.store.resources$,
-      this.store.readings$,
-      this.store.tariffs$
-    ])
+    this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([params]) => {
+      .subscribe((params) => {
         const resourceId = params.get('id');
         if (resourceId) {
           this.load(resourceId);

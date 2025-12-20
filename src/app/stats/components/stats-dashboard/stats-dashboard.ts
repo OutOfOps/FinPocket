@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { TransactionsStore } from '../../../finance/services/transactions.store';
 import { DebtsStore } from '../../../debts/services/debts.store';
-import { MetersStoreService } from '../../../meters/services/meters-store.service';
+import { MetersStore } from '../../../meters/services/meters-store.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TransactionEntity } from '../../../core/services/finpocket-db.service';
 import { LegendPosition } from '@swimlane/ngx-charts';
@@ -30,11 +30,11 @@ interface SeriesData {
 export class StatsDashboard {
   private readonly transactionsStore = inject(TransactionsStore);
   private readonly debtsStore = inject(DebtsStore);
-  private readonly metersStore = inject(MetersStoreService);
+  private readonly metersStore = inject(MetersStore);
   private readonly currencyService = inject(CurrencyService);
 
   readonly legendPosition = LegendPosition.Right;
-  
+
   readonly selectedDataType = signal<DataType>('expenses');
   readonly selectedPeriod = signal<PeriodType>('month');
 
@@ -139,9 +139,10 @@ export class StatsDashboard {
   readonly metersConsumptionData = computed<SeriesData[]>(() => {
     const period = this.selectedPeriod();
     const monthsCount = this.getMonthsCount(period);
-    
+
     // Collect all readings from all available objects
-    const allReadings = this.getAllMeterReadings();
+    const allReadings = this.metersStore.readings();
+
 
     const waterSeries: ChartData[] = [];
     const gasSeries: ChartData[] = [];
@@ -151,17 +152,17 @@ export class StatsDashboard {
       const monthName = this.getMonthName(i);
       const monthReadings = this.getReadingsForMonth(allReadings, i);
 
-      waterSeries.push({ 
-        name: monthName, 
-        value: this.calculateResourceConsumption(monthReadings, 'water') 
+      waterSeries.push({
+        name: monthName,
+        value: this.calculateResourceConsumption(monthReadings, 'water')
       });
-      gasSeries.push({ 
-        name: monthName, 
-        value: this.calculateResourceConsumption(monthReadings, 'gas') 
+      gasSeries.push({
+        name: monthName,
+        value: this.calculateResourceConsumption(monthReadings, 'gas')
       });
-      electricitySeries.push({ 
-        name: monthName, 
-        value: this.calculateResourceConsumption(monthReadings, 'electricity') 
+      electricitySeries.push({
+        name: monthName,
+        value: this.calculateResourceConsumption(monthReadings, 'electricity')
       });
     }
 
@@ -173,36 +174,15 @@ export class StatsDashboard {
   });
 
   readonly hasMetersData = computed(() => {
-    return this.metersConsumptionData().some((seriesItem) => 
+    return this.metersConsumptionData().some((seriesItem) =>
       seriesItem.series.some((item) => item.value > 0)
     );
   });
 
-  private getAllMeterReadings(): MeterReading[] {
-    const allReadings: MeterReading[] = [];
-    
-    // Get all available objects from the meters store by using the observable
-    // We'll iterate through all known resources to collect their readings
-    const knownResourceIds = new Set<string>();
-    
-    // Try to get resources from the default object if available
-    const defaultObjectId = this.metersStore.getDefaultObjectId();
-    if (defaultObjectId) {
-      const resources = this.metersStore.getResourcesForObject(defaultObjectId);
-      resources.forEach(resource => knownResourceIds.add(resource.id));
-    }
-    
-    // Collect readings for all known resource IDs
-    knownResourceIds.forEach(resourceId => {
-      const readings = this.metersStore.getReadingsForResource(resourceId);
-      allReadings.push(...readings);
-    });
-    
-    return allReadings;
-  }
+
 
   private calculateResourceConsumption(
-    readings: MeterReading[], 
+    readings: MeterReading[],
     resourceType: ResourceType
   ): number {
     const consumption = readings
@@ -217,7 +197,7 @@ export class StatsDashboard {
         const consumption = this.metersStore.calculateConsumption(r, previous);
         return sum + Array.from(consumption.values()).reduce((a, b) => a + b, 0);
       }, 0);
-    
+
     return Math.round(consumption * 10) / 10;
   }
 

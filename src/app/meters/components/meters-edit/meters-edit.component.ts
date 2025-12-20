@@ -1,10 +1,10 @@
-import { Component, DestroyRef, computed, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SharedModule } from '../../../shared/shared-module';
 import { MeterReadingValue } from '../../models/meter-reading';
 import { ResourceEntity, ResourceZone, TariffHistoryEntry } from '../../models/resource';
-import { MetersStoreService } from '../../services/meters-store.service';
+import { MetersStore } from '../../services/meters-store.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 
 interface MeterForm {
@@ -30,14 +30,15 @@ interface ZoneViewModel {
   templateUrl: './meters-edit.component.html',
   styleUrls: ['./meters-edit.component.scss'],
 })
-class MetersEditComponent {
+export class MetersEditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly store = inject(MetersStoreService);
+  private readonly store = inject(MetersStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly currencyService = inject(CurrencyService);
 
-  readonly objectOptions$ = this.store.objects$;
+  objects: any[] = [];
+  objectOptions: string[] = [];
   isEditMode = false;
   form: MeterForm = this.createDefaultForm();
   resources: ResourceEntity[] = [];
@@ -68,6 +69,11 @@ class MetersEditComponent {
           this.recalculateSummary();
         }
       });
+  }
+
+  ngOnInit(): void {
+    this.objects = this.store.objects();
+    this.objectOptions = this.store.objectOptions();
   }
 
   submit(): void {
@@ -175,6 +181,8 @@ class MetersEditComponent {
     this.form.objectName = name;
     const existing = this.store.getObjectByName(name);
     this.form.objectId = existing?.id;
+    this.objects = this.store.objects();
+    this.objectOptions = this.store.objectOptions();
   }
 
   private createDefaultForm(): MeterForm {
@@ -191,9 +199,9 @@ class MetersEditComponent {
       submittedAt: new Date().toISOString().substring(0, 10),
       values: defaultResource
         ? defaultResource.zones.reduce<Record<string, number>>((acc, zone) => {
-            acc[zone.id] = 0;
-            return acc;
-          }, {})
+          acc[zone.id] = 0;
+          return acc;
+        }, {})
         : {},
     };
   }
@@ -307,14 +315,12 @@ class MetersEditComponent {
     this.consumption = summary.consumption;
     this.previousValues = summary.previous
       ? summary.previous.values.reduce<Record<string, number>>((acc, current) => {
-          acc[current.zoneId] = current.value;
-          return acc;
-        }, {})
+        acc[current.zoneId] = current.value;
+        return acc;
+      }, {})
       : {};
     this.estimatedCost = summary.cost;
     this.estimatedCurrency = summary.currency;
     this.previousReadingDate = summary.previous?.submittedAt;
   }
 }
-
-export default MetersEditComponent

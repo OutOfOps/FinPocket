@@ -1,6 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
-import { MetersStoreService, MeterReadingListItem } from '../../services/meters-store.service';
+import { MetersStore, MeterReadingListItem } from '../../services/meters-store.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 
 @Component({
@@ -9,15 +9,14 @@ import { CurrencyService } from '../../../core/services/currency.service';
   imports: [SharedModule],
   templateUrl: './meters-list.component.html',
   styleUrls: ['./meters-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MetersListComponent {
-  private readonly store = inject(MetersStoreService);
+  private readonly store = inject(MetersStore);
   private readonly currencyService = inject(CurrencyService);
 
-  readonly readings$ = this.store.readingList$;
-  readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
-
-  trackReading(_: number, reading: MeterReadingListItem): string {
+  readonly readings = this.store.readingList;
+  trackReading(_Index: number, reading: MeterReadingListItem): string {
     return reading.id;
   }
 
@@ -28,20 +27,6 @@ export class MetersListComponent {
         return `${zone.label}: ${base}`;
       })
       .join(' • ');
-  }
-
-  formatValues(reading: MeterReadingListItem): string {
-    return reading.zones
-      .map((zone) => `${zone.label}: ${zone.value.toFixed(2).replace(/\.00$/, '')}`)
-      .join(' • ');
-  }
-
-  formatCost(reading: MeterReadingListItem): string | null {
-    if (reading.cost === undefined || !reading.currency) {
-      return null;
-    }
-
-    return this.currencyService.format(reading.cost, reading.currency);
   }
 
   getIcon(type: any): string {

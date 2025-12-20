@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { TransactionEntity } from '../../core/services/finpocket-db.service';
 import { CurrencyService } from '../../core/services/currency.service';
+import { compareDatesDesc, parseDate } from '../../core/utils/date-utils';
 import { OperationAccountsService } from './operation-accounts.service';
 
 export interface FinanceListItem {
@@ -31,6 +32,7 @@ interface CategoryTotal {
 export class TransactionsStore {
   private readonly storage = inject(StorageService);
   private readonly currencyService = inject(CurrencyService);
+  private readonly accountsService = inject(OperationAccountsService);
 
   private readonly transactionsSignal = signal<TransactionEntity[]>([]);
 
@@ -40,7 +42,7 @@ export class TransactionsStore {
 
   readonly listItems = computed<FinanceListItem[]>(() =>
     [...this.transactionsSignal()]
-      .sort((a, b) => this.compareByOccurredAt(a.occurredAt, b.occurredAt))
+      .sort((a, b) => compareDatesDesc(a.occurredAt, b.occurredAt))
       .map((transaction) => ({
         id: transaction.id ?? 0,
         description:
@@ -60,8 +62,6 @@ export class TransactionsStore {
       }))
   );
 
-  private readonly accountsService = inject(OperationAccountsService);
-
   readonly totalIncome = computed(() =>
     this.transactionsSignal()
       .filter((transaction) => transaction.type === 'income')
@@ -74,7 +74,6 @@ export class TransactionsStore {
       .reduce((sum, transaction) => sum + this.convertToDefault(transaction), 0)
   );
 
-  // Balance = (Income - Expenses) + (Sum of Initial Balances of All Accounts)
   readonly accountsInitialBalance = computed(() =>
     this.accountsService.accounts()
       .filter(acc => acc.includeInTotal !== false)
@@ -226,7 +225,7 @@ export class TransactionsStore {
     const end = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0, 23, 59, 59, 999);
 
     return this.transactionsSignal().filter((transaction) => {
-      const occurredAt = this.parseDate(transaction.occurredAt);
+      const occurredAt = parseDate(transaction.occurredAt);
       if (!occurredAt) {
         return false;
       }
@@ -268,31 +267,7 @@ export class TransactionsStore {
     }
   }
 
-  private compareByOccurredAt(left: string, right: string): number {
-    const leftDate = this.parseDate(left);
-    const rightDate = this.parseDate(right);
-
-    if (leftDate && rightDate) {
-      return rightDate.getTime() - leftDate.getTime();
-    }
-
-    if (leftDate && !rightDate) {
-      return -1;
-    }
-
-    if (!leftDate && rightDate) {
-      return 1;
-    }
-
-    return 0;
-  }
-
-  private parseDate(value: string): Date | null {
-    if (!value) {
-      return null;
-    }
-
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  private generateId(prefix: string): string {
+    return `${prefix}_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
   }
 }
