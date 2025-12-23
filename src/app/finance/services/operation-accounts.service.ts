@@ -165,7 +165,7 @@ export class OperationAccountsService {
   private getDefaults(): OperationAccount[] {
     return [
       { id: 'acc-cash', name: 'Наличные', type: 'cash', currencyCode: 'UAH', initialBalance: 0 },
-      { id: 'acc-card', name: 'Карта', type: 'bank', currencyCode: 'UAH', initialBalance: 0, bankName: 'Monobank' }
+      { id: 'acc-card', name: 'Карта', type: 'bank', currencyCode: 'UAH', initialBalance: 0, bankName: 'Банк' }
     ];
   }
 
