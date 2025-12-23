@@ -23,7 +23,10 @@ export class DebtsEditComponent {
   readonly amount = signal<number>(0);
   readonly contactName = signal('');
   readonly note = signal('');
+  readonly currency = signal(this.currencyService.getDefaultCurrencyCode());
   readonly dueDate = signal(new Date().toISOString().substring(0, 10));
+
+  readonly currencies = this.currencyService.currencies;
 
   readonly defaultCurrencyCode = computed(() => this.currencyService.getDefaultCurrencyCode());
 
@@ -43,6 +46,7 @@ export class DebtsEditComponent {
           this.amount.set(debt.amount);
           this.contactName.set(debt.contact);
           this.note.set(debt.note || '');
+          this.currency.set(debt.currency);
           this.dueDate.set(debt.dueDate ? new Date(debt.dueDate).toISOString().substring(0, 10) : new Date().toISOString().substring(0, 10));
         }
       }
@@ -74,7 +78,7 @@ export class DebtsEditComponent {
       kind: kind,
       direction: dbDirection,
       amount: amountVal,
-      currency: this.currencyService.getDefaultCurrencyCode(),
+      currency: this.currency(),
       dueDate: this.dueDate() ? new Date(this.dueDate()).toISOString() : undefined,
       status: 'active' as DebtStatus,
       participants: ['Вы', this.contactName().trim()],

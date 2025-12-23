@@ -74,11 +74,19 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group flex-1">
+          <div class="form-group flex-2">
             <label>Сумма</label>
             <input type="number" [(ngModel)]="editForm().amount" class="neo-input">
           </div>
           <div class="form-group flex-1">
+            <label>Валюта</label>
+            <select [(ngModel)]="editForm().currency" class="neo-input">
+              @for (cur of currencyService.currencies(); track cur.id) {
+              <option [value]="cur.code">{{ cur.code }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group flex-2">
             <label>Дата возврата</label>
             <input type="date" [(ngModel)]="editForm().dueDate" class="neo-input">
           </div>

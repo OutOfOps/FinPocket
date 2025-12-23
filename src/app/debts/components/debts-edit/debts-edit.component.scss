@@ -49,7 +49,7 @@
 .amount-input-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   background: rgba(255, 255, 255, 0.05);
   padding: 12px 24px;
   border-radius: 20px;
@@ -77,12 +77,38 @@
     transform: scale(1.02);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
-}
 
-.currency-symbol {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--finpocket-muted);
+  .currency-selector-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding-right: 4px;
+
+    .currency-inline-select {
+      appearance: none;
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 8px 24px 8px 12px;
+      cursor: pointer;
+      outline: none;
+      min-width: 70px;
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 2px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+  }
 }
 
 .amount-input {
@@ -91,7 +117,7 @@
   font-size: 40px;
   font-weight: 700;
   color: var(--finpocket-text);
-  width: 180px;
+  width: 150px;
   text-align: center;
   outline: none;
   font-family: inherit;
