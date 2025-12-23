@@ -139,8 +139,24 @@ export class Settings {
     this.snackBar.open('Проверка обновлений...', undefined, { duration: 2000 });
 
     try {
-      const hasUpdate = await this.pwaUpdateService.checkForUpdate();
+      // First check if an update is already ready and waiting
+      let hasUpdate = this.pwaUpdateService.isUpdateAvailable();
+      const isDownloading = this.pwaUpdateService.isDownloading();
+
+      // If downloading right now, show feedback and don't check again
+      if (isDownloading) {
+        this.snackBar.open('Загрузка обновления...', undefined, { duration: 3000 });
+        return;
+      }
+
+      // If not ready, check the server
+      if (!hasUpdate) {
+        hasUpdate = await this.pwaUpdateService.checkForUpdate();
+      }
+
       if (hasUpdate) {
+        // If checkForUpdate returned true, it might still be downloading (especially if it was just found)
+        // Give it a moment or show the prompt if it's already ready
         const ref = this.snackBar.open('Доступна новая версия!', 'Обновиться', { duration: 10000 });
         ref.onAction().subscribe(() => {
           this.pwaUpdateService.activateUpdate().then(() => window.location.reload());
