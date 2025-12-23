@@ -288,12 +288,31 @@
       </div>
     </section>
 
-    <!-- Danger Zone -->
     <section class="settings-section danger">
       <button mat-button color="warn" (click)="openResetDataDialog()" [disabled]="isResetting" class="reset-btn">
         <mat-icon>delete_forever</mat-icon>
         Сбросить все данные
       </button>
+    </section>
+
+    <!-- About & App Info -->
+    <section class="settings-section app-info-section">
+      <div class="app-version-info">
+        <span class="version-label">Версия приложения</span>
+        <span class="version-badge">{{ appVersion }}</span>
+      </div>
+
+      <div class="app-actions">
+        <button mat-flat-button color="accent" (click)="checkUpdate()" [disabled]="isCheckingUpdates">
+          <mat-icon [class.spinning]="isCheckingUpdates">refresh</mat-icon>
+          Проверить обновление
+        </button>
+
+        <button mat-button routerLink="about" class="about-link">
+          <mat-icon>info_outline</mat-icon>
+          О программе
+        </button>
+      </div>
     </section>
 
   </div>

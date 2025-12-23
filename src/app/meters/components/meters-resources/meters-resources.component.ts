@@ -26,6 +26,7 @@ interface ResourceFormModel {
   zoneTemplate: 'single' | 'double' | 'triple';
   unit: string;
   serviceAmount: number | null;
+  initialValues: { zoneId: string; value: number }[];
 }
 
 interface TariffFormModel {
@@ -152,6 +153,7 @@ export class MetersResourcesComponent implements OnInit {
       zoneTemplate: this.detectTemplate(resource),
       unit: resource.unit,
       serviceAmount: resource.fixedAmount ?? null,
+      initialValues: resource.initialValues ? [...resource.initialValues] : this.buildInitialValues(this.detectTemplate(resource), resource.type, resource.pricingModel),
     };
     this.selectForTariffs(resource);
   }
@@ -180,6 +182,8 @@ export class MetersResourcesComponent implements OnInit {
     if (type !== 'electricity' || this.resourceForm.pricingModel === 'fixed') {
       this.resourceForm.zoneTemplate = 'single';
     }
+
+    this.resourceForm.initialValues = this.buildInitialValues(this.resourceForm.zoneTemplate, this.resourceForm.type, this.resourceForm.pricingModel);
   }
 
   onPricingModelChange(model: ResourcePricingModel): void {
@@ -187,6 +191,12 @@ export class MetersResourcesComponent implements OnInit {
     if (model === 'fixed') {
       this.resourceForm.zoneTemplate = 'single';
     }
+    this.resourceForm.initialValues = this.buildInitialValues(this.resourceForm.zoneTemplate, this.resourceForm.type, this.resourceForm.pricingModel);
+  }
+
+  onZoneTemplateChange(template: ResourceFormModel['zoneTemplate']): void {
+    this.resourceForm.zoneTemplate = template;
+    this.resourceForm.initialValues = this.buildInitialValues(template, this.resourceForm.type, this.resourceForm.pricingModel);
   }
 
   saveResource(): void {
@@ -212,6 +222,7 @@ export class MetersResourcesComponent implements OnInit {
         this.resourceForm.type === 'service'
           ? this.currencyService.normalizeCode(this.defaultCurrencyCode())
           : undefined,
+      initialValues: this.resourceForm.initialValues,
     };
 
     const saved = this.store.upsertResource(payload);
@@ -400,6 +411,7 @@ export class MetersResourcesComponent implements OnInit {
       zoneTemplate: 'single',
       unit: defaultType.unit,
       serviceAmount: null,
+      initialValues: [{ zoneId: 'total', value: 0 }],
     };
   }
 
@@ -428,5 +440,43 @@ export class MetersResourcesComponent implements OnInit {
 
   formatCurrency(amount: number, currency?: string, fractionDigits = 2): string {
     return this.currencyService.format(amount, currency ?? this.defaultCurrencyCode(), fractionDigits);
+  }
+
+  getZoneName(zoneId: string): string {
+    switch (zoneId) {
+      case 'total': return 'Общий счётчик';
+      case 'day': return 'День';
+      case 'night': return 'Ночь';
+      case 'peak': return 'Пик';
+      case 'half-peak': return 'Полупик';
+      case 'fixed': return 'Абонентская плата';
+      default: return zoneId;
+    }
+  }
+
+  private buildInitialValues(template: ResourceFormModel['zoneTemplate'], type: ResourceType, model: ResourcePricingModel): { zoneId: string; value: number }[] {
+    if (model === 'fixed') {
+      return [{ zoneId: 'fixed', value: 0 }];
+    }
+
+    if (type !== 'electricity') {
+      return [{ zoneId: 'total', value: 0 }];
+    }
+
+    switch (template) {
+      case 'double':
+        return [
+          { zoneId: 'day', value: 0 },
+          { zoneId: 'night', value: 0 },
+        ];
+      case 'triple':
+        return [
+          { zoneId: 'peak', value: 0 },
+          { zoneId: 'half-peak', value: 0 },
+          { zoneId: 'night', value: 0 },
+        ];
+      default:
+        return [{ zoneId: 'total', value: 0 }];
+    }
   }
 }

@@ -18,11 +18,11 @@ export interface UpsertReadingPayload
   objectId: string;
   values: MeterReadingValue[];
 }
-
 export interface UpsertResourcePayload extends Omit<ResourceEntity, 'id' | 'objectId' | 'zones'> {
   id?: string;
   objectName: string;
   zones: ResourceZone[];
+  initialValues?: { zoneId: string; value: number }[];
 }
 
 export interface AddTariffPayload extends Omit<TariffHistoryEntry, 'id'> { }
@@ -120,7 +120,7 @@ export class MetersStore {
         }
 
         const previous = this.getPreviousReading(resource.id, reading.id);
-        const consumption = this.calculateConsumption(reading, previous);
+        const consumption = this.calculateConsumption(resource, reading, previous);
         const { cost, currency } = this.calculateCost(resource, consumption, tariffs, reading.submittedAt);
 
         return {
@@ -298,7 +298,7 @@ export class MetersStore {
       values,
     };
 
-    const consumption = this.calculateConsumption(current, previous);
+    const consumption = this.calculateConsumption(resource, current, previous);
     const { cost, currency } = this.calculateCost(resource, consumption, this.tariffsSignal(), submittedAt);
 
     return { previous, consumption, cost, currency };
@@ -360,6 +360,7 @@ export class MetersStore {
           unit: payload.unit,
           pricingModel: payload.pricingModel,
           zones,
+          initialValues: payload.initialValues,
           fixedAmount: payload.fixedAmount,
           fixedCurrency: payload.fixedCurrency,
         };
@@ -380,6 +381,7 @@ export class MetersStore {
       unit: payload.unit,
       pricingModel: payload.pricingModel,
       zones,
+      initialValues: payload.initialValues,
       fixedAmount: payload.fixedAmount,
       fixedCurrency: payload.fixedCurrency,
     };
@@ -443,11 +445,17 @@ export class MetersStore {
     return result;
   }
 
-  calculateConsumption(current: MeterReading, previous?: MeterReading): Map<string, number> {
+  calculateConsumption(resource: ResourceEntity, current: MeterReading, previous?: MeterReading): Map<string, number> {
     const mapResult = new Map<string, number>();
 
     for (const value of current.values) {
-      const previousValue = previous?.values.find((item) => item.zoneId === value.zoneId)?.value ?? 0;
+      let previousValue = 0;
+      if (previous) {
+        previousValue = previous.values.find((item) => item.zoneId === value.zoneId)?.value ?? 0;
+      } else if (resource.initialValues) {
+        previousValue = resource.initialValues.find((item) => item.zoneId === value.zoneId)?.value ?? 0;
+      }
+
       mapResult.set(value.zoneId, Math.max(0, Number(value.value) - Number(previousValue)));
     }
 

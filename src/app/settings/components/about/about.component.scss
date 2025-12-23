@@ -1,0 +1,197 @@
+.about-container {
+    padding-bottom: 24px;
+    background: var(--finpocket-bg);
+    min-height: 100vh;
+}
+
+.about-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    background: rgba(var(--finpocket-bg-rgb), 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+
+    h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+}
+
+.about-hero {
+    padding: 40px 20px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(var(--finpocket-primary-rgb), 0.1) 0%, transparent 100%);
+
+    .app-logo {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 16px;
+        background: var(--finpocket-primary-color);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 20px rgba(var(--finpocket-primary-rgb), 0.3);
+
+        mat-icon {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .app-version {
+        margin: 4px 0 16px;
+        color: var(--finpocket-primary-color);
+        font-weight: 600;
+        font-size: 14px;
+        background: rgba(var(--finpocket-primary-rgb), 0.1);
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+    }
+
+    .app-description {
+        max-width: 400px;
+        margin: 0 auto;
+        color: var(--finpocket-muted);
+        line-height: 1.6;
+        font-size: 15px;
+    }
+}
+
+.about-section {
+    padding: 0 20px;
+    margin-bottom: 32px;
+
+    h3 {
+        font-size: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: var(--finpocket-text);
+    }
+}
+
+.features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.feature-card {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    mat-icon {
+        color: var(--finpocket-primary-color);
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+    }
+
+    .feature-content {
+        h4 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--finpocket-muted);
+            line-height: 1.4;
+        }
+    }
+}
+
+.changelog {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.changelog-item {
+    padding-left: 12px;
+    border-left: 2px solid rgba(255, 255, 255, 0.05);
+
+    .changelog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+
+        strong {
+            font-size: 15px;
+        }
+
+        span {
+            font-size: 13px;
+            color: var(--finpocket-muted);
+        }
+    }
+
+    ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--finpocket-muted);
+        font-size: 14px;
+
+        li {
+            margin-bottom: 4px;
+        }
+    }
+}
+
+.developer {
+    p {
+        color: var(--finpocket-muted);
+        margin-bottom: 12px;
+    }
+
+    .external-links {
+        a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--finpocket-primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            background: rgba(var(--finpocket-primary-rgb), 0.1);
+            border-radius: 12px;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+        }
+    }
+}
+
+.about-footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--finpocket-muted);
+    font-size: 12px;
+    opacity: 0.6;
+}

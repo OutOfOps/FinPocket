@@ -10,6 +10,8 @@ import { BackupService } from '../core/services/backup.service';
 import { SyncSettingsService } from '../sync/services/sync-settings.service';
 import { OperationAccountsService, NewAccount, OperationAccount, AccountType } from '../finance/services/operation-accounts.service';
 import { ConfirmDialogComponent } from '../shared/components/confirm-dialog/confirm-dialog.component';
+import { APP_VERSION } from '../core/tokens/app-version.token';
+import { PwaUpdateService } from '../core/services/pwa-update.service';
 
 @Component({
   selector: 'app-settings',
@@ -26,6 +28,8 @@ export class Settings {
   private readonly snackBar = inject(MatSnackBar);
   private readonly backupService = inject(BackupService);
   protected readonly syncSettings = inject(SyncSettingsService);
+  protected readonly appVersion = inject(APP_VERSION);
+  private readonly pwaUpdateService = inject(PwaUpdateService);
 
   protected readonly theme = this.themeService.theme;
   protected readonly accent = this.themeService.accent;
@@ -59,6 +63,7 @@ export class Settings {
   protected isExportingData = false;
   protected isImportingData = false;
   protected isLoadingRates = false;
+  protected isCheckingUpdates = false;
 
   protected setTheme(theme: FinpocketTheme | string): void {
     if (theme === 'dark' || theme === 'light') {
@@ -125,6 +130,30 @@ export class Settings {
   }
 
   protected nbuMetals: Array<{ code: string; txt: string }> = [];
+
+  protected async checkUpdate(): Promise<void> {
+    if (this.isCheckingUpdates) return;
+    this.isCheckingUpdates = true;
+
+    // Visual feedback
+    this.snackBar.open('Проверка обновлений...', undefined, { duration: 2000 });
+
+    try {
+      const hasUpdate = await this.pwaUpdateService.checkForUpdate();
+      if (hasUpdate) {
+        const ref = this.snackBar.open('Доступна новая версия!', 'Обновиться', { duration: 10000 });
+        ref.onAction().subscribe(() => {
+          this.pwaUpdateService.activateUpdate().then(() => window.location.reload());
+        });
+      } else {
+        this.snackBar.open('У вас установлена последняя версия', undefined, { duration: 3000 });
+      }
+    } catch (err) {
+      this.snackBar.open('Ошибка при проверке обновлений', 'OK', { duration: 3000 });
+    } finally {
+      this.isCheckingUpdates = false;
+    }
+  }
 
   // When user selects a code from dropdown, fill name and estimated rate
   protected onNbuCodeSelect(code: string): void {

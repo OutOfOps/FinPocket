@@ -21,6 +21,7 @@ export interface ResourceEntity {
   unit: string;
   pricingModel: ResourcePricingModel;
   zones: ResourceZone[];
+  initialValues?: { zoneId: string; value: number }[];
   fixedAmount?: number;
   fixedCurrency?: string;
 }

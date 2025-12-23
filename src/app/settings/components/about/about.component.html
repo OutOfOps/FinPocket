@@ -1,0 +1,70 @@
+<div class="about-container">
+    <header class="about-header">
+        <button mat-icon-button routerLink="/settings">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>О программе</h1>
+    </header>
+
+    <section class="about-hero">
+        <div class="app-info">
+            <div class="app-logo">
+                <mat-icon>account_balance_wallet</mat-icon>
+            </div>
+            <h2>FinPocket</h2>
+            <p class="app-version">{{ appVersion }}</p>
+            <p class="app-description">
+                Ваш персональный помощник в управлении личными финансами, долгами и коммунальными услугами. Все данные
+                хранятся только у вас.
+            </p>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h3>Возможности</h3>
+        <div class="features-list">
+            @for (feature of features; track feature.title) {
+            <div class="feature-card">
+                <mat-icon>{{ feature.icon }}</mat-icon>
+                <div class="feature-content">
+                    <h4>{{ feature.title }}</h4>
+                    <p>{{ feature.description }}</p>
+                </div>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h3>История изменений</h3>
+        <div class="changelog">
+            @for (item of versionHistory; track item.version) {
+            <div class="changelog-item">
+                <div class="changelog-header">
+                    <strong>{{ item.version }}</strong>
+                    <span>{{ item.date }}</span>
+                </div>
+                <ul>
+                    @for (change of item.changes; track change) {
+                    <li>{{ change }}</li>
+                    }
+                </ul>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="about-section developer">
+        <h3>Разработчик</h3>
+        <p>Создано с заботой о ваших финансах.</p>
+        <div class="external-links">
+            <a href="https://github.com/FinPocket" target="_blank">
+                <mat-icon>code</mat-icon> GitHub
+            </a>
+        </div>
+    </section>
+
+    <footer class="about-footer">
+        <p>© 2025 FinPocket Team</p>
+    </footer>
+</div>

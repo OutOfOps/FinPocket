@@ -68,6 +68,7 @@ export interface MeterResourceEntity {
   unit: string;
   pricingModel: 'per_unit' | 'fixed';
   zones: { id: string; name: string }[];
+  initialValues?: { zoneId: string; value: number }[];
   fixedAmount?: number;
   fixedCurrency?: string;
 }

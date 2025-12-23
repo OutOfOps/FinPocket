@@ -172,6 +172,37 @@
     }
   }
 
+  .initial-values-section {
+    margin: 20px 0;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: var(--finpocket-muted);
+    }
+  }
+
+  .initial-values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+
+    label {
+      margin-bottom: 0 !important;
+      font-size: 12px !important;
+
+      input {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        margin-top: 4px !important;
+      }
+    }
+  }
+
   &__form-actions {
     display: flex;
     justify-content: flex-end;
