@@ -194,7 +194,7 @@ export class StatsDashboard {
         const resource = this.metersStore.getResourceById(r.resourceId);
         if (!resource) return sum;
         const previous = this.metersStore.getPreviousReading(r.resourceId, r.id);
-        const consumption = this.metersStore.calculateConsumption(r, previous);
+        const consumption = this.metersStore.calculateConsumption(resource, r, previous);
         return sum + Array.from(consumption.values()).reduce((a, b) => a + b, 0);
       }, 0);
 
