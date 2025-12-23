@@ -81,7 +81,7 @@
         font-size: 18px;
         margin-bottom: 16px;
         padding-bottom: 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--finpocket-glass-border);
         color: var(--finpocket-text);
     }
 }
@@ -96,9 +96,9 @@
     display: flex;
     gap: 16px;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--finpocket-input-bg);
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--finpocket-glass-border);
 
     mat-icon {
         color: var(--finpocket-primary-color);
@@ -131,7 +131,7 @@
 
 .changelog-item {
     padding-left: 12px;
-    border-left: 2px solid rgba(255, 255, 255, 0.05);
+    border-left: 2px solid var(--finpocket-glass-border);
 
     .changelog-header {
         display: flex;

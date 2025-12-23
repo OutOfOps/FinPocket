@@ -521,10 +521,10 @@
       font-size: 18px;
       font-weight: 700;
       color: var(--finpocket-text);
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--finpocket-input-bg);
       padding: 4px 16px;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--finpocket-glass-border);
     }
   }
 

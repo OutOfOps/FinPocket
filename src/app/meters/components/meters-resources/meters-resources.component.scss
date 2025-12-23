@@ -8,10 +8,12 @@
       margin: 0;
       font-size: 24px;
       font-weight: 700;
-      background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+      font-weight: 700;
+      color: var(--finpocket-text);
+      /* background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
       background-clip: text;
       -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-text-fill-color: transparent; */
     }
 
     p {
@@ -40,10 +42,10 @@
 
   /* Resource Cards (replacing table) */
   .resource-card {
-    background: rgba(30, 30, 30, 0.6);
+    background: var(--finpocket-glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--finpocket-glass-border);
     border-radius: 20px;
     padding: 16px;
     margin-bottom: 12px;
@@ -134,8 +136,8 @@
 
   &__form,
   &__tariff-form {
-    background: rgba(30, 30, 30, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--finpocket-glass-bg);
+    border: 1px solid var(--finpocket-glass-border);
     border-radius: 20px;
     padding: 20px;
 
@@ -156,8 +158,8 @@
       select {
         width: 100%;
         margin-top: 6px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--finpocket-input-bg);
+        border: 1px solid var(--finpocket-glass-border);
         border-radius: 10px;
         padding: 12px;
         color: var(--finpocket-text);
@@ -175,9 +177,9 @@
   .initial-values-section {
     margin: 20px 0;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--finpocket-input-bg);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--finpocket-glass-border);
 
     h4 {
       margin: 0 0 12px 0;
@@ -241,7 +243,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--finpocket-glass-border);
 
       &:last-child {
         border-bottom: none;
