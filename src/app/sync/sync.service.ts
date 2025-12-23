@@ -9,6 +9,11 @@ import {
   DebtTransactionEntity,
   MeterReadingEntity,
   CategoryEntity,
+  MeterObjectEntity,
+  MeterResourceEntity,
+  MeterReadingRecord,
+  TariffEntity,
+  SubscriptionEntity,
 } from '../core/services/finpocket-db.service';
 import { CloudProvider } from './cloud-provider';
 import { SyncQueue } from './sync.queue';
@@ -30,6 +35,11 @@ export interface BackupData {
     debtTransactions: DebtTransactionEntity[];
     meters: MeterReadingEntity[];
     categories: CategoryEntity[];
+    meterObjects?: MeterObjectEntity[];
+    meterResources?: MeterResourceEntity[];
+    meterReadings?: MeterReadingRecord[];
+    tariffs?: TariffEntity[];
+    subscriptions?: SubscriptionEntity[];
   };
 }
 
@@ -63,7 +73,7 @@ export class SyncService {
 
     // Gather all data
     const data: BackupData = {
-      version: '1.1', // Bumped version
+      version: '1.2', // Bumped version
       timestamp: new Date().toISOString(),
       theme: this.themeService.theme(),
       defaultCurrencyId: currencySnapshot.defaultCurrencyId,
@@ -76,6 +86,11 @@ export class SyncService {
         debtTransactions: await this.db.debtTransactions.toArray(),
         meters: await this.db.meters.toArray(),
         categories: await this.db.categories.toArray(),
+        meterObjects: await this.db.meterObjects.toArray(),
+        meterResources: await this.db.meterResources.toArray(),
+        meterReadings: await this.db.meterReadings.toArray(),
+        tariffs: await this.db.tariffs.toArray(),
+        subscriptions: await this.db.subscriptions.toArray(),
       },
     };
 
@@ -135,6 +150,11 @@ export class SyncService {
       await this.db.debtTransactions.clear();
       await this.db.meters.clear();
       await this.db.categories.clear();
+      await this.db.meterObjects.clear();
+      await this.db.meterResources.clear();
+      await this.db.meterReadings.clear();
+      await this.db.tariffs.clear();
+      await this.db.subscriptions.clear();
 
       // Import data
       await this.db.transactions.bulkAdd(data.data.transactions);
@@ -143,6 +163,12 @@ export class SyncService {
       await this.db.debtTransactions.bulkAdd(data.data.debtTransactions);
       await this.db.meters.bulkAdd(data.data.meters);
       await this.db.categories.bulkAdd(data.data.categories);
+
+      if (data.data.meterObjects) await this.db.meterObjects.bulkAdd(data.data.meterObjects);
+      if (data.data.meterResources) await this.db.meterResources.bulkAdd(data.data.meterResources);
+      if (data.data.meterReadings) await this.db.meterReadings.bulkAdd(data.data.meterReadings);
+      if (data.data.tariffs) await this.db.tariffs.bulkAdd(data.data.tariffs);
+      if (data.data.subscriptions) await this.db.subscriptions.bulkAdd(data.data.subscriptions);
     });
   }
 
