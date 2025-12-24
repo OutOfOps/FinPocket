@@ -20,6 +20,8 @@ export class CategoryIconPipe implements PipeTransform {
         'Техника': 'computer',
         'Одежда': 'checkroom',
         'Питомцы': 'pets',
+        'Подписки': 'subscriptions',
+        'Коммуналка': 'flash_on',
         'Другое': 'category',
 
         // Income Categories

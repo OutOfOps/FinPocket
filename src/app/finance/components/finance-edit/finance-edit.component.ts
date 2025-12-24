@@ -37,7 +37,7 @@ export class FinanceEditComponent {
   readonly date = signal(new Date().toISOString().substring(0, 10));
 
   // Options
-  readonly categories = ['Продукты', 'Транспорт', 'Дом', 'Кафе', 'Здоровье', 'Развлечения', 'Покупки', 'Счета', 'Зарплата', 'Долг'];
+  readonly categories = ['Продукты', 'Транспорт', 'Дом', 'Кафе', 'Здоровье', 'Развлечения', 'Покупки', 'Счета', 'Зарплата', 'Долг', 'Подписки', 'Коммуналка'];
   readonly accounts = this.accountsService.accounts;
   readonly currencies = this.currencyService.currencies;
 

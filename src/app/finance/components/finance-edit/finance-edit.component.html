@@ -31,11 +31,19 @@
       <label>Откуда</label>
       <div class="selector-box">
         <mat-icon>account_balance_wallet</mat-icon>
-        <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)">
+        <mat-select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)">
           @for (acc of accounts(); track acc.id) {
-          <option [value]="acc.name">{{ acc.name }}</option>
+          <mat-option [value]="acc.name">
+            <div class="account-option">
+              <mat-icon class="account-option__icon">{{ acc.type === 'bank' ? 'credit_card' : 'payments' }}</mat-icon>
+              <div class="account-option__info">
+                <span class="account-option__name">{{ acc.name }}</span>
+                <span class="account-option__bank" *ngIf="acc.bankName">{{ acc.bankName }}</span>
+              </div>
+            </div>
+          </mat-option>
           }
-        </select>
+        </mat-select>
       </div>
     </div>
 
@@ -47,11 +55,19 @@
       <label>Куда</label>
       <div class="selector-box">
         <mat-icon>savings</mat-icon>
-        <select [ngModel]="accountTo()" (ngModelChange)="accountTo.set($event)">
+        <mat-select [ngModel]="accountTo()" (ngModelChange)="accountTo.set($event)">
           @for (acc of accounts(); track acc.id) {
-          <option [value]="acc.name">{{ acc.name }}</option>
+          <mat-option [value]="acc.name">
+            <div class="account-option">
+              <mat-icon class="account-option__icon">{{ acc.type === 'bank' ? 'credit_card' : 'payments' }}</mat-icon>
+              <div class="account-option__info">
+                <span class="account-option__name">{{ acc.name }}</span>
+                <span class="account-option__bank" *ngIf="acc.bankName">{{ acc.bankName }}</span>
+              </div>
+            </div>
+          </mat-option>
           }
-        </select>
+        </mat-select>
       </div>
     </div>
   </div>
@@ -82,11 +98,19 @@
 
     <div class="input-chip">
       <mat-icon>account_balance_wallet</mat-icon>
-      <select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)" class="account-select">
+      <mat-select [ngModel]="accountFrom()" (ngModelChange)="accountFrom.set($event)" class="account-select">
         @for (acc of accounts(); track acc.id) {
-        <option [value]="acc.name">{{ acc.name }}</option>
+        <mat-option [value]="acc.name">
+          <div class="account-option">
+            <mat-icon class="account-option__icon">{{ acc.type === 'bank' ? 'credit_card' : 'payments' }}</mat-icon>
+            <div class="account-option__info">
+              <span class="account-option__name">{{ acc.name }}</span>
+              <span class="account-option__bank" *ngIf="acc.bankName">{{ acc.bankName }}</span>
+            </div>
+          </div>
+        </mat-option>
         }
-      </select>
+      </mat-select>
     </div>
 
     <div class="input-chip full-width-mobile" title="Комментарий">

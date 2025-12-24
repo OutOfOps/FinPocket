@@ -105,13 +105,10 @@
     color: var(--finpocket-muted);
   }
 
-  select {
+  mat-select {
     width: 100%;
-    background: none;
-    border: none;
     color: var(--finpocket-text);
     font-size: 16px;
-    outline: none;
   }
 }
 
@@ -249,7 +246,7 @@
   }
 
   .account-select {
-    appearance: none;
+    flex: 1;
   }
 }
 
@@ -269,4 +266,54 @@
   height: 56px;
   border-radius: 28px !important;
   box-shadow: 0 4px 12px rgba(98, 0, 238, 0.4);
+}
+
+.account-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+
+  &__icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--finpocket-muted);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--finpocket-text);
+  }
+
+  &__bank {
+    font-size: 11px;
+    color: var(--finpocket-muted);
+    margin-top: 2px;
+  }
+}
+
+/* Fix for Material Select Panel color in Dark Mode */
+::ng-deep .mat-mdc-select-panel {
+  background-color: var(--finpocket-surface-elevated, #1e1e1e) !important;
+  border: 1px solid var(--finpocket-border-color);
+  border-radius: 12px !important;
+}
+
+::ng-deep .mat-mdc-option {
+  &.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text {
+    color: var(--finpocket-primary) !important;
+  }
+
+  &:hover:not(.mdc-list-item--selected):not(.mdc-list-item--disabled) {
+    background-color: var(--finpocket-ghost-surface, rgba(255, 255, 255, 0.05)) !important;
+  }
 }
