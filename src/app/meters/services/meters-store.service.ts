@@ -119,7 +119,7 @@ export class MetersStore {
           return null as unknown as MeterReadingListItem;
         }
 
-        const previous = this.getPreviousReading(resource.id, reading.id);
+        const previous = this.getPreviousReadingBefore(resource.id, reading.submittedAt, reading.id);
         const consumption = this.calculateConsumption(resource, reading, previous);
         const { cost, currency } = this.calculateCost(resource, consumption, tariffs, reading.submittedAt);
 
@@ -270,7 +270,13 @@ export class MetersStore {
           reading.id !== excludeId &&
           reading.submittedAt <= submittedAt
       )
-      .sort((a, b) => compareDatesDesc(a.submittedAt, b.submittedAt))[0];
+      .sort((a, b) => {
+        const dateCompare = compareDatesDesc(a.submittedAt, b.submittedAt);
+        if (dateCompare !== 0) return dateCompare;
+        // If same date, use ID or some other stable criteria to avoid self if date matches
+        // but since we already filtered by id !== excludeId, we just need stability
+        return b.id.localeCompare(a.id);
+      })[0];
   }
 
   estimatePeriodSummary(
