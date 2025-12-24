@@ -3,27 +3,34 @@ import Dexie, { Table } from 'dexie';
 
 export interface TransactionEntity {
   id?: number;
+  uid?: string; // Global identifier for sync
   type: 'income' | 'expense' | 'transfer';
   account: string;
   category: string;
   amount: number;
   currency: string;
   occurredAt: string;
+  updatedAt?: string; // For conflict resolution
   note?: string;
+  deleted?: boolean; // For soft delete sync
 }
 
 export interface AccountEntity {
   id?: number;
+  uid?: string;
   name: string;
   type: string;
   currency: string;
   balance: number;
   createdAt: string;
+  updatedAt?: string;
   archived?: boolean;
+  deleted?: boolean;
 }
 
 export interface DebtEntity {
   id?: number;
+  uid?: string;
   contact: string;
   kind: 'credit' | 'deposit' | 'loan' | 'lend';
   direction: 'owed' | 'lent';
@@ -34,34 +41,44 @@ export interface DebtEntity {
   participants: string[];
   note?: string;
   createdAt: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface DebtTransactionEntity {
   id?: number;
+  uid?: string;
   debtId: number;
   type: 'payment' | 'charge' | 'note';
   amount: number;
   note?: string;
   createdAt: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface MeterReadingEntity {
   id?: number;
+  uid?: string;
   meterType: 'water' | 'gas' | 'electricity' | 'heat';
   place: string;
   value: number;
   unit: string;
   tariffName?: string;
   recordedAt: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface MeterObjectEntity {
-  id: string;
+  id: string; // UUID
   name: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface MeterResourceEntity {
-  id: string;
+  id: string; // UUID
   objectId: string;
   type: string;
   name: string;
@@ -71,36 +88,46 @@ export interface MeterResourceEntity {
   initialValues?: { zoneId: string; value: number }[];
   fixedAmount?: number;
   fixedCurrency?: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface MeterReadingRecord {
-  id: string;
+  id: string; // UUID
   objectId: string;
   resourceId: string;
   submittedAt: string;
   values: { zoneId: string; value: number }[];
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface TariffEntity {
-  id: string;
+  id: string; // UUID
   resourceId: string;
   effectiveFrom: string;
   price: number;
   currency: string;
   zoneId?: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface CategoryEntity {
   id?: number;
+  uid?: string;
   name: string;
   type: 'income' | 'expense' | 'transfer' | 'meter' | 'debt';
   color?: string;
   icon?: string;
   archived?: boolean;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface SubscriptionEntity {
   id?: number;
+  uid?: string;
   name: string;
   amount: number;
   currency: string;
@@ -108,6 +135,8 @@ export interface SubscriptionEntity {
   active: boolean;
   paymentDay?: number; // 1-31
   note?: string;
+  updatedAt?: string;
+  deleted?: boolean;
 }
 
 export interface BackupEntity {
@@ -239,6 +268,34 @@ export class FinPocketDB extends Dexie {
       subscriptions: '++id, name, active, category',
     });
 
+    this.subscriptions = this.table('subscriptions');
+
+    // Version 7: Sync Enhancements (UIDs & UpdatedAt)
+    this.version(7).stores({
+      transactions: '++id, uid, occurredAt, type, account, category, currency',
+      accounts: '++id, uid, name, type, currency, archived',
+      debts: '++id, uid, contact, direction, status, dueDate',
+      debtTransactions: '++id, uid, debtId, createdAt',
+      meters: '++id, uid, meterType, place, recordedAt',
+      categories: '++id, uid, name, type, archived',
+      subscriptions: '++id, uid, name, active, category',
+    }).upgrade(async (tx) => {
+      // Background migration to add UIDs to existing records
+      const tables = ['transactions', 'accounts', 'debts', 'debtTransactions', 'meters', 'categories', 'subscriptions'];
+      for (const tableName of tables) {
+        await tx.table(tableName).toCollection().modify((record: any) => {
+          if (!record.uid) record.uid = crypto.randomUUID();
+          if (!record.updatedAt) record.updatedAt = new Date().toISOString();
+        });
+      }
+    });
+
+    this.transactions = this.table('transactions');
+    this.accounts = this.table('accounts');
+    this.debts = this.table('debts');
+    this.debtTransactions = this.table('debtTransactions');
+    this.meters = this.table('meters');
+    this.categories = this.table('categories');
     this.subscriptions = this.table('subscriptions');
   }
 }

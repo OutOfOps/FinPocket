@@ -191,6 +191,23 @@ export class App implements OnInit {
     }
   }
 
+  @HostListener('window:visibilitychange')
+  protected onVisibilityChange(): void {
+    if (document.visibilityState === 'hidden' && this.hasPendingChanges()) {
+      console.log('[AutoSync] App hidden with pending changes. Triggering sync...');
+      void this.triggerSync();
+    }
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  protected onBeforeUnload(e: BeforeUnloadEvent): void {
+    if (this.hasPendingChanges()) {
+      // We can't block reliably, but we can try to start the sync.
+      // Some browsers might let the sync finish if it's fast.
+      void this.triggerSync();
+    }
+  }
+
 
   async checkUpdate(): Promise<void> {
     const sb = this.snackBar.open('Проверка...', '', { duration: 1000 });

@@ -75,24 +75,24 @@ export class SyncService {
 
     // Gather all data
     const data: BackupData = {
-      version: '1.2', // Bumped version
+      version: '1.3', // Bumped version for smart merge support
       timestamp: new Date().toISOString(),
       theme: this.themeService.theme(),
       defaultCurrencyId: currencySnapshot.defaultCurrencyId,
       currencies: currencySnapshot.currencies,
       operationAccounts: accountsSnapshot.accounts,
       data: {
-        transactions: await this.db.transactions.toArray(),
-        accounts: await this.db.accounts.toArray(),
-        debts: await this.db.debts.toArray(),
-        debtTransactions: await this.db.debtTransactions.toArray(),
-        meters: await this.db.meters.toArray(),
-        categories: await this.db.categories.toArray(),
-        meterObjects: await this.db.meterObjects.toArray(),
-        meterResources: await this.db.meterResources.toArray(),
-        meterReadings: await this.db.meterReadings.toArray(),
-        tariffs: await this.db.tariffs.toArray(),
-        subscriptions: await this.db.subscriptions.toArray(),
+        transactions: await this.getEntitiesWithUids(this.db.transactions),
+        accounts: await this.getEntitiesWithUids(this.db.accounts),
+        debts: await this.getEntitiesWithUids(this.db.debts),
+        debtTransactions: await this.getEntitiesWithUids(this.db.debtTransactions),
+        meters: await this.getEntitiesWithUids(this.db.meters),
+        categories: await this.getEntitiesWithUids(this.db.categories),
+        meterObjects: await this.getEntitiesById(this.db.meterObjects),
+        meterResources: await this.getEntitiesById(this.db.meterResources),
+        meterReadings: await this.getEntitiesById(this.db.meterReadings),
+        tariffs: await this.getEntitiesById(this.db.tariffs),
+        subscriptions: await this.getEntitiesWithUids(this.db.subscriptions),
       },
     };
 
@@ -144,36 +144,114 @@ export class SyncService {
       this.themeService.setTheme(data.theme);
     }
 
-    // Clear existing data
+    // SMART MERGE implementation
     await this.db.transaction('rw', this.db.tables, async () => {
-      await this.db.transactions.clear();
-      await this.db.accounts.clear();
-      await this.db.debts.clear();
-      await this.db.debtTransactions.clear();
-      await this.db.meters.clear();
-      await this.db.categories.clear();
-      await this.db.meterObjects.clear();
-      await this.db.meterResources.clear();
-      await this.db.meterReadings.clear();
-      await this.db.tariffs.clear();
-      await this.db.subscriptions.clear();
+      await this.mergeTable(this.db.transactions, data.data.transactions);
+      await this.mergeTable(this.db.accounts, data.data.accounts);
+      await this.mergeTable(this.db.debts, data.data.debts);
+      await this.mergeTable(this.db.debtTransactions, data.data.debtTransactions);
+      await this.mergeTable(this.db.meters, data.data.meters);
+      await this.mergeTable(this.db.categories, data.data.categories);
+      if (data.data.subscriptions) {
+        await this.mergeTable(this.db.subscriptions, data.data.subscriptions);
+      }
 
-      // Import data
-      await this.db.transactions.bulkAdd(data.data.transactions);
-      await this.db.accounts.bulkAdd(data.data.accounts);
-      await this.db.debts.bulkAdd(data.data.debts);
-      await this.db.debtTransactions.bulkAdd(data.data.debtTransactions);
-      await this.db.meters.bulkAdd(data.data.meters);
-      await this.db.categories.bulkAdd(data.data.categories);
-
-      if (data.data.meterObjects) await this.db.meterObjects.bulkAdd(data.data.meterObjects);
-      if (data.data.meterResources) await this.db.meterResources.bulkAdd(data.data.meterResources);
-      if (data.data.meterReadings) await this.db.meterReadings.bulkAdd(data.data.meterReadings);
-      if (data.data.tariffs) await this.db.tariffs.bulkAdd(data.data.tariffs);
-      if (data.data.subscriptions) await this.db.subscriptions.bulkAdd(data.data.subscriptions);
+      // Tables that use string IDs directly (Meters v2 system)
+      if (data.data.meterObjects) await this.mergeTableById(this.db.meterObjects, data.data.meterObjects);
+      if (data.data.meterResources) await this.mergeTableById(this.db.meterResources, data.data.meterResources);
+      if (data.data.meterReadings) await this.mergeTableById(this.db.meterReadings, data.data.meterReadings);
+      if (data.data.tariffs) await this.mergeTableById(this.db.tariffs, data.data.tariffs);
     });
   }
 
+  /**
+   * Merges a list of entities into a table based on UID and updatedAt.
+   */
+  private async mergeTable<T extends { uid?: string; updatedAt?: string; id?: number }>(
+    table: any,
+    remoteEntities: T[]
+  ): Promise<void> {
+    for (const remote of remoteEntities) {
+      if (!remote.uid) continue;
+
+      const local = await table.where('uid').equals(remote.uid).first();
+      if (!local) {
+        // New record from another device
+        const { id, ...toAdd } = remote as any;
+        await table.add(toAdd);
+      } else {
+        // Conflict check
+        const remoteUpdated = new Date(remote.updatedAt || 0).getTime();
+        const localUpdated = new Date(local.updatedAt || 0).getTime();
+
+        if (remoteUpdated > localUpdated) {
+          // Cloud has newer version
+          const { id, ...toUpdate } = remote as any;
+          await table.update(local.id, toUpdate);
+        }
+      }
+    }
+  }
+
+  /**
+   * Merges entities with string IDs based on updatedAt.
+   */
+  private async mergeTableById<T extends { id: string; updatedAt?: string }>(
+    table: any,
+    remoteEntities: T[]
+  ): Promise<void> {
+    for (const remote of remoteEntities) {
+      if (!remote.id) continue;
+
+      const local = await table.get(remote.id);
+      if (!local) {
+        await table.add(remote);
+      } else {
+        const remoteUpdated = new Date(remote.updatedAt || 0).getTime();
+        const localUpdated = new Date(local.updatedAt || 0).getTime();
+
+        if (remoteUpdated > localUpdated) {
+          await table.put(remote);
+        }
+      }
+    }
+  }
+
+  /**
+   * Helper to ensure all exported entities have UIDs and timestamps.
+   */
+  private async getEntitiesWithUids<T extends { uid?: string; updatedAt?: string }>(table: any): Promise<T[]> {
+    const list = await table.toArray();
+    for (const item of list) {
+      let changed = false;
+      if (!item.uid) {
+        item.uid = crypto.randomUUID();
+        changed = true;
+      }
+      if (!item.updatedAt) {
+        item.updatedAt = new Date().toISOString();
+        changed = true;
+      }
+      if (changed) {
+        await table.update(item.id, { uid: item.uid, updatedAt: item.updatedAt });
+      }
+    }
+    return list;
+  }
+
+  /**
+   * Helper to ensure all exported entities with string IDs have timestamps.
+   */
+  private async getEntitiesById<T extends { id: string; updatedAt?: string }>(table: any): Promise<T[]> {
+    const list = await table.toArray();
+    for (const item of list) {
+      if (!item.updatedAt) {
+        item.updatedAt = new Date().toISOString();
+        await table.update(item.id, { updatedAt: item.updatedAt });
+      }
+    }
+    return list;
+  }
   /**
    * Performs two-way sync with a cloud provider.
    * @param provider The cloud provider to sync with
@@ -216,10 +294,6 @@ export class SyncService {
 
   /**
    * Queues a change for synchronization.
-   * @param entityType The type of entity
-   * @param entityId The entity ID
-   * @param action The action performed
-   * @param payload The entity data
    */
   async queueChange(
     entityType: string,
@@ -236,7 +310,7 @@ export class SyncService {
   }
 
   /**
-   * Encrypts data using AES-GCM with a key derived from the master passphrase.
+   * Encrypts data using AES-GCM.
    */
   private async encryptData(
     plaintext: string,
@@ -264,7 +338,7 @@ export class SyncService {
   }
 
   /**
-   * Decrypts data using AES-GCM with a key derived from the master passphrase.
+   * Decrypts data using AES-GCM.
    */
   private async decryptData(
     encrypted: EncryptedBackup,
@@ -287,7 +361,7 @@ export class SyncService {
   }
 
   /**
-   * Derives an AES-GCM key from a passphrase using PBKDF2.
+   * Derives an AES-GCM key from a passphrase.
    */
   private async deriveKey(
     passphrase: string,
@@ -350,7 +424,6 @@ export class SyncService {
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const encoder = new TextEncoder();
     const plaintext = encoder.encode(JSON.stringify(obj));
-
     const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
 
     const payload = {
@@ -378,9 +451,7 @@ export class SyncService {
 
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
     const decoder = new TextDecoder();
-    const decoded = decoder.decode(decrypted);
-
-    return JSON.parse(decoded);
+    return JSON.parse(decoder.decode(decrypted));
   }
 
   /**
@@ -474,9 +545,7 @@ export class SyncService {
   private arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
     const bytes = new Uint8Array(buffer);
     let binary = '';
-    for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
     return btoa(binary);
   }
 
@@ -486,9 +555,7 @@ export class SyncService {
   private base64ToArrayBuffer(base64: string): ArrayBuffer {
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
     return bytes.buffer;
   }
 
@@ -497,28 +564,21 @@ export class SyncService {
    */
   private async cleanupOldBackups(provider: CloudProvider): Promise<void> {
     const retentionDays = this.settings.getRetentionDays();
-    if (retentionDays <= 0) return; // 0 = infinite retention
+    if (retentionDays <= 0) return;
 
     try {
       const backups = await provider.listBackups();
-      if (backups.length <= 1) return; // Keep at least the latest one
+      if (backups.length <= 1) return;
 
       const now = Date.now();
       const retentionMs = retentionDays * 24 * 60 * 60 * 1000;
+      const toDelete = backups.filter(b => (now - b.modified) > retentionMs);
 
-      const toDelete = backups.filter(b => {
-        const age = now - b.modified;
-        return age > retentionMs;
-      });
-
-      if (toDelete.length > 0) {
-        console.log(`[SyncService] Cleaning up ${toDelete.length} old backups...`);
-        for (const b of toDelete) {
-          try {
-            await provider.deleteBackup(b.id);
-          } catch (e) {
-            console.warn(`[SyncService] Failed to delete backup ${b.id}`, e);
-          }
+      for (const b of toDelete) {
+        try {
+          await provider.deleteBackup(b.id);
+        } catch (e) {
+          console.warn(`[SyncService] Failed to delete backup ${b.id}`, e);
         }
       }
     } catch (error) {

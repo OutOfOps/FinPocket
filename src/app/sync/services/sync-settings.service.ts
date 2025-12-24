@@ -141,9 +141,8 @@ export class SyncSettingsService {
       }
 
       return {
-        version: STORAGE_VERSION,
-        encryptionEnabled: parsed.encryptionEnabled,
-        providers: parsed.providers,
+        ...this.empty(),
+        ...parsed,
       };
     } catch {
       return this.empty();
@@ -171,6 +170,9 @@ export class SyncSettingsService {
         dropbox: {},
       },
       encryptionEnabled: true,
+      syncIntervalMin: 60,
+      retentionDays: 30,
+      autoSyncEnabled: true,
     };
   }
 

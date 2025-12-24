@@ -4,7 +4,8 @@ import { Settings } from './settings';
 
 const routes: Routes = [
   { path: '', component: Settings },
-  { path: 'about', loadComponent: () => import('./components/about/about.component').then(m => m.AboutComponent) }
+  { path: 'about', loadComponent: () => import('./components/about/about.component').then(m => m.AboutComponent) },
+  { path: 'sync', loadComponent: () => import('../sync/sync').then(m => m.Sync) }
 ];
 
 @NgModule({

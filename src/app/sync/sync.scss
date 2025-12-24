@@ -33,6 +33,7 @@
     margin: 0 0 0.5rem;
     background: linear-gradient(135deg, var(--mat-sys-primary) 0%, var(--mat-sys-secondary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.02em;
 
@@ -295,4 +296,40 @@
 :root {
   --mat-sys-primary-rgb: 63, 81, 181;
   /* Default Indigo */
+}
+
+.sync-info-card {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  mat-icon {
+    color: var(--mat-sys-primary);
+  }
+
+  .info-content {
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--mat-sys-on-surface-variant);
+      opacity: 0.8;
+
+      strong {
+        color: var(--mat-sys-primary);
+      }
+    }
+  }
 }

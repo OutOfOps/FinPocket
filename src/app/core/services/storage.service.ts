@@ -21,7 +21,7 @@ export class StorageService {
 
   // Transactions
   getTransactions(): Promise<TransactionEntity[]> {
-    return this.db.transactions.toArray();
+    return this.db.transactions.where('deleted').notEqual(1).toArray();
   }
 
   getTransaction(id: number): Promise<TransactionEntity | undefined> {
@@ -29,23 +29,23 @@ export class StorageService {
   }
 
   addTransaction(transaction: TransactionEntity): Promise<number> {
-    return this.db.transactions.add(transaction);
+    return this.db.transactions.add(this.prepareEntity(transaction));
   }
 
-  updateTransaction(
-    id: number,
-    changes: Partial<TransactionEntity>
-  ): Promise<number> {
-    return this.db.transactions.update(id, changes);
+  updateTransaction(id: number, changes: Partial<TransactionEntity>): Promise<number> {
+    return this.db.transactions.update(id, this.prepareUpdate(changes));
   }
 
-  deleteTransaction(id: number): Promise<void> {
-    return this.db.transactions.delete(id);
+  deleteTransaction(id: number): Promise<number> {
+    return this.db.transactions.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Accounts
   getAccounts(): Promise<AccountEntity[]> {
-    return this.db.accounts.toArray();
+    return this.db.accounts.where('deleted').notEqual(1).toArray();
   }
 
   getAccount(id: number): Promise<AccountEntity | undefined> {
@@ -53,20 +53,23 @@ export class StorageService {
   }
 
   addAccount(account: AccountEntity): Promise<number> {
-    return this.db.accounts.add(account);
+    return this.db.accounts.add(this.prepareEntity(account));
   }
 
   updateAccount(id: number, changes: Partial<AccountEntity>): Promise<number> {
-    return this.db.accounts.update(id, changes);
+    return this.db.accounts.update(id, this.prepareUpdate(changes));
   }
 
-  deleteAccount(id: number): Promise<void> {
-    return this.db.accounts.delete(id);
+  deleteAccount(id: number): Promise<number> {
+    return this.db.accounts.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Debts
   getDebts(): Promise<DebtEntity[]> {
-    return this.db.debts.toArray();
+    return this.db.debts.where('deleted').notEqual(1).toArray();
   }
 
   getDebt(id: number): Promise<DebtEntity | undefined> {
@@ -74,47 +77,50 @@ export class StorageService {
   }
 
   addDebt(debt: DebtEntity): Promise<number> {
-    return this.db.debts.add(debt);
+    return this.db.debts.add(this.prepareEntity(debt));
   }
 
   updateDebt(id: number, changes: Partial<DebtEntity>): Promise<number> {
-    return this.db.debts.update(id, changes);
+    return this.db.debts.update(id, this.prepareUpdate(changes));
   }
 
-  deleteDebt(id: number): Promise<void> {
-    return this.db.debts.delete(id);
+  deleteDebt(id: number): Promise<number> {
+    return this.db.debts.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Debt Transactions
   getDebtTransactions(debtId: number): Promise<DebtTransactionEntity[]> {
     return this.db.debtTransactions
-      .where('debtId')
-      .equals(debtId)
+      .where('debtId').equals(debtId)
+      .and(t => !t.deleted)
       .sortBy('createdAt');
   }
 
   getAllDebtTransactions(): Promise<DebtTransactionEntity[]> {
-    return this.db.debtTransactions.toArray();
+    return this.db.debtTransactions.where('deleted').notEqual(1).toArray();
   }
 
   addDebtTransaction(transaction: DebtTransactionEntity): Promise<number> {
-    return this.db.debtTransactions.add(transaction);
+    return this.db.debtTransactions.add(this.prepareEntity(transaction));
   }
 
-  updateDebtTransaction(
-    id: number,
-    changes: Partial<DebtTransactionEntity>
-  ): Promise<number> {
-    return this.db.debtTransactions.update(id, changes);
+  updateDebtTransaction(id: number, changes: Partial<DebtTransactionEntity>): Promise<number> {
+    return this.db.debtTransactions.update(id, this.prepareUpdate(changes));
   }
 
-  deleteDebtTransaction(id: number): Promise<void> {
-    return this.db.debtTransactions.delete(id);
+  deleteDebtTransaction(id: number): Promise<number> {
+    return this.db.debtTransactions.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
-  // Meters
+  // Meters (V1)
   getMeterReadings(): Promise<MeterReadingEntity[]> {
-    return this.db.meters.toArray();
+    return this.db.meters.where('deleted').notEqual(1).toArray();
   }
 
   getMeterReading(id: number): Promise<MeterReadingEntity | undefined> {
@@ -122,18 +128,18 @@ export class StorageService {
   }
 
   addMeterReading(reading: MeterReadingEntity): Promise<number> {
-    return this.db.meters.add(reading);
+    return this.db.meters.add(this.prepareEntity(reading));
   }
 
-  updateMeterReading(
-    id: number,
-    changes: Partial<MeterReadingEntity>
-  ): Promise<number> {
-    return this.db.meters.update(id, changes);
+  updateMeterReading(id: number, changes: Partial<MeterReadingEntity>): Promise<number> {
+    return this.db.meters.update(id, this.prepareUpdate(changes));
   }
 
-  deleteMeterReading(id: number): Promise<void> {
-    return this.db.meters.delete(id);
+  deleteMeterReading(id: number): Promise<number> {
+    return this.db.meters.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // --- Meters Module V2 ---
@@ -144,15 +150,18 @@ export class StorageService {
   }
 
   addMeterObject(item: MeterObjectEntity): Promise<string> {
-    return this.db.meterObjects.add(item);
+    return this.db.meterObjects.add(this.prepareEntity(item));
   }
 
   updateMeterObject(id: string, changes: Partial<MeterObjectEntity>): Promise<number> {
-    return this.db.meterObjects.update(id, changes);
+    return this.db.meterObjects.update(id, this.prepareUpdate(changes));
   }
 
-  deleteMeterObject(id: string): Promise<void> {
-    return this.db.meterObjects.delete(id);
+  deleteMeterObject(id: string): Promise<number> {
+    return this.db.meterObjects.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Resources (Counters)
@@ -161,15 +170,18 @@ export class StorageService {
   }
 
   addMeterResource(item: MeterResourceEntity): Promise<string> {
-    return this.db.meterResources.add(item);
+    return this.db.meterResources.add(this.prepareEntity(item));
   }
 
   updateMeterResource(id: string, changes: Partial<MeterResourceEntity>): Promise<number> {
-    return this.db.meterResources.update(id, changes);
+    return this.db.meterResources.update(id, this.prepareUpdate(changes));
   }
 
-  deleteMeterResource(id: string): Promise<void> {
-    return this.db.meterResources.delete(id);
+  deleteMeterResource(id: string): Promise<number> {
+    return this.db.meterResources.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Readings V2
@@ -182,11 +194,14 @@ export class StorageService {
   }
 
   updateMeterReadingV2(id: string, changes: Partial<MeterReadingRecord>): Promise<number> {
-    return this.db.meterReadings.update(id, changes);
+    return this.db.meterReadings.update(id, this.prepareUpdate(changes));
   }
 
-  deleteMeterReadingV2(id: string): Promise<void> {
-    return this.db.meterReadings.delete(id);
+  deleteMeterReadingV2(id: string): Promise<number> {
+    return this.db.meterReadings.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Tariffs
@@ -199,16 +214,19 @@ export class StorageService {
   }
 
   updateTariff(id: string, changes: Partial<TariffEntity>): Promise<number> {
-    return this.db.tariffs.update(id, changes);
+    return this.db.tariffs.update(id, this.prepareUpdate(changes));
   }
 
-  deleteTariff(id: string): Promise<void> {
-    return this.db.tariffs.delete(id);
+  deleteTariff(id: string): Promise<number> {
+    return this.db.tariffs.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Categories
   getCategories(): Promise<CategoryEntity[]> {
-    return this.db.categories.toArray();
+    return this.db.categories.where('deleted').notEqual(1).toArray();
   }
 
   getCategory(id: number): Promise<CategoryEntity | undefined> {
@@ -216,55 +234,60 @@ export class StorageService {
   }
 
   addCategory(category: CategoryEntity): Promise<number> {
-    return this.db.categories.add(category);
+    return this.db.categories.add(this.prepareEntity(category));
   }
 
-  updateCategory(
-    id: number,
-    changes: Partial<CategoryEntity>
-  ): Promise<number> {
-    return this.db.categories.update(id, changes);
+  updateCategory(id: number, changes: Partial<CategoryEntity>): Promise<number> {
+    return this.db.categories.update(id, this.prepareUpdate(changes));
   }
 
-  deleteCategory(id: number): Promise<void> {
-    return this.db.categories.delete(id);
+  deleteCategory(id: number): Promise<number> {
+    return this.db.categories.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // Subscriptions
   getSubscriptions(): Promise<SubscriptionEntity[]> {
-    return this.db.subscriptions.toArray();
+    return this.db.subscriptions.where('deleted').notEqual(1).toArray();
   }
 
   addSubscription(subscription: SubscriptionEntity): Promise<number> {
-    return this.db.subscriptions.add(subscription);
+    return this.db.subscriptions.add(this.prepareEntity(subscription));
   }
 
   updateSubscription(id: number, changes: Partial<SubscriptionEntity>): Promise<number> {
-    return this.db.subscriptions.update(id, changes);
+    return this.db.subscriptions.update(id, this.prepareUpdate(changes));
   }
 
-  deleteSubscription(id: number): Promise<void> {
-    return this.db.subscriptions.delete(id);
+  deleteSubscription(id: number): Promise<number> {
+    return this.db.subscriptions.update(id, {
+      deleted: true,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
-  // Backups
-  getBackups(): Promise<BackupEntity[]> {
-    return this.db.backups.toArray();
+  // Metadata Helpers
+  private prepareEntity<T extends { uid?: string; updatedAt?: string }>(entity: T): T {
+    return {
+      ...entity,
+      uid: entity.uid || crypto.randomUUID(),
+      updatedAt: new Date().toISOString(),
+    };
   }
 
-  getBackup(id: number): Promise<BackupEntity | undefined> {
-    return this.db.backups.get(id);
+  private prepareUpdate<T extends { updatedAt?: string }>(changes: T): T {
+    return {
+      ...changes,
+      updatedAt: new Date().toISOString(),
+    };
   }
 
-  addBackup(backup: BackupEntity): Promise<number> {
-    return this.db.backups.add(backup);
-  }
-
-  updateBackup(id: number, changes: Partial<BackupEntity>): Promise<number> {
-    return this.db.backups.update(id, changes);
-  }
-
-  deleteBackup(id: number): Promise<void> {
-    return this.db.backups.delete(id);
-  }
+  // Backups & Other methods (hard delete for backups logs is fine)
+  getBackups(): Promise<BackupEntity[]> { return this.db.backups.toArray(); }
+  getBackup(id: number): Promise<BackupEntity | undefined> { return this.db.backups.get(id); }
+  addBackup(backup: BackupEntity): Promise<number> { return this.db.backups.add(backup); }
+  updateBackup(id: number, changes: Partial<BackupEntity>): Promise<number> { return this.db.backups.update(id, changes); }
+  deleteBackup(id: number): Promise<void> { return this.db.backups.delete(id); }
 }
