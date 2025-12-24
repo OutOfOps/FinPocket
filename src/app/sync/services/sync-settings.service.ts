@@ -124,6 +124,12 @@ export class SyncSettingsService {
     this.write(next);
   }
 
+  reset(): void {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+  }
+
   private read(): PersistedSyncSettings {
     if (typeof window === 'undefined') {
       return this.empty();
