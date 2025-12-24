@@ -49,6 +49,25 @@
   background: linear-gradient(135deg, var(--finpocket-primary-color), var(--finpocket-accent-color));
 }
 
+/* Month Selector */
+.month-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 0 16px;
+
+  .current-month {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--finpocket-text);
+    text-transform: capitalize;
+    min-width: 150px;
+    text-align: center;
+  }
+}
+
 .meters-list-container {
   padding: 0 16px;
   display: flex;
@@ -56,161 +75,151 @@
   gap: 12px;
 }
 
-/* Meter Card */
-.meter-card {
-  position: relative;
-  background: var(--finpocket-glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--finpocket-border-color);
-  border-radius: 20px;
-  padding: 16px;
+/* Accordion Styling */
+.meters-accordion {
+  box-shadow: none !important;
+  background: transparent !important;
+
+  .object-panel {
+    background: var(--finpocket-glass-bg) !important;
+    border: 1px solid var(--finpocket-border-color) !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+    overflow: hidden;
+
+    &::before {
+      display: none !important;
+    }
+
+    mat-expansion-panel-header {
+      height: 64px !important;
+      padding: 0 16px !important;
+
+      .object-name {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--finpocket-text);
+      }
+
+      .object-total {
+        font-weight: 700;
+        color: #ff5252;
+        font-size: 16px;
+      }
+    }
+
+    ::ng-deep .mat-expansion-panel-content {
+      .mat-expansion-panel-body {
+        padding: 0 !important;
+      }
+    }
+  }
+}
+
+/* Compact Readings List */
+.compact-readings-list {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  transition: transform 0.2s, background 0.2s;
-  overflow: hidden;
+  flex-direction: column;
+}
+
+.compact-reading-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  border-top: 1px solid var(--finpocket-border-color);
+  transition: background 0.2s;
 
   &:active {
-    transform: scale(0.98);
-    background: rgba(30, 30, 30, 0.8);
+    background: rgba(255, 255, 255, 0.05);
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
-    pointer-events: none;
+  .reading-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--finpocket-ghost-surface);
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &.type-water {
+      color: #4fc3f7;
+      background: rgba(79, 195, 247, 0.1);
+    }
+
+    &.type-electricity {
+      color: #ffca28;
+      background: rgba(255, 202, 40, 0.1);
+    }
+
+    &.type-gas {
+      color: #ef5350;
+      background: rgba(239, 83, 80, 0.1);
+    }
+
+    &.type-heat {
+      color: #ff7043;
+      background: rgba(255, 112, 67, 0.1);
+    }
+
+    &.type-service {
+      color: #ab47bc;
+      background: rgba(171, 71, 188, 0.1);
+    }
+  }
+
+  .reading-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .resource-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--finpocket-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .consumption-text {
+      font-size: 12px;
+      color: var(--finpocket-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .reading-price {
+    text-align: right;
+    flex-shrink: 0;
+
+    .cost {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--finpocket-text);
+    }
+  }
+
+  .edit-hint {
+    color: var(--finpocket-muted);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
     opacity: 0.5;
   }
 }
 
-.meter-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--finpocket-ghost-surface);
-  box-shadow: inset 0 0 12px rgba(var(--finpocket-bg-app-rgb), 0.2);
-
-  mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-  }
-
-  /* Type variants */
-  &.type-water {
-    color: #4fc3f7;
-    background: rgba(79, 195, 247, 0.15);
-  }
-
-  &.type-electricity {
-    color: #ffca28;
-    background: rgba(255, 202, 40, 0.15);
-  }
-
-  &.type-gas {
-    color: #ef5350;
-    background: rgba(239, 83, 80, 0.15);
-  }
-
-  &.type-heat {
-    color: #ff7043;
-    background: rgba(255, 112, 67, 0.15);
-  }
-
-  &.type-service {
-    color: #ab47bc;
-    background: rgba(171, 71, 188, 0.15);
-  }
-}
-
-.meter-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.meter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-direction: column;
-  /* Stack name and object */
-
-  .meter-resource {
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--finpocket-text);
-  }
-
-  .meter-object {
-    font-size: 12px;
-    color: var(--finpocket-muted);
-    margin-top: 2px;
-  }
-}
-
-.meter-values {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0;
-}
-
-.value-group {
-  display: flex;
-  flex-direction: column;
-
-  .label {
-    font-size: 11px;
-    color: var(--finpocket-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .value {
-    font-family: 'Monaco', monospace; // Or standard font
-    font-size: 14px;
-    margin-top: 2px;
-
-    &.consumption {
-      color: var(--finpocket-text);
-      font-weight: 600;
-    }
-
-    &.reading {
-      color: var(--finpocket-muted);
-    }
-  }
-}
-
-.meter-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--finpocket-border-color);
-
-  .date {
-    font-size: 12px;
-    color: var(--finpocket-muted);
-  }
-
-  .cost {
-    font-weight: 600;
-    color: #ff5252; // Red for expense
-    font-size: 14px;
-  }
-}
 
 /* Empty State */
 .empty-state {

@@ -16,6 +16,28 @@ export class MetersListComponent {
   private readonly currencyService = inject(CurrencyService);
 
   readonly readings = this.store.readingList;
+  readonly groupedObjects = this.store.groupedReadings;
+  readonly selectedMonth = this.store.selectedMonth;
+
+  trackObject(_index: number, obj: any): string {
+    return obj.objectName;
+  }
+
+  nextMonth(): void {
+    this.changeMonth(1);
+  }
+
+  prevMonth(): void {
+    this.changeMonth(-1);
+  }
+
+  private changeMonth(delta: number): void {
+    const [year, month] = this.selectedMonth().split('-').map(Number);
+    const date = new Date(year, month - 1 + delta, 1);
+    const nextMonth = date.toISOString().slice(0, 7);
+    this.store.setMonth(nextMonth);
+  }
+
   trackReading(_Index: number, reading: MeterReadingListItem): string {
     return reading.id;
   }

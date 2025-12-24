@@ -47,6 +47,13 @@ export interface MeterReadingListItem {
   currency?: string;
 }
 
+export interface GroupedObject {
+  objectName: string;
+  totalCost: number;
+  currency?: string;
+  readings: MeterReadingListItem[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class MetersStore {
   private readonly typeOptionsInternal: ResourceTypeOption[] = [
@@ -115,7 +122,6 @@ export class MetersStore {
         const resource = resources.find((item) => item.id === reading.resourceId);
         const object = objects.find((item) => item.id === reading.objectId);
         if (!resource || !object) {
-          // Fallback for UI robustness instead of error throwing
           return null as unknown as MeterReadingListItem;
         }
 
@@ -145,6 +151,39 @@ export class MetersStore {
       })
       .filter((item) => item !== null);
   });
+
+  readonly selectedMonth = signal<string>(new Date().toISOString().slice(0, 7)); // YYYY-MM
+
+  readonly groupedReadings = computed<GroupedObject[]>(() => {
+    const month = this.selectedMonth();
+    const allReadings = this.readingList();
+
+    const filtered = allReadings.filter(r => r.submittedAt.startsWith(month));
+
+    const groups = new Map<string, GroupedObject>();
+
+    filtered.forEach(reading => {
+      let group = groups.get(reading.objectName);
+      if (!group) {
+        group = {
+          objectName: reading.objectName,
+          totalCost: 0,
+          currency: reading.currency,
+          readings: []
+        };
+        groups.set(reading.objectName, group);
+      }
+
+      group.totalCost += reading.cost ?? 0;
+      group.readings.push(reading);
+    });
+
+    return Array.from(groups.values()).sort((a, b) => a.objectName.localeCompare(b.objectName));
+  });
+
+  setMonth(month: string): void {
+    this.selectedMonth.set(month);
+  }
 
   constructor() {
     this.refresh();

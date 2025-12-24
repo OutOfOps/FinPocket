@@ -5,58 +5,72 @@
       <p>Учет коммунальных услуг</p>
     </div>
 
-    <!-- Link to manage resources/counters -->
     <a mat-stroked-button color="basic" routerLink="../resources" class="manage-btn" matTooltip="Настройка счетчиков">
       <mat-icon>settings</mat-icon>
     </a>
   </header>
 
+  <!-- Month Selector -->
+  <div class="month-selector">
+    <button mat-icon-button (click)="prevMonth()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <div class="current-month">
+      {{ selectedMonth() | date: 'LLLL yyyy' }}
+    </div>
+    <button mat-icon-button (click)="nextMonth()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
   <div class="meters-list-container">
-    @if (readings().length) {
-    @for (reading of readings(); track trackReading($index, reading)) {
-    <div class="meter-card" [routerLink]="['../', reading.id, 'edit']" mat-ripple>
-      <div class="meter-icon" [ngClass]="getTypeClass(reading.type)">
-        <mat-icon>{{ getIcon(reading.type) }}</mat-icon>
-      </div>
+    @if (groupedObjects().length) {
+    <mat-accordion class="meters-accordion" multi="false">
+      @for (obj of groupedObjects(); track trackObject($index, obj)) {
+      <mat-expansion-panel class="object-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="object-name">{{ obj.objectName }}</span>
+          </mat-panel-title>
+          <mat-panel-description>
+            <span class="object-total">{{ obj.totalCost | currencyFormat: obj.currency }}</span>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
 
-      <div class="meter-content">
-        <div class="meter-header">
-          <span class="meter-resource">{{ reading.resourceName }}</span>
-          <span class="meter-object">{{ reading.objectName }}</span>
-        </div>
+        <div class="compact-readings-list">
+          @for (reading of obj.readings; track reading.id) {
+          <div class="compact-reading-item" [routerLink]="['../', reading.id, 'edit']" mat-ripple>
+            <div class="reading-icon" [ngClass]="getTypeClass(reading.type)">
+              <mat-icon>{{ getIcon(reading.type) }}</mat-icon>
+            </div>
 
-        <div class="meter-values">
-          <div class="value-group">
-            <span class="label">Расход</span>
-            <span class="value consumption">
-              @if (reading.zones.length) {
-              {{ formatConsumption(reading) }}
-              } @else {
-              —
+            <div class="reading-info">
+              <span class="resource-name">{{ reading.resourceName }}</span>
+              <span class="consumption-text">{{ formatConsumption(reading) }}</span>
+            </div>
+
+            <div class="reading-price">
+              @if (reading.cost !== undefined) {
+              <span class="cost">{{ reading.cost | currencyFormat: reading.currency }}</span>
               }
-            </span>
-          </div>
-        </div>
+            </div>
 
-        <div class="meter-footer">
-          <span class="date">{{ reading.submittedAt | date: 'd MMMM' }}</span>
-          @if (reading.cost !== undefined) {
-          <span class="cost">{{ reading.cost | currencyFormat: reading.currency }}</span>
+            <mat-icon class="edit-hint">chevron_right</mat-icon>
+          </div>
           }
         </div>
-      </div>
-    </div>
-    }
+      </mat-expansion-panel>
+      }
+    </mat-accordion>
     } @else {
     <div class="empty-state">
       <mat-icon>speed</mat-icon>
-      <p>Нет показаний</p>
-      <span class="hint">Внесите данные или добавьте счётчики в настройках</span>
+      <p>Нет показаний за этот месяц</p>
+      <span class="hint">Внесите данные или выберите другой месяц</span>
     </div>
     }
   </div>
 
-  <!-- Floating Action Button for adding new reading -->
   <button mat-fab class="fab-main" color="primary" routerLink="../create">
     <mat-icon>add</mat-icon>
   </button>
