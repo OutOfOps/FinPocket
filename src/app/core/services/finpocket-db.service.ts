@@ -290,6 +290,22 @@ export class FinPocketDB extends Dexie {
       }
     });
 
+    // Version 8: Indexing for Sync (deleted flag & updatedAt)
+    this.version(8).stores({
+      transactions: '++id, uid, occurredAt, type, account, category, currency, deleted, updatedAt',
+      accounts: '++id, uid, name, type, currency, archived, deleted, updatedAt',
+      debts: '++id, uid, contact, direction, status, dueDate, deleted, updatedAt',
+      debtTransactions: '++id, uid, debtId, createdAt, deleted, updatedAt',
+      meters: '++id, uid, meterType, place, recordedAt, deleted, updatedAt',
+      categories: '++id, uid, name, type, archived, deleted, updatedAt',
+      subscriptions: '++id, uid, name, active, category, deleted, updatedAt',
+      // Meters V2
+      meterObjects: 'id, deleted, updatedAt',
+      meterResources: 'id, objectId, deleted, updatedAt',
+      meterReadings: 'id, resourceId, objectId, submittedAt, deleted, updatedAt',
+      tariffs: 'id, resourceId, deleted, updatedAt',
+    });
+
     this.transactions = this.table('transactions');
     this.accounts = this.table('accounts');
     this.debts = this.table('debts');
@@ -297,5 +313,9 @@ export class FinPocketDB extends Dexie {
     this.meters = this.table('meters');
     this.categories = this.table('categories');
     this.subscriptions = this.table('subscriptions');
+    this.meterObjects = this.table('meterObjects');
+    this.meterResources = this.table('meterResources');
+    this.meterReadings = this.table('meterReadings');
+    this.tariffs = this.table('tariffs');
   }
 }
