@@ -8,14 +8,11 @@ import { SyncDetailsComponent } from './components/sync-details/sync-details.com
 import { SyncAccountComponent } from './components/sync-account/sync-account.component';
 
 @NgModule({
-  declarations: [Sync],
+  declarations: [],
   imports: [
     SharedModule,
     SyncRoutingModule,
-    SyncListComponent,
-    SyncEditComponent,
-    SyncDetailsComponent,
-    SyncAccountComponent,
+    Sync,
   ],
 })
-export class SyncModule {}
+export class SyncModule { }

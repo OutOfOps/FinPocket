@@ -9,7 +9,8 @@
 
   <div class="sync-grid">
     <!-- КАРТОЧКА СТАТУСА -->
-    <div class="sync-card sync-card--hero" [class.sync-card--connected]="isConnected()">
+    <div class="sync-card sync-card--hero" *ngIf="activeProvider() as provider"
+      [class.sync-card--connected]="isConnected()">
       <div class="sync-card__glass"></div>
       <div class="sync-card__content">
         <div class="sync-card__status-top">
@@ -18,18 +19,18 @@
           </div>
           <div class="sync-card__info">
             <h2 class="sync-card__provider-name">Google Drive</h2>
-            <div class="sync-card__user" *ngIf="activeProvider()?.user as user">
+            <div class="sync-card__user" *ngIf="provider.user as user">
               {{ user.email || user.name }}
             </div>
             <div class="sync-card__state-label" [class.sync-card__state-label--active]="isConnected()">
-              {{ statusLabel(activeProvider()?.status || 'offline') }}
+              {{ statusLabel(provider.status) }}
             </div>
           </div>
         </div>
 
-        <div class="sync-card__last-sync" *ngIf="activeProvider()?.lastSync">
+        <div class="sync-card__last-sync" *ngIf="provider.lastSync">
           <span>Последнее обновление:</span>
-          <strong>{{ activeProvider()?.lastSync | date: 'd MMM HH:mm' }}</strong>
+          <strong>{{ provider.lastSync | date: 'd MMM HH:mm' }}</strong>
         </div>
 
         <div class="sync-card__actions">
@@ -44,7 +45,7 @@
             {{ isSyncing() ? 'Синхронизация...' : 'Синхронизировать' }}
           </button>
           <button mat-stroked-button class="sync-btn" (click)="restoreLast()"
-            [disabled]="isSyncing() || !activeProvider()?.backups?.length">
+            [disabled]="isSyncing() || !provider.backups.length">
             <mat-icon>history</mat-icon> Последний бэкап
           </button>
           }
@@ -90,17 +91,19 @@
       <div class="sync-card__content">
         <h3 class="sync-card__title">Последние копии в облаке</h3>
 
-        <div class="sync-history" *ngIf="activeProvider()?.backups?.length; else noBackups">
-          <div class="sync-history__item" *ngFor="let backup of activeProvider()?.backups | slice:0:5">
-            <div class="sync-history__info">
-              <div class="sync-history__date">{{ backup.modified | date: 'd MMMM, HH:mm' }}</div>
-              <div class="sync-history__meta">{{ backup.sizeLabel }} · {{ backup.name }}</div>
+        <div class="sync-history" *ngIf="activeProvider() as provider; else noBackups">
+          <ng-container *ngIf="provider.backups.length; else noBackups">
+            <div class="sync-history__item" *ngFor="let backup of provider.backups | slice:0:5">
+              <div class="sync-history__info">
+                <div class="sync-history__date">{{ backup.modified | date: 'd MMMM, HH:mm' }}</div>
+                <div class="sync-history__meta">{{ backup.sizeLabel }} · {{ backup.name }}</div>
+              </div>
+              <button mat-icon-button (click)="restoreSpecific(backup)" [disabled]="isSyncing()"
+                title="Восстановить из этой копии">
+                <mat-icon>settings_backup_restore</mat-icon>
+              </button>
             </div>
-            <button mat-icon-button (click)="restoreSpecific(backup)" [disabled]="isSyncing()"
-              title="Восстановить из этой копии">
-              <mat-icon>settings_backup_restore</mat-icon>
-            </button>
-          </div>
+          </ng-container>
         </div>
 
         <ng-template #noBackups>
