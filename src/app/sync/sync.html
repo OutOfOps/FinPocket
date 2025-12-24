@@ -1,21 +1,115 @@
-<section class="feature-shell">
-  <header class="feature-shell__header">
-    <span class="tag-chip">Синхронизация</span>
-    <h1 class="feature-shell__title">Резервное копирование и восстановление</h1>
-    <p class="feature-shell__subtitle">
-      Делайте регулярные резервные копии FinPocket и восстанавливайте данные с любого устройства.
+<section class="sync-container">
+  <header class="sync-header">
+    <div class="sync-header__badge">Безопасность</div>
+    <h1 class="sync-header__title">Ваши данные — в облаке</h1>
+    <p class="sync-header__subtitle">
+      Безопасно синхронизируйте финансы, долги и счетчики между устройствами через ваш личный Google Drive.
     </p>
-    <div class="feature-shell__actions">
-      <button type="button" (click)="startGoogleAuth()">Подключить Google Drive</button>
-    </div>
   </header>
 
-  <nav class="feature-shell__nav" aria-label="Навигация по разделу">
-    <a mat-button routerLink="list" routerLinkActive="feature-shell__nav-link--active">История</a>
-    <a mat-button routerLink="create" routerLinkActive="feature-shell__nav-link--active">Настройка</a>
-    <a mat-button routerLink="accounts" routerLinkActive="feature-shell__nav-link--active">Аккаунты</a>
-    <a mat-button routerLink="last-restore" routerLinkActive="feature-shell__nav-link--active">Детали</a>
-  </nav>
+  <div class="sync-grid">
+    <!-- КАРТОЧКА СТАТУСА -->
+    <div class="sync-card sync-card--hero" [class.sync-card--connected]="isConnected()">
+      <div class="sync-card__glass"></div>
+      <div class="sync-card__content">
+        <div class="sync-card__status-top">
+          <div class="sync-card__icon-wrap">
+            <mat-icon class="sync-card__cloud-icon">cloud</mat-icon>
+          </div>
+          <div class="sync-card__info">
+            <h2 class="sync-card__provider-name">Google Drive</h2>
+            <div class="sync-card__user" *ngIf="activeProvider()?.user as user">
+              {{ user.email || user.name }}
+            </div>
+            <div class="sync-card__state-label" [class.sync-card__state-label--active]="isConnected()">
+              {{ statusLabel(activeProvider()?.status || 'offline') }}
+            </div>
+          </div>
+        </div>
 
-  <router-outlet></router-outlet>
+        <div class="sync-card__last-sync" *ngIf="activeProvider()?.lastSync">
+          <span>Последнее обновление:</span>
+          <strong>{{ activeProvider()?.lastSync | date: 'd MMM HH:mm' }}</strong>
+        </div>
+
+        <div class="sync-card__actions">
+          @if (!isConnected()) {
+          <button mat-flat-button class="sync-btn sync-btn--primary" (click)="toggleAuth()"
+            [disabled]="isLoading() || isSyncing()">
+            <mat-icon>login</mat-icon> Подключить диск
+          </button>
+          } @else {
+          <button mat-flat-button class="sync-btn sync-btn--primary" (click)="syncNow()" [disabled]="isSyncing()">
+            <mat-icon [class.ani-spin]="isSyncing()">sync</mat-icon>
+            {{ isSyncing() ? 'Синхронизация...' : 'Синхронизировать' }}
+          </button>
+          <button mat-stroked-button class="sync-btn" (click)="restoreLast()"
+            [disabled]="isSyncing() || !activeProvider()?.backups?.length">
+            <mat-icon>history</mat-icon> Последний бэкап
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- КАРТОЧКА НАСТРОЕК -->
+    <div class="sync-card sync-card--settings">
+      <div class="sync-card__glass"></div>
+      <div class="sync-card__content">
+        <h3 class="sync-card__title">Настройки доступа</h3>
+
+        <form #settingsForm="ngForm" (ngSubmit)="saveSettings(settingsForm)" class="sync-form">
+          <mat-form-field appearance="outline" class="sync-form__field">
+            <mat-label>Google Client ID</mat-label>
+            <input matInput name="clientId" [(ngModel)]="gdriveClientId" [pattern]="gdriveClientIdPatternSource"
+              placeholder="123456...apps.googleusercontent.com">
+            <mat-hint>Требуется для работы с вашим Google Drive</mat-hint>
+          </mat-form-field>
+
+          <div class="sync-form__toggles">
+            <mat-slide-toggle name="encryption" [(ngModel)]="encryptionEnabled" color="primary">
+              Шифровать данные (AES-GCM)
+            </mat-slide-toggle>
+          </div>
+
+          <div class="sync-form__actions">
+            <button mat-button type="submit" [disabled]="settingsForm.pristine || isSyncing()">
+              Сохранить настройки
+            </button>
+            <button mat-button color="warn" *ngIf="isConnected()" (click)="toggleAuth()" type="button">
+              Выйти из аккаунта
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- КАРТОЧКА ИСТОРИИ -->
+    <div class="sync-card sync-card--history">
+      <div class="sync-card__glass"></div>
+      <div class="sync-card__content">
+        <h3 class="sync-card__title">Последние копии в облаке</h3>
+
+        <div class="sync-history" *ngIf="activeProvider()?.backups?.length; else noBackups">
+          <div class="sync-history__item" *ngFor="let backup of activeProvider()?.backups | slice:0:5">
+            <div class="sync-history__info">
+              <div class="sync-history__date">{{ backup.modified | date: 'd MMMM, HH:mm' }}</div>
+              <div class="sync-history__meta">{{ backup.sizeLabel }} · {{ backup.name }}</div>
+            </div>
+            <button mat-icon-button (click)="restoreSpecific(backup)" [disabled]="isSyncing()"
+              title="Восстановить из этой копии">
+              <mat-icon>settings_backup_restore</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <ng-template #noBackups>
+          <div class="sync-empty-state">
+            <mat-icon>cloud_off</mat-icon>
+            <p>В облаке пока нет резервных копий</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
 </section>

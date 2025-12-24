@@ -10,15 +10,7 @@ const routes: Routes = [
   {
     path: '',
     component: Sync,
-    children: [
-      { path: '', pathMatch: 'full', redirectTo: 'list' },
-      { path: 'list', component: SyncListComponent },
-      { path: 'create', component: SyncEditComponent },
-      { path: 'accounts', component: SyncAccountComponent },
-      { path: 'last-restore', component: SyncDetailsComponent },
-      { path: ':id/edit', component: SyncEditComponent },
-      { path: ':id', component: SyncDetailsComponent },
-    ],
+    children: [],
   },
 ];
 
@@ -26,4 +18,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class SyncRoutingModule {}
+export class SyncRoutingModule { }
