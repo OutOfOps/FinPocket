@@ -146,6 +146,7 @@ export class SyncService {
 
     // SMART MERGE implementation
     await this.db.transaction('rw', this.db.tables, async () => {
+      console.info('[SyncService] Starting smart merge...');
       await this.mergeTable(this.db.transactions, data.data.transactions);
       await this.mergeTable(this.db.accounts, data.data.accounts);
       await this.mergeTable(this.db.debts, data.data.debts);
@@ -161,6 +162,8 @@ export class SyncService {
       if (data.data.meterResources) await this.mergeTableById(this.db.meterResources, data.data.meterResources);
       if (data.data.meterReadings) await this.mergeTableById(this.db.meterReadings, data.data.meterReadings);
       if (data.data.tariffs) await this.mergeTableById(this.db.tariffs, data.data.tariffs);
+
+      console.info('[SyncService] Smart merge completed.');
     });
   }
 
