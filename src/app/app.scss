@@ -154,3 +154,38 @@
   border-bottom: 1px solid var(--finpocket-border-color);
   text-align: center;
 }
+
+.header-actions {
+  position: relative;
+
+  button {
+    position: relative;
+  }
+
+  .sync-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--finpocket-warning, #ff9800);
+    border-radius: 50%;
+    border: 2px solid var(--finpocket-bg-surface);
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+.spinning {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

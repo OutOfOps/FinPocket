@@ -10,6 +10,10 @@ interface ProviderSettings {
 interface PersistedSyncSettings {
   version: number;
   encryptionEnabled?: boolean;
+  masterPassword?: string;
+  syncIntervalMin?: number; // 0 = disabled
+  retentionDays?: number; // 0 = infinite
+  autoSyncEnabled?: boolean;
   providers: Record<ProviderId, ProviderSettings | undefined>;
 }
 
@@ -77,6 +81,46 @@ export class SyncSettingsService {
         next.providers.gdrive.clientSecret = normalized;
       }
     }
+    this.write(next);
+  }
+
+  getMasterPassword(): string | undefined {
+    return this.read().masterPassword;
+  }
+
+  setMasterPassword(password: string | null | undefined): void {
+    const next = this.read();
+    next.masterPassword = password || undefined;
+    this.write(next);
+  }
+
+  getSyncInterval(): number {
+    return this.read().syncIntervalMin ?? 60; // Default 1 hour
+  }
+
+  setSyncInterval(min: number): void {
+    const next = this.read();
+    next.syncIntervalMin = min;
+    this.write(next);
+  }
+
+  getRetentionDays(): number {
+    return this.read().retentionDays ?? 30; // Default 30 days
+  }
+
+  setRetentionDays(days: number): void {
+    const next = this.read();
+    next.retentionDays = days;
+    this.write(next);
+  }
+
+  getAutoSyncEnabled(): boolean {
+    return this.read().autoSyncEnabled ?? true;
+  }
+
+  setAutoSyncEnabled(enabled: boolean): void {
+    const next = this.read();
+    next.autoSyncEnabled = enabled;
     this.write(next);
   }
 

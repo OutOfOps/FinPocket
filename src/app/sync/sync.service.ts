@@ -20,6 +20,7 @@ import { SyncQueue } from './sync.queue';
 import { CurrencyService, Currency } from '../core/services/currency.service';
 import { OperationAccountsService, OperationAccount } from '../finance/services/operation-accounts.service';
 import { ThemeService, FinpocketTheme } from '../core/services/theme.service';
+import { SyncSettingsService } from './services/sync-settings.service';
 
 export interface BackupData {
   version: string;
@@ -61,6 +62,7 @@ export class SyncService {
   private readonly currencyService = inject(CurrencyService);
   private readonly accountsService = inject(OperationAccountsService);
   private readonly themeService = inject(ThemeService);
+  private readonly settings = inject(SyncSettingsService);
 
   /**
    * Exports all data as an encrypted backup.
@@ -195,6 +197,9 @@ export class SyncService {
       const backup = await this.exportBackup(masterPassphrase);
       const name = `backup-${new Date().toISOString()}.finpocket.json.enc`;
       await provider.uploadBackup(name, backup);
+
+      // Rotation
+      await this.cleanupOldBackups(provider);
     }
 
     if (direction === 'download' || direction === 'two-way') {
@@ -485,5 +490,39 @@ export class SyncService {
       bytes[i] = binary.charCodeAt(i);
     }
     return bytes.buffer;
+  }
+
+  /**
+   * Removes remote backups older than retention period set in settings.
+   */
+  private async cleanupOldBackups(provider: CloudProvider): Promise<void> {
+    const retentionDays = this.settings.getRetentionDays();
+    if (retentionDays <= 0) return; // 0 = infinite retention
+
+    try {
+      const backups = await provider.listBackups();
+      if (backups.length <= 1) return; // Keep at least the latest one
+
+      const now = Date.now();
+      const retentionMs = retentionDays * 24 * 60 * 60 * 1000;
+
+      const toDelete = backups.filter(b => {
+        const age = now - b.modified;
+        return age > retentionMs;
+      });
+
+      if (toDelete.length > 0) {
+        console.log(`[SyncService] Cleaning up ${toDelete.length} old backups...`);
+        for (const b of toDelete) {
+          try {
+            await provider.deleteBackup(b.id);
+          } catch (e) {
+            console.warn(`[SyncService] Failed to delete backup ${b.id}`, e);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[SyncService] Backup cleanup failed', error);
+    }
   }
 }

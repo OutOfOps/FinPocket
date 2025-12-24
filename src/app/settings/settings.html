@@ -265,23 +265,68 @@
 
     <!-- Data & Sync -->
     <section class="settings-section">
-      <h3 class="section-title">Синхронизация</h3>
+      <div class="section-header">
+        <h3 class="section-title">Синхронизация</h3>
+        <button mat-icon-button routerLink="/sync" title="Детальное управление">
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+      </div>
 
       <div class="setting-item column">
-        <span class="setting-label">Google Drive API</span>
-        <input type="text" [ngModel]="syncSettings.getGoogleDriveClientId()"
-          (ngModelChange)="syncSettings.setGoogleDriveClientId($event)" placeholder="Client ID" class="neo-input">
-        <input type="password" [ngModel]="syncSettings.getGoogleDriveClientSecret()"
-          (ngModelChange)="syncSettings.setGoogleDriveClientSecret($event)" placeholder="Client Secret"
-          class="neo-input">
+        <label class="setting-label">Google Drive API</label>
+        <div class="api-inputs">
+          <input type="text" [ngModel]="syncSettings.getGoogleDriveClientId()"
+            (ngModelChange)="syncSettings.setGoogleDriveClientId($event)" placeholder="Client ID" class="neo-input">
+        </div>
+      </div>
+
+      <div class="setting-item column">
+        <label class="setting-label">Мастер-пароль (Ключ шифрования)</label>
+        <div class="password-input-row">
+          <input type="password" [ngModel]="masterPassword()" (ngModelChange)="setMasterPassword($event)"
+            placeholder="Ваш секретный ключ" class="neo-input">
+          <mat-icon class="hint-icon"
+            matTooltip="Пароль хранится локально и используется для автоматической синхронизации">info_outline</mat-icon>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-content">
+          <span class="setting-label">Автоматическая синхронизация</span>
+          <span class="setting-desc">Периодическая проверка изменений</span>
+        </div>
+        <mat-slide-toggle [checked]="autoSyncEnabled()"
+          (change)="setAutoSyncEnabled($event.checked)"></mat-slide-toggle>
+      </div>
+
+      @if (autoSyncEnabled()) {
+      <div class="setting-item column">
+        <label class="setting-label">Интервал проверки (минуты)</label>
+        <div class="slider-row">
+          <mat-slider min="5" max="1440" step="5" discrete>
+            <input matSliderThumb [ngModel]="syncInterval()" (ngModelChange)="setSyncInterval($event)">
+          </mat-slider>
+          <span class="value-label">{{ syncInterval() }} мин.</span>
+        </div>
+      </div>
+      }
+
+      <div class="setting-item column">
+        <label class="setting-label">Срок хранения копий (дней)</label>
+        <div class="slider-row">
+          <mat-slider min="0" max="365" step="1" discrete>
+            <input matSliderThumb [ngModel]="retentionDays()" (ngModelChange)="setRetentionDays($event)">
+          </mat-slider>
+          <span class="value-label">{{ retentionDays() === 0 ? 'Бесконечно' : retentionDays() + ' дн.' }}</span>
+        </div>
       </div>
 
       <div class="actions-row">
         <button mat-stroked-button (click)="downloadBackup()" [disabled]="isExportingData">
-          <mat-icon>download</mat-icon> Скачать бэкап
+          <mat-icon>download</mat-icon> Файл
         </button>
         <button mat-stroked-button (click)="triggerImport()" [disabled]="isImportingData">
-          <mat-icon>upload</mat-icon> Восстановить
+          <mat-icon>upload</mat-icon> Из файла
         </button>
         <input type="file" id="backup-file-input" (change)="onFileSelected($event)" accept=".json"
           style="display: none" />

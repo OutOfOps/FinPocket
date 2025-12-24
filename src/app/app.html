@@ -23,8 +23,14 @@
         </button>
 
         <!-- Sync Button -->
-        <button mat-icon-button routerLink="/sync" matTooltip="Синхронизация">
-          <mat-icon class="icon-gradient">cloud_sync</mat-icon>
+        <button mat-icon-button (click)="triggerSync()" [disabled]="isSyncing()" matTooltip="Синхронизация">
+          <mat-icon class="icon-gradient" [class.spinning]="isSyncing()"
+            [style.color]="hasPendingChanges() ? 'var(--finpocket-warning, #ff9800)' : null">
+            {{ isSyncing() ? 'sync' : 'cloud_sync' }}
+          </mat-icon>
+          @if (hasPendingChanges()) {
+          <span class="sync-dot"></span>
+          }
         </button>
       </div>
     </div>

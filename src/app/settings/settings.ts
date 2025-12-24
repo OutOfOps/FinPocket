@@ -46,6 +46,12 @@ export class Settings {
     return available.find((currency) => currency.id === defaultId) ?? available[0];
   });
 
+  // Sync Settings Proxies
+  protected readonly masterPassword = signal(this.syncSettings.getMasterPassword() || '');
+  protected readonly syncInterval = signal(this.syncSettings.getSyncInterval());
+  protected readonly retentionDays = signal(this.syncSettings.getRetentionDays());
+  protected readonly autoSyncEnabled = signal(this.syncSettings.getAutoSyncEnabled());
+
   protected newCurrency = {
     name: '',
     code: '',
@@ -112,6 +118,26 @@ export class Settings {
     this.currencyService.ensureHryvniaExists();
     // Pre-fetch NBU list for the dropdown
     this.loadNbuList();
+  }
+
+  protected setMasterPassword(val: string): void {
+    this.masterPassword.set(val);
+    this.syncSettings.setMasterPassword(val);
+  }
+
+  protected setSyncInterval(val: number): void {
+    this.syncInterval.set(val);
+    this.syncSettings.setSyncInterval(val);
+  }
+
+  protected setRetentionDays(val: number): void {
+    this.retentionDays.set(val);
+    this.syncSettings.setRetentionDays(val);
+  }
+
+  protected setAutoSyncEnabled(val: boolean): void {
+    this.autoSyncEnabled.set(val);
+    this.syncSettings.setAutoSyncEnabled(val);
   }
 
   protected async loadNbuList(): Promise<void> {

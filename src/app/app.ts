@@ -8,7 +8,11 @@ import { APP_VERSION } from './core/tokens/app-version.token';
 import { GoogleAuthService } from './services/google-auth.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { TemplateRef } from '@angular/core';
+import { TemplateRef, signal, computed } from '@angular/core';
+import { SyncQueue } from './sync/sync.queue';
+import { SyncService } from './sync/sync.service';
+import { SyncSettingsService } from './sync/services/sync-settings.service';
+import { SyncProviderRegistryService } from './sync/services/sync-provider-registry.service';
 
 type NavigationItem = {
   route: string;
@@ -52,6 +56,14 @@ export class App implements OnInit {
   private readonly googleAuth = inject(GoogleAuthService);
   protected readonly bottomSheet = inject(MatBottomSheet);
   private readonly dialog = inject(MatDialog);
+  private readonly syncQueue = inject(SyncQueue);
+  private readonly syncService = inject(SyncService);
+  private readonly syncSettings = inject(SyncSettingsService);
+  private readonly registry = inject(SyncProviderRegistryService);
+
+  // Sync state
+  protected readonly isSyncing = signal(false);
+  protected readonly hasPendingChanges = signal(false);
   private tokenCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly appVersion = inject(APP_VERSION);
@@ -118,6 +130,65 @@ export class App implements OnInit {
     });
 
     void this.ensureGoogleDriveToken();
+    void this.monitorSyncQueue();
+    void this.setupAutoSync();
+  }
+
+  private async monitorSyncQueue(): Promise<void> {
+    // Basic polling for queue status to update the dot
+    const check = async () => {
+      const pending = await this.syncQueue.getPending();
+      this.hasPendingChanges.set(pending.length > 0);
+    };
+
+    await check();
+    setInterval(check, 5000);
+  }
+
+  protected async triggerSync(): Promise<void> {
+    if (this.isSyncing()) return;
+
+    const providerId = 'gdrive'; // Default
+    const provider = this.registry.getProvider(providerId);
+    if (!provider) {
+      this.snackBar.open('Настройте Google Drive в настройках', 'ОК', { duration: 3000 });
+      return;
+    }
+
+    const passphrase = this.syncSettings.getMasterPassword();
+    if (!passphrase) {
+      this.snackBar.open('Введите мастер-пароль в настройках', 'ОК', { duration: 3000 });
+      return;
+    }
+
+    this.isSyncing.set(true);
+    try {
+      await this.syncService.twoWaySync(provider, passphrase, 'two-way');
+      this.snackBar.open('Синхронизация выполнена', undefined, { duration: 2000 });
+      this.hasPendingChanges.set(false);
+    } catch (error: any) {
+      console.error('[App] Sync failed', error);
+      this.snackBar.open(`Ошибка: ${error.message || 'неизвестно'}`, 'ОК', { duration: 5000 });
+    } finally {
+      this.isSyncing.set(false);
+    }
+  }
+
+  private setupAutoSync(): void {
+    const run = async () => {
+      if (!this.syncSettings.getAutoSyncEnabled() || this.isSyncing()) return;
+
+      const interval = this.syncSettings.getSyncInterval();
+      if (interval <= 0) return;
+
+      console.log(`[AutoSync] Running periodic check...`);
+      await this.triggerSync();
+    };
+
+    const intervalMin = this.syncSettings.getSyncInterval();
+    if (intervalMin > 0) {
+      setInterval(() => run(), intervalMin * 60 * 1000);
+    }
   }
 
 

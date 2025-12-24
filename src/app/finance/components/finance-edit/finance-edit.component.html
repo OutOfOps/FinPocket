@@ -38,7 +38,9 @@
               <mat-icon class="account-option__icon">{{ acc.type === 'bank' ? 'credit_card' : 'payments' }}</mat-icon>
               <div class="account-option__info">
                 <span class="account-option__name">{{ acc.name }}</span>
-                <span class="account-option__bank" *ngIf="acc.bankName">{{ acc.bankName }}</span>
+                @if (acc.bankName) {
+                <span class="account-option__bank">{{ acc.bankName }}</span>
+                }
               </div>
             </div>
           </mat-option>
@@ -62,7 +64,9 @@
               <mat-icon class="account-option__icon">{{ acc.type === 'bank' ? 'credit_card' : 'payments' }}</mat-icon>
               <div class="account-option__info">
                 <span class="account-option__name">{{ acc.name }}</span>
-                <span class="account-option__bank" *ngIf="acc.bankName">{{ acc.bankName }}</span>
+                @if (acc.bankName) {
+                <span class="account-option__bank">{{ acc.bankName }}</span>
+                }
               </div>
             </div>
           </mat-option>
@@ -105,7 +109,9 @@
             <mat-icon class="account-option__icon">{{ acc.type === 'bank' ? 'credit_card' : 'payments' }}</mat-icon>
             <div class="account-option__info">
               <span class="account-option__name">{{ acc.name }}</span>
-              <span class="account-option__bank" *ngIf="acc.bankName">{{ acc.bankName }}</span>
+              @if (acc.bankName) {
+              <span class="account-option__bank">{{ acc.bankName }}</span>
+              }
             </div>
           </div>
         </mat-option>
