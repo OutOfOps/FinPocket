@@ -146,7 +146,7 @@ export class StorageService {
 
   // Objects (Residences)
   getMeterObjects(): Promise<MeterObjectEntity[]> {
-    return this.db.meterObjects.toArray();
+    return this.db.meterObjects.where('deleted').notEqual(1).toArray();
   }
 
   addMeterObject(item: MeterObjectEntity): Promise<string> {
@@ -166,7 +166,7 @@ export class StorageService {
 
   // Resources (Counters)
   getMeterResources(): Promise<MeterResourceEntity[]> {
-    return this.db.meterResources.toArray();
+    return this.db.meterResources.where('deleted').notEqual(1).toArray();
   }
 
   addMeterResource(item: MeterResourceEntity): Promise<string> {
@@ -186,7 +186,7 @@ export class StorageService {
 
   // Readings V2
   getMeterReadingsV2(): Promise<MeterReadingRecord[]> {
-    return this.db.meterReadings.toArray();
+    return this.db.meterReadings.where('deleted').notEqual(1).toArray();
   }
 
   addMeterReadingV2(item: MeterReadingRecord): Promise<string> {
@@ -206,7 +206,7 @@ export class StorageService {
 
   // Tariffs
   getTariffs(): Promise<TariffEntity[]> {
-    return this.db.tariffs.toArray();
+    return this.db.tariffs.where('deleted').notEqual(1).toArray();
   }
 
   addTariff(item: TariffEntity): Promise<string> {

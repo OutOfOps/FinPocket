@@ -15,6 +15,7 @@ import { FinPocketDB, BackupEntity } from '../core/services/finpocket-db.service
 import { MetersStore } from '../meters/services/meters-store.service';
 import { TransactionsStore } from '../finance/services/transactions.store';
 import { SubscriptionsStore } from '../finance/services/subscriptions.store';
+import { DebtsStore } from '../debts/services/debts.store';
 import { ConfirmDialogComponent } from '../shared/components/confirm-dialog/confirm-dialog.component';
 import { GDRIVE_CLIENT_ID_PATTERN } from './gdrive.provider';
 
@@ -68,6 +69,7 @@ export class Sync implements OnDestroy {
   private readonly metersStore = inject(MetersStore);
   private readonly transactionsStore = inject(TransactionsStore);
   private readonly subscriptionsStore = inject(SubscriptionsStore);
+  private readonly debtsStore = inject(DebtsStore);
 
   // State Signals
   readonly isLoading = signal(false);
@@ -181,6 +183,7 @@ export class Sync implements OnDestroy {
       await this.metersStore.refresh();
       await this.transactionsStore.refresh();
       await this.subscriptionsStore.refresh();
+      await this.debtsStore.refresh();
     });
   }
 
@@ -196,6 +199,7 @@ export class Sync implements OnDestroy {
       await this.metersStore.refresh();
       await this.transactionsStore.refresh();
       await this.subscriptionsStore.refresh();
+      await this.debtsStore.refresh();
     });
   }
 
@@ -210,6 +214,7 @@ export class Sync implements OnDestroy {
       await this.metersStore.refresh();
       await this.transactionsStore.refresh();
       await this.subscriptionsStore.refresh();
+      await this.debtsStore.refresh();
     });
   }
 
