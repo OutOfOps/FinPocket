@@ -34,7 +34,9 @@ export class MetersListComponent {
   private changeMonth(delta: number): void {
     const [year, month] = this.selectedMonth().split('-').map(Number);
     const date = new Date(year, month - 1 + delta, 1);
-    const nextMonth = date.toISOString().slice(0, 7);
+    const nextYear = date.getFullYear();
+    const nextMonthVal = date.getMonth() + 1;
+    const nextMonth = `${nextYear}-${String(nextMonthVal).padStart(2, '0')}`;
     this.store.setMonth(nextMonth);
   }
 
