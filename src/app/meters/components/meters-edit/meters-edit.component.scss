@@ -99,6 +99,27 @@
       font-size: 12px;
       color: var(--finpocket-muted);
     }
+
+    .neo-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      color: var(--finpocket-text);
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+      transition: all 0.2s;
+
+      &:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--finpocket-primary-color);
+        transform: scale(1.01);
+      }
+    }
   }
 
   /* Summary Card */

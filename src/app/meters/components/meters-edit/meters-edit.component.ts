@@ -144,6 +144,12 @@ export class MetersEditComponent implements OnInit {
     }
   }
 
+  selectValue(event: any): void {
+    if (event.target && event.target.select) {
+      event.target.select();
+    }
+  }
+
   get zones(): ZoneViewModel[] {
     if (!this.selectedResource) {
       return [];

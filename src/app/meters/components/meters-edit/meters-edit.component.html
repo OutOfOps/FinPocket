@@ -49,7 +49,7 @@
       </div>
 
       <input type="number" class="neo-input" [ngModel]="item.current"
-        (ngModelChange)="updateZoneValue(item.zone.id, $event)" placeholder="0" />
+        (ngModelChange)="updateZoneValue(item.zone.id, $event)" (focus)="selectValue($event)" placeholder="0" />
 
       @if (item.previous !== undefined) {
       <div class="zone-input-card__previous">
